@@ -1,0 +1,533 @@
+from rest_framework import viewsets, status, filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Sum, Count, Avg, Q, Min, Max
+from django.db import models
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.http import StreamingHttpResponse
+import re
+from django.core.paginator import Paginator
+import os
+
+from .models import Contract, Organization, Contractor, BusinessCategory, AreaOfDelivery, DataImport
+from .serializers import (
+    ContractListSerializer, ContractDetailSerializer, ContractCreateSerializer,
+    OrganizationSerializer, ContractorSerializer, BusinessCategorySerializer,
+    AreaOfDeliverySerializer, DataImportSerializer, ContractStatsSerializer
+)
+from .filters import ContractFilter
+from .parquet_search import ParquetSearchService
+
+
+class ContractViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing contracts"""
+    queryset = Contract.objects.select_related(
+        'organization', 'contractor', 'business_category', 'area_of_delivery'
+    ).all()
+    permission_classes = [AllowAny]  # Allow public access for search functionality
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = ContractFilter
+    search_fields = [
+        'notice_title', 'award_title', 'reference_id', 'contract_no',
+        'organization__name', 'contractor__name', 'business_category__name'
+    ]
+    ordering_fields = [
+        'award_date', 'contract_amount', 'created_at', 'reference_id'
+    ]
+    ordering = ['-award_date']
+    
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ContractListSerializer
+        elif self.action == 'create':
+            return ContractCreateSerializer
+        return ContractDetailSerializer
+    
+    @action(detail=False, methods=['post'], url_path='advanced-search')
+    def advanced_search(self, request):
+        """
+        Advanced search for contracts with multiple criteria using ALL parquet data
+        """
+        try:
+            # Extract search parameters
+            contractor = request.data.get('contractor', '').strip()
+            area = request.data.get('area', '').strip()
+            organization = request.data.get('organization', '').strip()
+            business_category = request.data.get('business_category', '').strip()
+            keywords = request.data.get('keywords', '').strip()
+            time_range = request.data.get('time_range', {})
+            page = int(request.data.get('page', 1))
+            page_size = int(request.data.get('page_size', 20))
+            sort_by = request.data.get('sortBy', 'award_date')
+            sort_direction = request.data.get('sortDirection', 'desc')
+            
+            # Extract date range from time_range
+            year_start = None
+            year_end = None
+            start_date = None
+            end_date = None
+            
+            if isinstance(time_range, dict):
+                if time_range.get('type') == 'yearly' and time_range.get('year'):
+                    year_start = time_range.get('year')
+                    year_end = time_range.get('year')
+                elif time_range.get('type') == 'quarterly' and time_range.get('year'):
+                    year_start = time_range.get('year')
+                    year_end = time_range.get('year')
+                elif time_range.get('type') == 'custom':
+                    start_date = time_range.get('startDate')
+                    end_date = time_range.get('endDate')
+            
+            # Use parquet search service to search ALL contracts
+            parquet_service = ParquetSearchService()
+            result = parquet_service.search_contracts(
+                keywords=keywords,
+                contractor=contractor,
+                area=area,
+                organization=organization,
+                business_category=business_category,
+                year_start=year_start,
+                year_end=year_end,
+                start_date=start_date,
+                end_date=end_date,
+                page=page,
+                page_size=page_size,
+                sort_by=sort_by,
+                sort_direction=sort_direction
+            )
+            
+            if result['success']:
+                return Response({
+                    'success': True,
+                    'data': result['data'],
+                    'pagination': result['pagination']
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'success': False,
+                    'error': result.get('error', 'Search failed'),
+                    'data': [],
+                    'pagination': result['pagination']
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e),
+                'message': 'An error occurred during search'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'], url_path='chip-search')
+    def chip_search(self, request):
+        """
+        Advanced search with filter chips (multiple values per filter type)
+        """
+        try:
+            # Extract search parameters
+            contractors = request.data.get('contractors', [])
+            areas = request.data.get('areas', [])
+            organizations = request.data.get('organizations', [])
+            business_categories = request.data.get('business_categories', [])
+            keywords = request.data.get('keywords', [])
+            time_ranges = request.data.get('time_ranges', [])
+            page = int(request.data.get('page', 1))
+            page_size = int(request.data.get('page_size', 20))
+            sort_by = request.data.get('sortBy', 'award_date')
+            sort_direction = request.data.get('sortDirection', 'desc')
+            include_flood_control = request.data.get('include_flood_control', False)
+            
+            # Use parquet search service to search ALL contracts with chip logic
+            parquet_service = ParquetSearchService()
+            result = parquet_service.search_contracts_with_chips(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                page=page,
+                page_size=page_size,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
+                include_flood_control=include_flood_control
+            )
+            
+            if result['success']:
+                return Response({
+                    'success': True,
+                    'data': result['data'],
+                    'pagination': result['pagination']
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'success': False,
+                    'error': result.get('error', 'Search failed'),
+                    'data': [],
+                    'pagination': result['pagination']
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e),
+                'message': 'An error occurred during search'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='chip-aggregates')
+    def chip_aggregates(self, request):
+        """Aggregates for charts using same chip filters."""
+        try:
+            contractors = request.data.get('contractors', [])
+            areas = request.data.get('areas', [])
+            organizations = request.data.get('organizations', [])
+            business_categories = request.data.get('business_categories', [])
+            keywords = request.data.get('keywords', [])
+            time_ranges = request.data.get('time_ranges', [])
+            topN = request.data.get('topN', 20)
+            include_flood_control = request.data.get('include_flood_control', False)
+
+            parquet_service = ParquetSearchService()
+            result = parquet_service.chip_aggregates(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                topN=topN,
+                include_flood_control=include_flood_control
+            )
+            if result.get('success'):
+                return Response({'success': True, 'data': result['data']}, status=status.HTTP_200_OK)
+            return Response({'success': False, 'error': result.get('error', 'Aggregation failed')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='chip-aggregates-paginated')
+    def chip_aggregates_paginated(self, request):
+        """Paginated aggregates for analytics table using chip filters."""
+        try:
+            contractors = request.data.get('contractors', [])
+            areas = request.data.get('areas', [])
+            organizations = request.data.get('organizations', [])
+            business_categories = request.data.get('business_categories', [])
+            keywords = request.data.get('keywords', [])
+            time_ranges = request.data.get('time_ranges', [])
+            page = request.data.get('page', 1)
+            page_size = request.data.get('page_size', 20)
+            dimension = request.data.get('dimension', 'by_contractor')
+            sort_by = request.data.get('sort_by', 'total_value')
+            sort_direction = request.data.get('sort_direction', 'desc')
+            include_flood_control = request.data.get('include_flood_control', False)
+
+            parquet_service = ParquetSearchService()
+            result = parquet_service.chip_aggregates_paginated(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                page=page,
+                page_size=page_size,
+                dimension=dimension,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
+                include_flood_control=include_flood_control
+            )
+            if result.get('success'):
+                return Response({
+                    'success': True, 
+                    'data': result['data'],
+                    'pagination': result['pagination']
+                }, status=status.HTTP_200_OK)
+            return Response({'success': False, 'error': result.get('error', 'Paginated aggregation failed')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='chip-export-estimate')
+    def chip_export_estimate(self, request):
+        try:
+            contractors = request.data.get('contractors', [])
+            areas = request.data.get('areas', [])
+            organizations = request.data.get('organizations', [])
+            business_categories = request.data.get('business_categories', [])
+            keywords = request.data.get('keywords', [])
+            time_ranges = request.data.get('time_ranges', [])
+
+            parquet_service = ParquetSearchService()
+            # Count
+            result = parquet_service.search_contracts_with_chips(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                page=1,
+                page_size=1,
+                sort_by='award_date',
+                sort_direction='desc'
+            )
+            total = result['pagination']['total_count'] if result.get('pagination') else 0
+            # Sample up to 100 rows
+            sample_size = min(100, max(1, total))
+            sample = parquet_service.search_contracts_with_chips(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                page=1,
+                page_size=sample_size,
+                sort_by='award_date',
+                sort_direction='desc'
+            )
+            rows = sample.get('data', [])
+            headers = [
+                'reference_id','contract_no','award_title','notice_title','awardee_name',
+                'organization_name','area_of_delivery','business_category','contract_amount','award_date','award_status'
+            ]
+            def esc(v):
+                s = '' if v is None else str(v)
+                s = s.replace('"','""')
+                return f'"{s}"' if (',' in s or '"' in s or '\n' in s) else s
+            def row_to_csv(r):
+                vals = [
+                    r.get('reference_id') or '',
+                    r.get('contract_no') or '',
+                    r.get('award_title') or '',
+                    r.get('notice_title') or '',
+                    r.get('awardee_name') or '',
+                    r.get('organization_name') or '',
+                    r.get('area_of_delivery') or '',
+                    r.get('business_category') or '',
+                    r.get('contract_amount') or '',
+                    r.get('award_date') or '',
+                    r.get('award_status') or ''
+                ]
+                return ','.join(esc(v) for v in vals)
+            avg_row = 100.0
+            if rows:
+                csv_rows = [row_to_csv(r) for r in rows]
+                avg_row = sum(len(s) for s in csv_rows) / len(csv_rows) + 1 + len(','.join(headers)) / max(1,len(csv_rows))
+            estimated_bytes = int(total * avg_row)
+            return Response({'success': True, 'total_count': total, 'estimated_csv_bytes': estimated_bytes})
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='chip-export')
+    def chip_export(self, request):
+        try:
+            contractors = request.data.get('contractors', [])
+            areas = request.data.get('areas', [])
+            organizations = request.data.get('organizations', [])
+            business_categories = request.data.get('business_categories', [])
+            keywords = request.data.get('keywords', [])
+            time_ranges = request.data.get('time_ranges', [])
+
+            parquet_service = ParquetSearchService()
+            headers = [
+                'reference_id','contract_no','award_title','notice_title','awardee_name',
+                'organization_name','area_of_delivery','business_category','contract_amount','award_date','award_status'
+            ]
+            def esc(v):
+                s = '' if v is None else str(v)
+                s = s.replace('"','""')
+                return f'"{s}"' if (',' in s or '"' in s or '\n' in s) else s
+            def row_to_csv(r):
+                vals = [
+                    r.get('reference_id') or '',
+                    r.get('contract_no') or '',
+                    r.get('award_title') or '',
+                    r.get('notice_title') or '',
+                    r.get('awardee_name') or '',
+                    r.get('organization_name') or '',
+                    r.get('area_of_delivery') or '',
+                    r.get('business_category') or '',
+                    r.get('contract_amount') or '',
+                    r.get('award_date') or '',
+                    r.get('award_status') or ''
+                ]
+                return ','.join(esc(v) for v in vals)
+
+            def generate():
+                yield ','.join(headers) + '\n'
+                page = 1
+                page_size = 1000
+                while True:
+                    result = parquet_service.search_contracts_with_chips(
+                        contractors=contractors,
+                        areas=areas,
+                        organizations=organizations,
+                        business_categories=business_categories,
+                        keywords=keywords,
+                        time_ranges=time_ranges,
+                        page=page,
+                        page_size=page_size,
+                        sort_by='award_date',
+                        sort_direction='desc'
+                    )
+                    rows = result.get('data', [])
+                    if not rows:
+                        break
+                    for r in rows:
+                        yield row_to_csv(r) + '\n'
+                    if len(rows) < page_size:
+                        break
+                    page += 1
+
+            response = StreamingHttpResponse(generate(), content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="contracts_export.csv"'
+            return response
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'], url_path='filter-options')
+    def filter_options(self, request):
+        """
+        Get filter options for advanced search dropdowns from ALL parquet data
+        """
+        try:
+            # Use parquet search service to get filter options from ALL data
+            parquet_service = ParquetSearchService()
+            filter_options = parquet_service.get_filter_options()
+            
+            return Response({
+                'success': True,
+                'data': filter_options
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e),
+                'message': 'Failed to load filter options'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for organizations"""
+    queryset = Organization.objects.prefetch_related('contracts').all()
+    serializer_class = OrganizationSerializer
+    permission_classes = [AllowAny]  # Allow public access for search functionality
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def list(self, request, *args, **kwargs):
+        word = request.query_params.get('word', '').strip()
+        if not word:
+            return super().list(request, *args, **kwargs)
+
+        # Prefilter in DB, refine in Python for whole-word match
+        base = self.get_queryset().filter(name__icontains=word).values('id', 'name')
+        word_pattern = re.compile(rf'(?i)(^|\W){re.escape(word)}($|\W)')
+        matched_ids = [row['id'] for row in base if word_pattern.search(row['name'] or '')]
+
+        qs = self.get_queryset().filter(id__in=matched_ids).order_by('name')
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class ContractorViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for contractors"""
+    queryset = Contractor.objects.prefetch_related('contracts').all()
+    serializer_class = ContractorSerializer
+    permission_classes = [AllowAny]  # Allow public access for search functionality
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def list(self, request, *args, **kwargs):
+        word = request.query_params.get('word', '').strip()
+        if not word:
+            return super().list(request, *args, **kwargs)
+
+        base = self.get_queryset().filter(name__icontains=word).values('id', 'name')
+        word_pattern = re.compile(rf'(?i)(^|\W){re.escape(word)}($|\W)')
+        matched_ids = [row['id'] for row in base if word_pattern.search(row['name'] or '')]
+
+        qs = self.get_queryset().filter(id__in=matched_ids).order_by('name')
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class BusinessCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for business categories"""
+    queryset = BusinessCategory.objects.prefetch_related('contracts').all()
+    serializer_class = BusinessCategorySerializer
+    permission_classes = [AllowAny]  # Allow public access for search functionality
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def list(self, request, *args, **kwargs):
+        word = request.query_params.get('word', '').strip()
+        if not word:
+            return super().list(request, *args, **kwargs)
+
+        base = self.get_queryset().filter(name__icontains=word).values('id', 'name')
+        word_pattern = re.compile(rf'(?i)(^|\W){re.escape(word)}($|\W)')
+        matched_ids = [row['id'] for row in base if word_pattern.search(row['name'] or '')]
+
+        qs = self.get_queryset().filter(id__in=matched_ids).order_by('name')
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class AreaOfDeliveryViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for areas of delivery"""
+    queryset = AreaOfDelivery.objects.prefetch_related('contracts').all()
+    serializer_class = AreaOfDeliverySerializer
+    permission_classes = [AllowAny]  # Allow public access for search functionality
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def list(self, request, *args, **kwargs):
+        word = request.query_params.get('word', '').strip()
+        if not word:
+            return super().list(request, *args, **kwargs)
+
+        base = self.get_queryset().filter(name__icontains=word).values('id', 'name')
+        word_pattern = re.compile(rf'(?i)(^|\W){re.escape(word)}($|\W)')
+        matched_ids = [row['id'] for row in base if word_pattern.search(row['name'] or '')]
+
+        qs = self.get_queryset().filter(id__in=matched_ids).order_by('name')
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class DataImportViewSet(viewsets.ModelViewSet):
+    """ViewSet for data imports"""
+    queryset = DataImport.objects.all()
+    serializer_class = DataImportSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['started_at', 'status']
+    ordering = ['-started_at']
