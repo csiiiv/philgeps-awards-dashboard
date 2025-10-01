@@ -66,10 +66,12 @@ log_debug() { $DEBUG_MODE && _log "DEBUG" "$*" || true; }
 
 # --- Arg Parsing ---
 COMMAND="start"
+
 SKIP_BUILD=false
 SKIP_MIGRATE=false
 RUN_ONLY=false
 FORCE=false
+FORCE_NPM_INSTALL=false
 
 show_help() {
   cat <<EOF
@@ -118,6 +120,7 @@ while [[ $# -gt 0 ]]; do
     --skip-migrate) SKIP_MIGRATE=true; shift;;
     --run-only) RUN_ONLY=true; SKIP_BUILD=true; SKIP_MIGRATE=true; shift;;
     --force) FORCE=true; shift;;
+    --force-npm-install) FORCE_NPM_INSTALL=true; shift;;
     --debug) DEBUG_MODE=true; shift;;
     -h|--help) COMMAND="help"; shift;;
     *) log_error "Unknown option: $1"; show_help; exit 1;;
@@ -159,8 +162,12 @@ build_frontend() {
   fi
   log_info "Building React frontend..."
   pushd "$PROD_DIR/frontend" >/dev/null
-  if [[ ! -d node_modules ]]; then
-    log_info "Installing frontend dependencies with 'npm install'..."
+  if [[ ! -d node_modules || $FORCE_NPM_INSTALL == true ]]; then
+    if $FORCE_NPM_INSTALL; then
+      log_info "--force-npm-install specified: running 'npm install' regardless of node_modules presence..."
+    else
+      log_info "Installing frontend dependencies with 'npm install'..."
+    fi
     npm install
   else
     log_info "Frontend dependencies already installed."
@@ -318,8 +325,12 @@ start_frontend_server() {
 
   local frontend_dir="$PROD_DIR/frontend"
   pushd "$frontend_dir" >/dev/null
-  if [[ ! -d node_modules ]]; then
-    log_info "Installing frontend dependencies with 'npm install'..."
+  if [[ ! -d node_modules || $FORCE_NPM_INSTALL == true ]]; then
+    if $FORCE_NPM_INSTALL; then
+      log_info "--force-npm-install specified: running 'npm install' regardless of node_modules presence..."
+    else
+      log_info "Installing frontend dependencies with 'npm install'..."
+    fi
     npm install
   fi
 

@@ -32,8 +32,8 @@ LOCAL_API_URL="http://localhost:$BACKEND_PORT"  # Local backend
 CUSTOM_API_URL="https://philgeps-api-2.simple-systems.dev"  # API subdomain (preferred)
 
 # Port Configuration - Configure these as needed:
-BACKEND_PORT="3200"  # Django backend port
-FRONTEND_PORT="3000"  # React frontend port
+BACKEND_PORT="3201"  # Django backend port
+FRONTEND_PORT="3001"  # React frontend port
 
 # =============================================================================
 # SCRIPT LOGIC - Don't edit below this line
