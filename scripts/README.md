@@ -2,6 +2,40 @@
 
 This directory contains Python scripts for data processing, maintenance, and utility functions for the PhilGEPS Dashboard.
 
+## 📚 **Documentation**
+
+- **[DATA_PIPELINE.md](./DATA_PIPELINE.md)** - Complete data pipeline documentation from raw sources to final outputs
+- **[README.md](./README.md)** - This file - Script directory overview and usage
+
+## 🚀 **Quick Start**
+
+### **Complete Data Rebuild**
+```bash
+# 1. Rebuild complete dataset
+python scripts/rebuild_step_by_step.py
+
+# 2. Fix date formats
+python scripts/fix_date_formats.py
+
+# 3. Generate clean awarded contracts
+python scripts/generate_clean_awarded_contracts.py
+
+# 4. Generate all aggregations
+python scripts/core/generate_unified_parquet_data.py
+
+# 5. Regenerate optimized files
+python scripts/regenerate_optimized_files.py
+```
+
+### **Maintenance Tasks**
+```bash
+# Regenerate aggregations only
+python scripts/core/generate_unified_parquet_data.py
+
+# Cleanup old files
+python scripts/cleanup_quarterly_raw_files.py --confirm
+```
+
 ## 📁 Directory Structure
 
 ### Active Core Scripts
