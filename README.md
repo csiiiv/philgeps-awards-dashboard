@@ -1,5 +1,10 @@
 # PhilGEPS Dashboard
 
+[![Version](https://img.shields.io/badge/version-3.0.2-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Data](https://img.shields.io/badge/data-15.5M%20records-orange.svg)](data/)
+[![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
+
 A comprehensive government procurement analytics dashboard for the Philippines Government Electronic Procurement System (PhilGEPS). This application provides detailed insights into government contracts, spending patterns, and procurement analytics.
 
 ## 📊 **Data Overview**
@@ -15,7 +20,7 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 
 ## ✨ Recent Updates
 
-### **v2.0 - Enhanced Analytics & Data Pipeline (January 2025)**
+### **v3.0.2 - Data Clarity & Documentation (January 2025)**
 - **📈 Trend Charts**: Added interactive quarterly/yearly trend charts in drill-down modals
 - **🔄 Complete Data Rebuild**: Consolidated 2013-2025 dataset with 15.5M+ records
 - **📊 Enhanced Analytics**: Individual entity trend analysis with complete dataset processing
@@ -24,6 +29,8 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **🔧 Maintenance**: Automated cleanup and optimization scripts
 
 ### **Key Improvements**
+- **Data Clarity**: Clear distinction between all records (15.5M) and awarded contracts (5.0M)
+- **Financial Transparency**: Added ₱14.8T+ total value tracking for awarded contracts
 - **Data Coverage**: Extended from 2013-2021 to 2013-2025 (13 years)
 - **Performance**: Optimized search and analytics with DuckDB integration
 - **User Experience**: Enhanced drill-down modals with embedded trend charts
@@ -387,6 +394,7 @@ Raw Data (XLSX/CSV) → Processing Scripts → Consolidated Data → Aggregation
 - [Data Structure](data/README.md) - Data format and organization
 - [Component Documentation](frontend/src/components/README.md) - Frontend components
 - [Scripts Documentation](scripts/README.md) - Data processing scripts guide
+- [Changelog](CHANGELOG.md) - Complete version history and changes
 - [GitHub Setup Guide](GITHUB_SETUP.md) - Repository setup instructions
 
 ## 🤝 Contributing
