@@ -34,8 +34,8 @@ export const AnalyticsControls: React.FC<AnalyticsControlsProps> = ({
   const theme = getThemeColors(darkMode)
 
   const currentYear = new Date().getFullYear()
-  // Generate years from 2015 to 2025 (11 years total)
-  const years = Array.from({ length: 11 }, (_, i) => 2015 + i)
+  // Generate years from 2013 to 2027 (15 years total)
+  const years = Array.from({ length: 15 }, (_, i) => 2013 + i)
 
   return (
     <FiltersContainer $isDark={darkMode}>

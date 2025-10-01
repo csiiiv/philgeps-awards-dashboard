@@ -248,8 +248,8 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
     { value: 'categories', label: 'Categories' },
   ]
 
-  // Year options (2013-2025)
-  const yearOptions = Array.from({ length: 13 }, (_, i) => 2013 + i).reverse()
+  // Year options (2013-2027)
+  const yearOptions = Array.from({ length: 15 }, (_, i) => 2013 + i).reverse()
 
   // Quarter options
   const quarterOptions = [

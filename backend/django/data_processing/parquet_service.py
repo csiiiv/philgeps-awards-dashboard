@@ -67,9 +67,13 @@ class ParquetDataService:
             # Map entity types to file names (not column names)
             entity_mapping = {
                 'contractors': 'contractor',
-                'areas': 'area', 
+                'contractor': 'contractor',  # Add singular form
+                'areas': 'area',
+                'area': 'area',  # Add singular form
                 'organizations': 'organization',
-                'categories': 'business_category'
+                'organization': 'organization',  # Add singular form
+                'categories': 'business_category',
+                'business_category': 'business_category'  # Add singular form
             }
             
             # For custom time range, we need to query the facts table directly
@@ -77,9 +81,13 @@ class ParquetDataService:
                 # Map entity types to column names for custom queries
                 column_mapping = {
                     'contractors': 'awardee_name',
-                    'areas': 'area_of_delivery', 
+                    'contractor': 'awardee_name',  # Add singular form
+                    'areas': 'area_of_delivery',
+                    'area': 'area_of_delivery',  # Add singular form
                     'organizations': 'organization_name',
-                    'categories': 'business_category'
+                    'organization': 'organization_name',  # Add singular form
+                    'categories': 'business_category',
+                    'business_category': 'business_category'  # Add singular form
                 }
                 return self._query_custom_time_range(
                     entity_type, column_mapping[entity_type], page_index, page_size,

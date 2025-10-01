@@ -6,6 +6,7 @@ import { ContractsTable } from '../shared/ContractsTable'
 import { EntitiesTable } from '../shared/EntitiesTable'
 import { ExportCSVModal } from '../shared/ExportCSVModal'
 import { AccessibleButton } from '../shared/AccessibleButton'
+import { QuarterlyTrendsChart } from '../../charts/QuarterlyTrendsChart'
 
 export interface SearchResult {
   id: number
@@ -20,6 +21,7 @@ export interface SearchResult {
   award_amount: number
   award_status: string
   contract_no: string
+  award_date: string
   created_at: string
 }
 
@@ -74,6 +76,123 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     return allTabs.filter(t => t === 'contracts' || t !== hide)
   }, [entityType])
   const [activeTab, setActiveTab] = useState<DrillTab>('contracts')
+
+  // State for trend chart data (all filtered contracts, not just paginated)
+  const [trendData, setTrendData] = useState<SearchResult[]>([])
+  const [trendDataLoading, setTrendDataLoading] = useState(false)
+
+  // Fetch all contracts for trend chart (not paginated)
+  const fetchAllContractsForTrends = async () => {
+    if (!open) return
+
+    setTrendDataLoading(true)
+    try {
+      // Create filters for the specific entity
+      const entityFilters = {
+        ...currentFilters,
+        [entityType === 'contractor' ? 'contractors' : 
+         entityType === 'organization' ? 'organizations' :
+         entityType === 'area' ? 'areas' : 'business_categories']: [entityName]
+      }
+
+      const searchParams = {
+        ...entityFilters,
+        page: 1,
+        pageSize: 10000, // Large page size to get all results
+        sortBy: 'award_date',
+        sortDirection: 'desc',
+        includeFloodControl: currentFilters.includeFloodControl || false
+      }
+
+      const response = await advancedSearchService.searchContractsWithChips(searchParams)
+      
+      if (response.success) {
+        setTrendData(response.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching all contracts for trends:', error)
+    } finally {
+      setTrendDataLoading(false)
+    }
+  }
+
+  // Process contract data for trend charts using all filtered data
+  const processContractDataForTrends = useMemo(() => {
+    if (!trendData || trendData.length === 0) {
+      return { quarterlyData: [], yearlyData: [] }
+    }
+
+    // Group contracts by year and quarter
+    const quarterlyMap = new Map<string, { year: number, quarter: number, total_value: number, contract_count: number }>()
+    const yearlyMap = new Map<number, { year: number, total_value: number, contract_count: number }>()
+
+    let validContracts = 0
+    let invalidDates = 0
+    let missingAmounts = 0
+
+    trendData.forEach(contract => {
+      // Convert contract_amount to number
+      const amount = parseFloat(contract.contract_amount)
+      if (!amount || isNaN(amount)) {
+        missingAmounts++
+        return
+      }
+
+      if (!contract.award_date) {
+        invalidDates++
+        return
+      }
+
+      try {
+        const date = new Date(contract.award_date)
+        if (isNaN(date.getTime())) {
+          invalidDates++
+          return
+        }
+
+        validContracts++
+        const year = date.getFullYear()
+        const month = date.getMonth() + 1
+        const quarter = month <= 3 ? 1 : month <= 6 ? 2 : month <= 9 ? 3 : 4
+
+        // Quarterly data
+        const quarterlyKey = `${year}-${quarter}`
+        if (quarterlyMap.has(quarterlyKey)) {
+          const existing = quarterlyMap.get(quarterlyKey)!
+          existing.total_value += amount
+          existing.contract_count += 1
+        } else {
+          quarterlyMap.set(quarterlyKey, {
+            year,
+            quarter,
+            total_value: amount,
+            contract_count: 1
+          })
+        }
+
+        // Yearly data
+        if (yearlyMap.has(year)) {
+          const existing = yearlyMap.get(year)!
+          existing.total_value += amount
+          existing.contract_count += 1
+        } else {
+          yearlyMap.set(year, {
+            year,
+            total_value: amount,
+            contract_count: 1
+          })
+        }
+      } catch (error) {
+        invalidDates++
+      }
+    })
+
+
+    return {
+      quarterlyData: Array.from(quarterlyMap.values()),
+      yearlyData: Array.from(yearlyMap.values())
+    }
+  }, [trendData])
 
   // Aggregates for related entities (scoped by the chosen entity)
   const [relatedAggregates, setRelatedAggregates] = useState<null | {
@@ -157,6 +276,9 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
       }
 
       const response = await advancedSearchService.searchContractsWithChips(searchParams)
+      
+      console.log('API Response for contracts:', response)
+      console.log('Sample contract from API:', response.data?.[0])
       
       if (response.success) {
         setResults(response.data || [])
@@ -307,6 +429,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
   useEffect(() => {
     if (open) {
       fetchContracts(1)
+      fetchAllContractsForTrends() // Fetch all contracts for trend chart
       fetchRelatedAggregates(0, entityPageSize, entitySortBy, entitySortDirection)
       setActiveTab('contracts')
       setEntityPageIndex(0) // Reset pagination when opening modal
@@ -738,21 +861,64 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
           </div>
 
           {(activeTab === 'contracts') && (
-            <ContractsTable
-              contracts={results}
-              loading={loading}
-              totalCount={pagination.totalCount}
-              pageSize={pagination.pageSize}
-              currentPage={pagination.page}
-              totalPages={pagination.totalPages}
-              sortBy={sortConfig.key}
-              sortDirection={sortConfig.direction}
-              onPageChange={handlePageChange}
-              onSortChange={(field, direction) => {
-                setSortConfig({ key: field as keyof SearchResult, direction })
-              }}
-              isDark={isDark}
-            />
+            <div>
+              {/* Year/Quarter Trend Chart */}
+              <div style={{ marginBottom: spacing[4] }}>
+                <div style={{ 
+                  marginBottom: spacing[2], 
+                  color: theme.text.secondary, 
+                  fontSize: typography.fontSize.sm,
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  Contract Value Trends
+                </div>
+                <div style={{ 
+                  padding: spacing[4], 
+                  backgroundColor: theme.background.primary, 
+                  borderRadius: spacing[2], 
+                  border: `1px solid ${theme.border.light}` 
+                }}>
+                  {trendDataLoading ? (
+                    <div style={{
+                      height: 300,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: theme.background.secondary,
+                      borderRadius: spacing[2],
+                      color: theme.text.secondary,
+                      fontSize: typography.fontSize.sm,
+                    }}>
+                      Loading trend data...
+                    </div>
+                  ) : (
+                    <QuarterlyTrendsChart 
+                      quarterlyData={processContractDataForTrends.quarterlyData}
+                      yearlyData={processContractDataForTrends.yearlyData}
+                      title={`${entityName} Contract Trends`}
+                      height={300}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Contracts Table */}
+              <ContractsTable
+                contracts={results}
+                loading={loading}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.pageSize}
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                sortBy={sortConfig.key}
+                sortDirection={sortConfig.direction}
+                onPageChange={handlePageChange}
+                onSortChange={(field, direction) => {
+                  setSortConfig({ key: field as keyof SearchResult, direction })
+                }}
+                isDark={isDark}
+              />
+            </div>
           )}
 
           {(activeTab !== 'contracts') && (

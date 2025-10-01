@@ -960,15 +960,15 @@ class ParquetSearchService:
             for tr in time_ranges:
                 if tr.get('type') == 'yearly' and tr.get('year'):
                     year = tr['year']
-                    time_conditions.append(f"EXTRACT(YEAR FROM award_date) = {year}")
+                    time_conditions.append(f"EXTRACT(YEAR FROM TRY_CAST(award_date AS DATE)) = {year}")
                 elif tr.get('type') == 'quarterly' and tr.get('year') and tr.get('quarter'):
                     year = tr['year']
                     quarter = tr['quarter']
-                    time_conditions.append(f"EXTRACT(YEAR FROM award_date) = {year} AND EXTRACT(QUARTER FROM award_date) = {quarter}")
+                    time_conditions.append(f"EXTRACT(YEAR FROM TRY_CAST(award_date AS DATE)) = {year} AND EXTRACT(QUARTER FROM TRY_CAST(award_date AS DATE)) = {quarter}")
                 elif tr.get('type') == 'custom' and tr.get('startDate') and tr.get('endDate'):
                     start_date = tr['startDate']
                     end_date = tr['endDate']
-                    time_conditions.append(f"award_date >= '{start_date}' AND award_date <= '{end_date}'")
+                    time_conditions.append(f"TRY_CAST(award_date AS DATE) >= '{start_date}' AND TRY_CAST(award_date AS DATE) <= '{end_date}'")
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
 

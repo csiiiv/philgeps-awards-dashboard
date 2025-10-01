@@ -92,9 +92,9 @@ export const QuarterlyTrendsChart: React.FC<QuarterlyTrendsChartProps> = ({
       dataMap.set(`${d.year}_${d.quarter}`, d)
     })
     
-    // Always start from 2013, find the max year from data
+    // Always start from 2013, limit to 2027
     const minYear = 2013
-    const maxYear = Math.max(...sortedQuarterlyData.map(d => d.year))
+    const maxYear = Math.min(2027, Math.max(...sortedQuarterlyData.map(d => d.year)))
     
     // Generate all quarters from 2013 Q1 to maxYear Q4
     for (let year = minYear; year <= maxYear; year++) {
@@ -124,9 +124,9 @@ export const QuarterlyTrendsChart: React.FC<QuarterlyTrendsChartProps> = ({
       dataMap.set(d.year, d)
     })
     
-    // Find the actual data range from the yearly data
+    // Find the actual data range from the yearly data, limit to 2027
     const minYear = 2013
-    const maxYear = Math.max(...sortedYearlyData.map(d => d.year))
+    const maxYear = Math.min(2027, Math.max(...sortedYearlyData.map(d => d.year)))
     
     // Generate all years from minYear to maxYear
     for (let year = minYear; year <= maxYear; year++) {
