@@ -121,4 +121,3 @@ When adding new features or making changes, please update this changelog followi
 ---
 
 **Last Updated**: January 2, 2025  
-**Maintainer**: PhilGEPS Dashboard Development Team
