@@ -2,6 +2,34 @@
 
 A comprehensive government procurement analytics dashboard for the Philippines Government Electronic Procurement System (PhilGEPS). This application provides detailed insights into government contracts, spending patterns, and procurement analytics.
 
+## 📊 **Data Overview**
+
+- **📈 Total Records**: 15.5M+ government procurement records (all notices + awards)
+- **💰 Awarded Contracts**: 5.0M+ contracts with financial values (₱14.8T+ total value)
+- **📋 Data Types**: Procurement notices, contract awards, and bidding information
+- **📅 Time Coverage**: 2013-2025 (13 years of data)
+- **🏢 Data Sources**: PhilGEPS XLSX (2013-2020) + CSV (2021-2025) + Flood Control
+- **📁 File Size**: 2.6GB consolidated dataset with 50 columns
+- **🔍 Search Capability**: Full-text search across all contract details
+- **📊 Analytics**: Real-time aggregations and trend analysis
+
+## ✨ Recent Updates
+
+### **v2.0 - Enhanced Analytics & Data Pipeline (January 2025)**
+- **📈 Trend Charts**: Added interactive quarterly/yearly trend charts in drill-down modals
+- **🔄 Complete Data Rebuild**: Consolidated 2013-2025 dataset with 15.5M+ records
+- **📊 Enhanced Analytics**: Individual entity trend analysis with complete dataset processing
+- **🛠️ Data Pipeline**: Comprehensive processing scripts with full documentation
+- **📁 File Structure**: 225+ optimized parquet files for fast analytics
+- **🔧 Maintenance**: Automated cleanup and optimization scripts
+
+### **Key Improvements**
+- **Data Coverage**: Extended from 2013-2021 to 2013-2025 (13 years)
+- **Performance**: Optimized search and analytics with DuckDB integration
+- **User Experience**: Enhanced drill-down modals with embedded trend charts
+- **Documentation**: Complete data pipeline documentation and maintenance guides
+- **Code Quality**: Cleaned up scripts directory and improved code organization
+
 ## 🚀 Features
 
 ### 📊 Data Explorer
@@ -19,9 +47,10 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 
 ### 📈 Analytics
 - **Contract Analysis**: Detailed breakdown by various dimensions
-- **Trend Analysis**: Quarterly and yearly trend visualization
-- **Drill-down Capabilities**: Nested modals for granular data exploration
+- **Trend Analysis**: Quarterly and yearly trend visualization with interactive charts
+- **Drill-down Capabilities**: Nested modals with embedded trend charts for granular data exploration
 - **Performance Metrics**: Contract value, count, and efficiency analysis
+- **Entity Trends**: Individual contractor/organization trend analysis with complete dataset processing
 
 ### 🎨 User Experience
 - **Dark/Light Mode**: Toggle between themes
@@ -60,12 +89,17 @@ production1/
 │   │   └── utils/          # Utility functions
 │   └── package.json        # Node.js dependencies
 ├── data/                   # Data files and documentation
-│   ├── parquet/           # Parquet data files
-│   └── processed/         # Processed data
+│   ├── parquet/           # Parquet data files (225+ files)
+│   ├── processed/         # Processed data (consolidated files)
+│   └── raw/               # Raw data sources (XLSX/CSV)
 ├── docs/                   # Project documentation
 │   ├── DASHBOARD_DOCUMENTATION.md
 │   └── ACTIVE_API_DOCUMENTATION.md
-├── scripts/                # Utility scripts
+├── scripts/                # Data processing scripts
+│   ├── core/              # Core processing utilities
+│   ├── archive/           # Legacy scripts (archived)
+│   ├── DATA_PIPELINE.md   # Complete pipeline documentation
+│   └── README.md          # Scripts guide
 ├── setup_env.sh           # Environment configuration script
 ├── run_local.sh           # Unified run script (Linux)
 ├── run_local.bat          # Unified run script (Windows)
@@ -232,16 +266,47 @@ VITE_APP_TITLE=PhilGEPS Dashboard
 
 ## 📊 Data Sources
 
-### PhilGEPS Dataset (2013-2021)
-- **Contract Records**: Government procurement contracts
-- **Contractor Information**: Business entity details
+### PhilGEPS Dataset (2013-2025)
+- **2013-2020**: XLSX files with 44 columns (~8.9M records)
+- **2021-2025**: CSV files with 47 columns (~2.2M records)
+- **Contract Records**: Government procurement contracts and notices
+- **Contractor Information**: Business entity details and contact information
 - **Organization Data**: Government agencies and departments
 - **Geographic Data**: Regional and provincial information
+- **Enhanced Fields**: Additional columns for contact persons, bidders, and reference IDs
 
-### Sumbong sa Pangulo Dataset (2022-2025)
-- **Flood Control Projects**: Infrastructure and flood management
-- **Additional Coverage**: Extended data for recent years
-- **Enhanced Analytics**: Specialized metrics for flood control
+### Sumbong sa Pangulo Dataset
+- **Flood Control Projects**: Infrastructure and flood management contracts
+- **Specialized Analytics**: Dedicated metrics for flood control projects
+- **Integrated Processing**: Seamlessly integrated with main dataset
+
+### Data Processing Pipeline
+- **Consolidated Dataset**: 15.5M+ records in unified format (all procurement data)
+- **Clean Awarded Contracts**: 5.0M+ contracts with financial values (₱14.8T+ total)
+- **Real-time Aggregations**: 225+ parquet files for fast analytics
+- **Optimized Search**: Full-text search across all contract details
+
+## 🔄 Data Pipeline
+
+The application includes a comprehensive data processing pipeline:
+
+### **Processing Scripts** (`scripts/`)
+- **`rebuild_step_by_step.py`**: Complete data rebuild from raw sources
+- **`fix_date_formats.py`**: Fix Excel serial date formatting issues
+- **`generate_clean_awarded_contracts.py`**: Generate clean awarded contracts dataset
+- **`generate_unified_parquet_data.py`**: Generate all aggregation files
+- **`regenerate_optimized_files.py`**: Regenerate optimized files for dashboard
+
+### **Data Flow**
+```
+Raw Data (XLSX/CSV) → Processing Scripts → Consolidated Data → Aggregations → API/Dashboard
+```
+
+### **File Structure**
+- **Consolidated**: `all_contracts_consolidated.parquet` (2.6GB, 50 columns, 15.5M records)
+- **Clean Awarded**: `clean_awarded_contracts_complete.parquet` (1.1GB, 5.0M records, ₱14.8T+ value)
+- **Aggregations**: `data/parquet/` with yearly/quarterly breakdowns
+- **Documentation**: Complete pipeline documentation in `scripts/DATA_PIPELINE.md`
 
 ## 🛠️ Development
 
@@ -318,8 +383,10 @@ VITE_APP_TITLE=PhilGEPS Dashboard
 
 - [Dashboard Documentation](docs/DASHBOARD_DOCUMENTATION.md) - Comprehensive user guide
 - [API Documentation](docs/ACTIVE_API_DOCUMENTATION.md) - Complete API reference
+- [Data Pipeline](scripts/DATA_PIPELINE.md) - Complete data processing pipeline documentation
 - [Data Structure](data/README.md) - Data format and organization
 - [Component Documentation](frontend/src/components/README.md) - Frontend components
+- [Scripts Documentation](scripts/README.md) - Data processing scripts guide
 - [GitHub Setup Guide](GITHUB_SETUP.md) - Repository setup instructions
 
 ## 🤝 Contributing
