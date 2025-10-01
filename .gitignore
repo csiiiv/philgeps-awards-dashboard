@@ -260,11 +260,13 @@ $RECYCLE.BIN/
 # Built Visual Studio Code Extensions
 *.vsix
 
+
 # Data files (too large for GitHub)
 data/parquet/
 data/processed/
 data/raw/
 data/
+!data/predefinedFilters.json
 
 # Database files
 *.sqlite3

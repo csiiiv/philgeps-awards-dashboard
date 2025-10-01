@@ -10,14 +10,14 @@
 # Development Settings
 DEV_SECRET_KEY="django-insecure-dev-key-change-in-production"
 DEV_DEBUG="True"
-DEV_FRONTEND_DOMAIN="https://philgeps.simple-systems.dev"
-DEV_API_DOMAIN="philgeps-api.simple-systems.dev"
+DEV_FRONTEND_DOMAIN="https://philgeps-2.simple-systems.dev"
+DEV_API_DOMAIN="philgeps-api-2.simple-systems.dev"
 
 # Production Settings
 PROD_SECRET_KEY="CHANGE-THIS-TO-A-SECURE-SECRET-KEY-IN-PRODUCTION"
 PROD_DEBUG="False"
-PROD_FRONTEND_DOMAIN="philgeps.simple-systems.dev"
-PROD_API_DOMAIN="philgeps-api.simple-systems.dev"
+PROD_FRONTEND_DOMAIN="philgeps-2.simple-systems.dev"
+PROD_API_DOMAIN="philgeps-api-2.simple-systems.dev"
 PROD_SSL_REDIRECT="True"
 
 # API Source Selection - Choose one (1-3):
@@ -27,13 +27,13 @@ PROD_SSL_REDIRECT="True"
 API_SOURCE_OPTION=1
 
 # API Source URLs - Configure these as needed:
-PUBLIC_API_URL="https://philgeps-api.simple-systems.dev"  # API subdomain (preferred)
+PUBLIC_API_URL="https://philgeps-api-2.simple-systems.dev"  # API subdomain (preferred)
 LOCAL_API_URL="http://localhost:$BACKEND_PORT"  # Local backend
-CUSTOM_API_URL="https://philgeps-api.simple-systems.dev"  # API subdomain (preferred)
+CUSTOM_API_URL="https://philgeps-api-2.simple-systems.dev"  # API subdomain (preferred)
 
 # Port Configuration - Configure these as needed:
-BACKEND_PORT="3200"  # Django backend port
-FRONTEND_PORT="3000"  # React frontend port
+BACKEND_PORT="3201"  # Django backend port
+FRONTEND_PORT="3001"  # React frontend port
 
 # =============================================================================
 # SCRIPT LOGIC - Don't edit below this line
