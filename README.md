@@ -13,7 +13,7 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **💰 Awarded Contracts**: 5.0M+ contracts with financial values (₱14.8T+ total value)
 - **📋 Data Types**: Procurement notices, contract awards, and bidding information
 - **📅 Time Coverage**: 2013-2025 (13 years of data)
-- **🏢 Data Sources**: PhilGEPS XLSX (2013-2020) + CSV (2021-2025) + Flood Control
+- **🏢 Data Sources**: PhilGEPS XLSX (2013-2020) + CSV (2021-2025) + Flood Control Projects from "Sumbong sa Pangulo" dataset
 - **📁 File Size**: 2.6GB consolidated dataset with 50 columns
 - **🔍 Search Capability**: Full-text search across all contract details
 - **📊 Analytics**: Real-time aggregations and trend analysis
