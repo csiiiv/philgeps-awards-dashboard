@@ -1,21 +1,15 @@
 # Scripts Directory
 
-This directory contains Python scripts for data processing, optimization, performance testing, and utility functions for the PhilGEPS Dashboard.
+This directory contains Python scripts for data processing, maintenance, and utility functions for the PhilGEPS Dashboard.
 
 ## 📁 Directory Structure
 
-### Core Scripts
-- **`advanced_optimizations.py`** - Advanced performance optimization scripts
-- **`cleanup_old_parquet_files.py`** - Cleanup script for old Parquet files
-- **`generate_sample_data.py`** - Script to generate sample data for testing
-- **`implement_performance_optimizations.py`** - Performance optimization implementation
-- **`optimize_analytics_performance.py`** - Analytics performance optimization
-- **`optimize_search_performance.py`** - Search performance optimization
-- **`optimize_title_search.py`** - Title search optimization
-- **`performance_comparison.py`** - Performance comparison and benchmarking
-- **`rebuild_parquet_with_search_column.py`** - Rebuild Parquet files with search columns
-- **`test_analytics_api.py`** - Analytics API testing script
-- **`test_search_performance.py`** - Search performance testing
+### Active Core Scripts
+- **`cleanup_quarterly_raw_files.py`** - Clean up redundant quarterly raw data files
+- **`fix_date_formats.py`** - Fix Excel serial date formatting issues
+- **`generate_clean_awarded_contracts.py`** - Generate clean awarded contracts dataset
+- **`rebuild_step_by_step.py`** - Robust step-by-step data rebuild process
+- **`regenerate_optimized_files.py`** - Regenerate optimized parquet files
 
 ### Subdirectories
 
@@ -28,15 +22,20 @@ Essential utility scripts for data processing and system operations.
 - **`generate_unified_parquet_data.py`** - Generate unified Parquet data files
 - **`process_xlsx_to_parquet_duckdb_basic_only.py`** - Process Excel to Parquet conversion
 
+#### `/archive/` - Legacy Scripts
+Old scripts that are no longer actively used but preserved for reference.
+
+**Note:** These scripts were used during development and optimization phases but have been superseded by more efficient implementations. They are kept for historical reference and potential future use.
+
 ## 🎯 Script Categories
 
 ### Data Processing Scripts
 Scripts for processing, cleaning, and transforming data.
 
 #### Key Scripts
-- **`advanced_optimizations.py`** - Comprehensive data optimization
-- **`rebuild_parquet_with_search_column.py`** - Rebuild data with search optimization
-- **`cleanup_old_parquet_files.py`** - Cleanup and maintenance
+- **`rebuild_step_by_step.py`** - Complete data rebuild process
+- **`generate_clean_awarded_contracts.py`** - Generate clean awarded contracts
+- **`fix_date_formats.py`** - Fix Excel serial date issues
 - **`generate_unified_parquet_data.py`** - Generate unified data files
 
 #### Features
@@ -46,42 +45,23 @@ Scripts for processing, cleaning, and transforming data.
 - Data transformation
 - Quality assurance
 
-### Performance Optimization Scripts
-Scripts for optimizing system performance and data access.
+### Maintenance Scripts
+Scripts for system maintenance and cleanup.
 
 #### Key Scripts
-- **`optimize_analytics_performance.py`** - Analytics performance tuning
-- **`optimize_search_performance.py`** - Search performance optimization
-- **`optimize_title_search.py`** - Title search specific optimization
-- **`implement_performance_optimizations.py`** - General performance improvements
+- **`cleanup_quarterly_raw_files.py`** - Clean up redundant quarterly files
+- **`regenerate_optimized_files.py`** - Regenerate optimized parquet files
 
 #### Features
-- Query optimization
-- Index creation
-- Caching strategies
-- Memory optimization
-- Database tuning
-
-### Testing and Validation Scripts
-Scripts for testing functionality and validating data integrity.
-
-#### Key Scripts
-- **`test_analytics_api.py`** - Analytics API testing
-- **`test_search_performance.py`** - Search performance testing
-- **`performance_comparison.py`** - Performance benchmarking
-
-#### Features
-- API endpoint testing
-- Performance benchmarking
-- Data validation
-- Error detection
-- Regression testing
+- File cleanup and organization
+- Space optimization
+- Data regeneration
+- System maintenance
 
 ### Utility Scripts
 General-purpose utility scripts for common operations.
 
 #### Key Scripts
-- **`generate_sample_data.py`** - Sample data generation
 - **`create_global_totals.py`** - Create global data totals
 - **`process_xlsx_to_parquet_duckdb_basic_only.py`** - Excel to Parquet conversion
 
