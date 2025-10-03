@@ -251,10 +251,28 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       // Calculate dynamic tooltip height based on content
       let tooltipHeight = 200 // Default height
       if (data.level === 'contracts' && d.data.contractDetails && d.data.contractDetails.length > 0) {
-        // For contract details, estimate height based on number of fields
+        // For contract details, estimate height based on content length and wrapping
         const contract = d.data.contractDetails[0]
         const fieldCount = Object.keys(contract).length
-        tooltipHeight = Math.max(200, 40 + (fieldCount * 25)) // 40px base + 25px per field
+        
+        // Estimate text wrapping - longer text will wrap more
+        let estimatedRows = fieldCount
+        Object.values(contract).forEach(value => {
+          if (typeof value === 'string' && value.length > 30) {
+            // Long text likely wraps - add extra rows
+            estimatedRows += Math.ceil(value.length / 30) - 1
+          }
+        })
+        
+        // More conservative height calculation: 50px base + 30px per estimated row
+        tooltipHeight = Math.max(300, 50 + (estimatedRows * 30))
+        
+        console.log('Contract tooltip height calculation:', {
+          fieldCount,
+          estimatedRows,
+          tooltipHeight,
+          contractValues: Object.values(contract).map(v => typeof v === 'string' ? v.length : 0)
+        })
       }
       
       // Get mouse position relative to the chart container
