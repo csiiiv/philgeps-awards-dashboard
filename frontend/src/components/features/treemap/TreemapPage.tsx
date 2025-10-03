@@ -57,34 +57,34 @@ export const TreemapPage: React.FC = () => {
       levels: ['area', 'organization', 'contractor', 'contracts']
     },
     {
-      id: 'org-category-contracts',
-      label: 'Agency → Category → Contracts',
-      description: 'Start with government agency, see spending categories, then individual contracts',
-      levels: ['organization', 'category', 'contracts']
+      id: 'area-category-contractor-contracts',
+      label: 'Region → Category → Contractor → Contracts',
+      description: 'Start with geographic region, see spending categories, then contractors, then individual contracts',
+      levels: ['area', 'category', 'contractor', 'contracts']
     },
     {
-      id: 'area-org-contracts',
-      label: 'Region → Agency → Contracts',
-      description: 'Start with geographic region, see agencies there, then their contracts',
-      levels: ['area', 'organization', 'contracts']
+      id: 'area-contractor-contracts',
+      label: 'Region → Contractor → Contracts',
+      description: 'Start with geographic region, see contractors there, then their individual contracts',
+      levels: ['area', 'contractor', 'contracts']
     },
     {
-      id: 'category-org-contracts',
-      label: 'Category → Agency → Contracts',
-      description: 'Start with business category, see which agencies buy it, then their contracts',
-      levels: ['category', 'organization', 'contracts']
+      id: 'org-contractor-contracts',
+      label: 'Agency → Contractor → Contracts',
+      description: 'Start with government agency, see contractors, then their individual contracts',
+      levels: ['organization', 'contractor', 'contracts']
+    },
+    {
+      id: 'category-contractor-contracts',
+      label: 'Category → Contractor → Contracts',
+      description: 'Start with business category, see contractors, then their individual contracts',
+      levels: ['category', 'contractor', 'contracts']
     },
     {
       id: 'contractor-org-contracts',
-      label: 'Contractor → Client Agency → Contracts',
+      label: 'Contractor → Agency → Contracts',
       description: 'Start with contractor, see their government clients, then specific contracts',
       levels: ['contractor', 'organization', 'contracts']
-    },
-    {
-      id: 'org-area-contracts',
-      label: 'Agency → Region → Contracts',
-      description: 'Start with agency, see where they operate, then contracts by region',
-      levels: ['organization', 'area', 'contracts']
     }
   ]
 
@@ -194,7 +194,7 @@ export const TreemapPage: React.FC = () => {
           })
         }
       } else if (currentLevelType === 'contractor') {
-        // Load contractors for the selected organization
+        // Load contractors for the selected entity
         const filters = {
           ...drillDownState.filters,
           [entity.type === 'organization' ? 'organizations' : 
@@ -225,6 +225,47 @@ export const TreemapPage: React.FC = () => {
 
         const entities = (result.data.by_contractor || []).map((item: any, index: number) => ({
           id: `contractor_${index}`,
+          name: item.label || item.name || 'Unknown',
+          value: parseFloat(item.total_value) || 0,
+          count: parseInt(item.count) || 0
+        }))
+
+        setTreemapData({
+          level: 'sub-grouping',
+          entities
+        })
+      } else if (currentLevelType === 'category') {
+        // Load categories for the selected area
+        const filters = {
+          ...drillDownState.filters,
+          [entity.type === 'organization' ? 'organizations' : 
+           entity.type === 'area' ? 'areas' :
+           entity.type === 'category' ? 'business_categories' : 'contractors']: [entity.name]
+        }
+
+        const response = await fetch('/api/v1/contracts/chip-aggregates/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...filters,
+            topN: 20,
+            include_flood_control: false
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load data')
+        }
+
+        const entities = (result.data.by_category || []).map((item: any, index: number) => ({
+          id: `category_${index}`,
           name: item.label || item.name || 'Unknown',
           value: parseFloat(item.total_value) || 0,
           count: parseInt(item.count) || 0
@@ -379,7 +420,7 @@ export const TreemapPage: React.FC = () => {
             Select Exploration Path
           </h3>
           
-          <Grid $columns={3} $gap={spacing[4]}>
+          <Grid $columns={2} $gap={spacing[4]}>
             {hierarchies.map(hierarchy => (
               <GridItem key={hierarchy.id}>
                 <button
