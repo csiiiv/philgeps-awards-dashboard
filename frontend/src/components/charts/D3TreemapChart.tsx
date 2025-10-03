@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import * as d3 from 'd3'
 import { useTheme } from '../../contexts/ThemeContext'
 import { getThemeColors } from '../../design-system/theme'
@@ -12,65 +12,80 @@ export interface TreemapData {
     name: string
     value: number
     count: number
-    // For contracts level:
-    contractDetails?: {
-      amount: number
-      date: string
-      description: string
-      contractor: string
-    }
+    contractDetails?: any[]
   }>
 }
 
-export interface TreemapChartProps {
+export interface D3TreemapChartProps {
   data: TreemapData
+  title: string
+  height?: number
+  className?: string
   hierarchy: string[]
   currentLevel: number
   onDrillDown: (entity: { id: string; name: string; type: string }) => void
-  onDrillUp: () => void
   onContractClick?: (contract: any) => void
-  title?: string
-  height?: number
-  className?: string
 }
 
-export const D3TreemapChart: React.FC<TreemapChartProps> = ({
+export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
   data,
+  title,
+  height = 400,
+  className = '',
   hierarchy,
   currentLevel,
   onDrillDown,
-  onDrillUp,
-  onContractClick,
-  title = 'Treemap Visualization',
-  height = 400,
-  className = ''
+  onContractClick
 }) => {
-  const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
   const svgRef = useRef<SVGSVGElement>(null)
   const [hoveredItem, setHoveredItem] = useState<{ x: number; y: number; text: string } | null>(null)
+  const { isDark } = useTheme()
+  const themeColors = getThemeColors(isDark)
 
-  // Color scale
-  const colorScale = d3.scaleOrdinal<string>()
-    .domain(data.entities.map((_, i) => i.toString()))
-    .range(isDark 
-      ? [
-          '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-          '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
-        ]
-      : [
-          '#1E40AF', '#059669', '#D97706', '#DC2626', '#7C3AED',
-          '#0891B2', '#65A30D', '#EA580C', '#DB2777', '#4F46E5'
-        ]
-    )
-
-  // Format value helper
-  const formatValue = (value: number) => {
+  // Format value for display
+  const formatValue = useCallback((value: number) => {
     if (value >= 1e9) return `₱${(value / 1e9).toFixed(1)}B`
     if (value >= 1e6) return `₱${(value / 1e6).toFixed(1)}M`
     if (value >= 1e3) return `₱${(value / 1e3).toFixed(1)}K`
     return `₱${value.toFixed(0)}`
-  }
+  }, [])
+
+  // Memoize the color scale to prevent re-creation
+  const colorScale = useMemo(() => {
+    return d3.scaleOrdinal(d3.schemeCategory10)
+  }, [])
+
+  // Memoize the hierarchy data to prevent re-creation
+  const hierarchyData = useMemo(() => {
+    return data.entities.map((entity, index) => ({
+      name: entity.name,
+      value: entity.value,
+      count: entity.count,
+      id: entity.id || `entity_${index}`,
+      contractDetails: entity.contractDetails
+    }))
+  }, [data.entities])
+
+  // Memoize event handlers to prevent re-creation
+  const handleClick = useCallback((event: MouseEvent, d: any) => {
+    console.log('Click event fired!', d) // Debug log
+    console.log('Data level:', data.level)
+    console.log('Current level:', currentLevel)
+    console.log('Hierarchy:', hierarchy)
+    console.log('Entity data:', d.data)
+    
+    if (data.level === 'contracts' && onContractClick) {
+      console.log('Calling onContractClick')
+      onContractClick(d.data)
+    } else {
+      console.log('Calling onDrillDown')
+      onDrillDown({
+        id: d.data.id || d.data.name,
+        name: d.data.name,
+        type: hierarchy[currentLevel] || 'unknown'
+      })
+    }
+  }, [data.level, currentLevel, hierarchy, onContractClick, onDrillDown, onDrillDown])
 
   // Render treemap using D3
   useEffect(() => {
@@ -85,13 +100,7 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
     // Create hierarchy data for D3
     const root = d3.hierarchy({
       name: 'root',
-      children: data.entities.map((entity, index) => ({
-        name: entity.name,
-        value: entity.value,
-        count: entity.count,
-        id: entity.id || `entity_${index}`,
-        contractDetails: entity.contractDetails
-      }))
+      children: hierarchyData
     })
       .sum(d => d.value || 0)
       .sort((a, b) => (b.value || 0) - (a.value || 0))
@@ -186,26 +195,6 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
         .attr('fill', colorScale(d.data.id))
     }
 
-    const handleClick = (event: MouseEvent, d: any) => {
-      console.log('Click event fired!', d) // Debug log
-      console.log('Data level:', data.level)
-      console.log('Current level:', currentLevel)
-      console.log('Hierarchy:', hierarchy)
-      console.log('Entity data:', d.data)
-      
-      if (data.level === 'contracts' && onContractClick) {
-        console.log('Calling onContractClick')
-        onContractClick(d.data)
-      } else {
-        console.log('Calling onDrillDown')
-        onDrillDown({
-          id: d.data.id || d.data.name,
-          name: d.data.name,
-          type: hierarchy[currentLevel] || 'unknown'
-        })
-      }
-    }
-
     // Add event listeners
     rects
       .on('mouseover', handleMouseOver)
@@ -216,7 +205,7 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
     console.log('Treemap data:', data)
     console.log('Root leaves:', root.leaves())
 
-  }, [data, isDark, themeColors, hierarchy, currentLevel, onDrillDown, onContractClick, colorScale])
+  }, [hierarchyData, isDark, themeColors, hierarchy, currentLevel, handleClick, colorScale, data.level, formatValue])
 
   return (
     <div className={className} style={{ width: '100%' }}>
@@ -261,37 +250,43 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
       {/* Navigation */}
       {currentLevel > 0 && (
         <div style={{
-          marginBottom: spacing[4],
           display: 'flex',
-          gap: spacing[2]
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: spacing[4],
+          padding: `0 ${spacing[2]}`
         }}>
           <button
-            onClick={onDrillUp}
+            onClick={() => {
+              // This will be handled by the parent component
+              console.log('Drill up requested')
+            }}
             style={{
               padding: `${spacing[2]} ${spacing[4]}`,
-              backgroundColor: themeColors.primary[600],
-              color: themeColors.text.inverse,
-              border: 'none',
+              backgroundColor: themeColors.background.secondary,
+              color: themeColors.text.primary,
+              border: `1px solid ${themeColors.border.medium}`,
               borderRadius: spacing[1],
               cursor: 'pointer',
               fontSize: typography.fontSize.sm,
-              fontWeight: typography.fontWeight.medium,
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = themeColors.primary[700]
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = themeColors.primary[600]
+              fontWeight: typography.fontWeight.medium
             }}
           >
-            ← Back to {hierarchy[currentLevel - 1]}
+            ← Back
           </button>
+          
+          <div style={{
+            fontSize: typography.fontSize.sm,
+            color: themeColors.text.secondary
+          }}>
+            Level {currentLevel + 1} of {hierarchy.length}
+          </div>
         </div>
       )}
 
-      {/* Treemap SVG */}
+      {/* Treemap Container */}
       <div style={{
+        position: 'relative',
         width: '100%',
         height: height,
         backgroundColor: themeColors.background.secondary,
@@ -305,57 +300,47 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
           height="100%"
           style={{ display: 'block' }}
         />
-      </div>
-
-      {/* Legend/Info */}
-      <div style={{
-        marginTop: spacing[4],
-        padding: spacing[3],
-        backgroundColor: themeColors.background.secondary,
-        borderRadius: spacing[2],
-        border: `1px solid ${themeColors.border.medium}`
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: typography.fontSize.sm,
-          color: themeColors.text.secondary
-        }}>
-          <span>
-            {data.entities.length} {hierarchy[currentLevel] || 'items'} • 
-            Total: {formatValue(data.entities.reduce((sum, item) => sum + item.value, 0))}
-          </span>
-          <span>
-            {data.level === 'contracts' ? 'Click items to view details' : 'Click items to drill down'}
-          </span>
-        </div>
-      </div>
-
-      {/* Tooltip for hover */}
-      {hoveredItem && (
-        <div
-          style={{
-            position: 'fixed',
+        
+        {/* Tooltip */}
+        {hoveredItem && (
+          <div style={{
+            position: 'absolute',
             left: hoveredItem.x,
             top: hoveredItem.y,
-            transform: 'translateX(-50%)',
             backgroundColor: themeColors.background.primary,
             color: themeColors.text.primary,
-            padding: `${spacing[2]} ${spacing[3]}`,
+            padding: `${spacing[1]} ${spacing[2]}`,
             borderRadius: spacing[1],
-            border: `1px solid ${themeColors.border.medium}`,
             fontSize: typography.fontSize.sm,
             fontWeight: typography.fontWeight.medium,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            zIndex: 1000,
+            boxShadow: `0 4px 12px ${themeColors.shadow.medium}`,
+            border: `1px solid ${themeColors.border.medium}`,
             pointerEvents: 'none',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {hoveredItem.text}
+            zIndex: 1000,
+            transform: 'translate(-50%, -100%)'
+          }}>
+            {hoveredItem.text}
+          </div>
+        )}
+      </div>
+
+      {/* Legend */}
+      <div style={{
+        marginTop: spacing[4],
+        padding: `0 ${spacing[2]}`,
+        fontSize: typography.fontSize.sm,
+        color: themeColors.text.secondary
+      }}>
+        <div style={{ marginBottom: spacing[2] }}>
+          <strong>Total Entities:</strong> {data.entities.length}
         </div>
-      )}
+        <div style={{ marginBottom: spacing[2] }}>
+          <strong>Total Value:</strong> {formatValue(data.entities.reduce((sum, entity) => sum + entity.value, 0))}
+        </div>
+        <div>
+          <strong>Total Count:</strong> {data.entities.reduce((sum, entity) => sum + entity.count, 0).toLocaleString()}
+        </div>
+      </div>
     </div>
   )
 }
