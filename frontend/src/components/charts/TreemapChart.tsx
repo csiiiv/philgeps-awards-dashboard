@@ -47,9 +47,9 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   const { isDark } = useTheme()
   const themeColors = getThemeColors(isDark)
   const svgRef = useRef<SVGSVGElement>(null)
-  const [, setHoveredItem] = useState<string | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<{ x: number; y: number; text: string } | null>(null)
 
-  // Calculate treemap layout using improved algorithm
+  // Calculate treemap layout using proper squarified algorithm
   const calculateTreemapLayout = (items: TreemapData['entities'], width: number, height: number) => {
     if (items.length === 0) return []
 
@@ -57,89 +57,114 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
     const sortedItems = [...items].sort((a, b) => b.value - a.value)
     const totalValue = sortedItems.reduce((sum, item) => sum + item.value, 0)
 
-    const rectangles: Array<{
-      x: number
-      y: number
-      width: number
-      height: number
-      data: typeof items[0]
-    }> = []
-
-    // Use a more sophisticated layout that creates better-sized rectangles
     const padding = 2
-    const minRectSize = 60 // Minimum rectangle size for readability
-    
-    if (sortedItems.length === 1) {
-      // Single item takes full space
-      rectangles.push({
-        x: padding,
-        y: padding,
-        width: width - 2 * padding,
-        height: height - 2 * padding,
-        data: sortedItems[0]
-      })
-    } else if (sortedItems.length <= 4) {
-      // 2x2 grid for small datasets
-      const cols = 2
-      const rows = Math.ceil(sortedItems.length / cols)
-      const cellWidth = (width - padding * (cols + 1)) / cols
-      const cellHeight = (height - padding * (rows + 1)) / rows
+    const minRectSize = 40 // Minimum rectangle size for readability
 
-      sortedItems.forEach((item, index) => {
-        const row = Math.floor(index / cols)
-        const col = index % cols
-        rectangles.push({
-          x: padding + col * (cellWidth + padding),
-          y: padding + row * (cellHeight + padding),
-          width: cellWidth,
-          height: cellHeight,
-          data: item
-        })
-      })
-    } else {
-      // Use a more sophisticated layout for larger datasets
-      // Calculate optimal grid based on data size and aspect ratio
-      const aspectRatio = width / height
-      let cols = Math.ceil(Math.sqrt(sortedItems.length * aspectRatio))
-      let rows = Math.ceil(sortedItems.length / cols)
-      
-      // Ensure we don't have too many rows (max 6 for readability)
-      if (rows > 6) {
-        rows = 6
-        cols = Math.ceil(sortedItems.length / rows)
+    // Squarified treemap algorithm
+    const squarify = (children: typeof sortedItems, x: number, y: number, width: number, height: number) => {
+      if (children.length === 0) return []
+      if (children.length === 1) {
+        return [{
+          x: x + padding,
+          y: y + padding,
+          width: Math.max(width - 2 * padding, minRectSize),
+          height: Math.max(height - 2 * padding, minRectSize),
+          data: children[0]
+        }]
       }
-      
-      const cellWidth = (width - padding * (cols + 1)) / cols
-      const cellHeight = (height - padding * (rows + 1)) / rows
 
-      sortedItems.forEach((item, index) => {
-        const row = Math.floor(index / cols)
-        const col = index % cols
+      const rectangles: Array<{
+        x: number
+        y: number
+        width: number
+        height: number
+        data: typeof items[0]
+      }> = []
+
+      const isHorizontal = width >= height
+      const totalArea = width * height
+      
+      let currentRow: typeof children = []
+      let currentRowSum = 0
+      let currentRowArea = 0
+      let currentY = y
+      let currentX = x
+
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i]
+        const childArea = (child.value / totalValue) * totalArea
+        // const childLength = isHorizontal ? childArea / height : childArea / width
+
+        // Check if adding this child would improve the aspect ratio
+        const newRowSum = currentRowSum + child.value
+        const newRowArea = currentRowArea + childArea
+        const newRowLength = isHorizontal ? newRowArea / height : newRowArea / width
+        const newRowAspectRatio = isHorizontal ? 
+          Math.max(newRowLength / height, height / newRowLength) :
+          Math.max(newRowLength / width, width / newRowLength)
+
+        const currentRowAspectRatio = currentRow.length === 0 ? Infinity :
+          isHorizontal ?
+            Math.max(currentRowArea / (height * height), (height * height) / currentRowArea) :
+            Math.max(currentRowArea / (width * width), (width * width) / currentRowArea)
+
+        if (currentRow.length === 0 || newRowAspectRatio <= currentRowAspectRatio) {
+          // Add to current row
+          currentRow.push(child)
+          currentRowSum = newRowSum
+          currentRowArea = newRowArea
+        } else {
+          // Finish current row and start new one
+          const rowLength = isHorizontal ? currentRowArea / height : currentRowArea / width
+          
+          currentRow.forEach((item, index) => {
+            const itemArea = (item.value / totalValue) * totalArea
+            const itemLength = isHorizontal ? itemArea / height : itemArea / width
+            
+            rectangles.push({
+              x: currentX + (isHorizontal ? 0 : index * itemLength),
+              y: currentY + (isHorizontal ? index * itemLength : 0),
+              width: isHorizontal ? rowLength : itemLength,
+              height: isHorizontal ? itemLength : rowLength,
+              data: item
+            })
+          })
+
+          // Start new row
+          if (isHorizontal) {
+            currentX += rowLength
+          } else {
+            currentY += rowLength
+          }
+          
+          currentRow = [child]
+          currentRowSum = child.value
+          currentRowArea = childArea
+        }
+      }
+
+      // Process remaining items in the last row
+      if (currentRow.length > 0) {
+        const rowLength = isHorizontal ? currentRowArea / height : currentRowArea / width
         
-        // Calculate proportional height based on value, but with better constraints
-        const itemValue = item.value
-        const maxHeight = cellHeight * 1.2 // Allow rectangles to be 20% taller than cell
-        const minHeight = Math.max(cellHeight * 0.3, minRectSize) // Minimum 30% of cell height
-        
-        const proportionalHeight = Math.max(
-          minHeight,
-          Math.min(
-            maxHeight,
-            (itemValue / totalValue) * height * 0.6 // Use 60% of total height for proportional sizing
-          )
-        )
-        
-        rectangles.push({
-          x: padding + col * (cellWidth + padding),
-          y: padding + row * (cellHeight + padding),
-          width: cellWidth,
-          height: proportionalHeight,
-          data: item
+        currentRow.forEach((item, index) => {
+          const itemArea = (item.value / totalValue) * totalArea
+          const itemLength = isHorizontal ? itemArea / height : itemArea / width
+          
+          rectangles.push({
+            x: currentX + (isHorizontal ? 0 : index * itemLength),
+            y: currentY + (isHorizontal ? index * itemLength : 0),
+            width: isHorizontal ? rowLength : itemLength,
+            height: isHorizontal ? itemLength : rowLength,
+            data: item
+          })
         })
-      })
+      }
+
+      return rectangles
     }
 
-    return rectangles
+    return squarify(sortedItems, 0, 0, width, height)
   }
 
   // Render treemap
@@ -173,8 +198,14 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
       rectElement.style.transition = 'all 0.2s ease'
 
       // Hover effects
-      rectElement.addEventListener('mouseenter', () => {
-        setHoveredItem(rect.data.id)
+      rectElement.addEventListener('mouseenter', (e) => {
+        const target = e.currentTarget as SVGRectElement
+        const rect = target.getBoundingClientRect()
+        setHoveredItem({
+          x: rect.left + rect.width / 2,
+          y: rect.top - 10,
+          text: `${rect.data.name}: ${formatValue(rect.data.value)}`
+        })
         rectElement.setAttribute('fill', getColorForIndex(index, isDark, true))
         rectElement.setAttribute('stroke-width', '2')
       })
@@ -198,49 +229,57 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
         }
       })
 
-      // Add text label with better sizing and positioning
-      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-      text.setAttribute('x', (rect.x + rect.width / 2).toString())
-      text.setAttribute('y', (rect.y + rect.height / 2 - 8).toString())
-      text.setAttribute('text-anchor', 'middle')
-      text.setAttribute('dominant-baseline', 'middle')
-      text.setAttribute('fill', themeColors.text.inverse)
-      
-      // Better font sizing based on rectangle size
-      const fontSize = Math.max(10, Math.min(16, Math.min(rect.width, rect.height) / 6))
-      text.setAttribute('font-size', fontSize + 'px')
-      text.setAttribute('font-weight', '600')
-      text.style.pointerEvents = 'none'
-      text.style.userSelect = 'none'
+      // Only add text if rectangle is large enough
+      if (rect.width > 50 && rect.height > 30) {
+        // Add text label with better sizing and positioning
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        text.setAttribute('x', (rect.x + rect.width / 2).toString())
+        text.setAttribute('y', (rect.y + rect.height / 2 - 6).toString())
+        text.setAttribute('text-anchor', 'middle')
+        text.setAttribute('dominant-baseline', 'middle')
+        text.setAttribute('fill', themeColors.text.inverse)
+        
+        // Better font sizing based on rectangle size
+        const fontSize = Math.max(8, Math.min(14, Math.min(rect.width, rect.height) / 8))
+        text.setAttribute('font-size', fontSize + 'px')
+        text.setAttribute('font-weight', '600')
+        text.style.pointerEvents = 'none'
+        text.style.userSelect = 'none'
 
-      // Truncate text more intelligently
-      const maxLength = Math.floor(rect.width / (fontSize * 0.6))
-      const displayText = rect.data.name.length > maxLength 
-        ? rect.data.name.substring(0, maxLength) + '...'
-        : rect.data.name
+        // Truncate text more intelligently
+        const maxLength = Math.floor(rect.width / (fontSize * 0.5))
+        const displayText = rect.data.name.length > maxLength 
+          ? rect.data.name.substring(0, maxLength) + '...'
+          : rect.data.name
 
-      text.textContent = displayText
+        text.textContent = displayText
+        group.appendChild(text)
 
-      // Add value label with better positioning
-      const valueText = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-      valueText.setAttribute('x', (rect.x + rect.width / 2).toString())
-      valueText.setAttribute('y', (rect.y + rect.height / 2 + 12).toString())
-      valueText.setAttribute('text-anchor', 'middle')
-      valueText.setAttribute('dominant-baseline', 'middle')
-      valueText.setAttribute('fill', themeColors.text.inverse)
-      
-      const valueFontSize = Math.max(8, Math.min(12, fontSize * 0.8))
-      valueText.setAttribute('font-size', valueFontSize + 'px')
-      valueText.setAttribute('font-weight', '400')
-      valueText.style.pointerEvents = 'none'
-      valueText.style.userSelect = 'none'
+        // Add value label if there's enough space
+        if (rect.height > 40) {
+          const valueText = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+          valueText.setAttribute('x', (rect.x + rect.width / 2).toString())
+          valueText.setAttribute('y', (rect.y + rect.height / 2 + 10).toString())
+          valueText.setAttribute('text-anchor', 'middle')
+          valueText.setAttribute('dominant-baseline', 'middle')
+          valueText.setAttribute('fill', themeColors.text.inverse)
+          
+          const valueFontSize = Math.max(6, Math.min(10, fontSize * 0.7))
+          valueText.setAttribute('font-size', valueFontSize + 'px')
+          valueText.setAttribute('font-weight', '400')
+          valueText.style.pointerEvents = 'none'
+          valueText.style.userSelect = 'none'
 
-      const formattedValue = formatValue(rect.data.value)
-      valueText.textContent = formattedValue
+          const formattedValue = formatValue(rect.data.value)
+          valueText.textContent = formattedValue
+          group.appendChild(valueText)
+        }
+      } else {
+        // For very small rectangles, just show a tooltip on hover
+        rectElement.setAttribute('data-tooltip', `${rect.data.name}: ${formatValue(rect.data.value)}`)
+      }
 
       group.appendChild(rectElement)
-      group.appendChild(text)
-      group.appendChild(valueText)
       svg.appendChild(group)
     })
   }, [data, isDark, themeColors, hierarchy, currentLevel, onDrillDown, onContractClick])
@@ -392,6 +431,31 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Tooltip for small rectangles */}
+      {hoveredItem && (
+        <div
+          style={{
+            position: 'fixed',
+            left: hoveredItem.x,
+            top: hoveredItem.y,
+            transform: 'translateX(-50%)',
+            backgroundColor: themeColors.background.primary,
+            color: themeColors.text.primary,
+            padding: `${spacing[2]} ${spacing[3]}`,
+            borderRadius: spacing[1],
+            border: `1px solid ${themeColors.border.medium}`,
+            fontSize: typography.fontSize.sm,
+            fontWeight: typography.fontWeight.medium,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 1000,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {hoveredItem.text}
+        </div>
+      )}
     </div>
   )
 }
