@@ -99,7 +99,7 @@ class ParquetSearchService:
         if keywords:
             keywords_clean = keywords.strip()
             if keywords_clean:
-                where_conditions.append(f"search_text LIKE '%{keywords_clean}%'")
+                where_conditions.append(f"LOWER(search_text) LIKE LOWER('%{keywords_clean}%')")
         
         # Filter conditions
         if contractor and contractor != "All Contractors":
@@ -440,9 +440,9 @@ class ParquetSearchService:
                             # Use CONTAINS function for better performance when available
                             # Fallback to LIKE for compatibility
                             try:
-                                keyword_and_conditions.append(f"CONTAINS(search_text, '{escaped_keyword}')")
+                                keyword_and_conditions.append(f"CONTAINS(LOWER(search_text), LOWER('{escaped_keyword}'))")
                             except:
-                                keyword_and_conditions.append(f"search_text LIKE '%{escaped_keyword}%'")
+                                keyword_and_conditions.append(f"LOWER(search_text) LIKE LOWER('%{escaped_keyword}%')")
                         keyword_conditions.append(f"({' AND '.join(keyword_and_conditions)})")
             if keyword_conditions:
                 where_conditions.append(f"({' OR '.join(keyword_conditions)})")
@@ -724,9 +724,9 @@ class ParquetSearchService:
                             # Use CONTAINS function for better performance when available
                             # Fallback to LIKE for compatibility
                             try:
-                                keyword_and_conditions.append(f"CONTAINS(search_text, '{escaped_keyword}')")
+                                keyword_and_conditions.append(f"CONTAINS(LOWER(search_text), LOWER('{escaped_keyword}'))")
                             except:
-                                keyword_and_conditions.append(f"search_text LIKE '%{escaped_keyword}%'")
+                                keyword_and_conditions.append(f"LOWER(search_text) LIKE LOWER('%{escaped_keyword}%')")
                         keyword_conditions.append(f"({' AND '.join(keyword_and_conditions)})")
             if keyword_conditions:
                 where_conditions.append(f"({' OR '.join(keyword_conditions)})")
@@ -882,9 +882,9 @@ class ParquetSearchService:
                             # Use CONTAINS function for better performance when available
                             # Fallback to LIKE for compatibility
                             try:
-                                keyword_and_conditions.append(f"CONTAINS(search_text, '{escaped_keyword}')")
+                                keyword_and_conditions.append(f"CONTAINS(LOWER(search_text), LOWER('{escaped_keyword}'))")
                             except:
-                                keyword_and_conditions.append(f"search_text LIKE '%{escaped_keyword}%'")
+                                keyword_and_conditions.append(f"LOWER(search_text) LIKE LOWER('%{escaped_keyword}%')")
                         keyword_conditions.append(f"({' AND '.join(keyword_and_conditions)})")
             if keyword_conditions:
                 where_conditions.append(f"({' OR '.join(keyword_conditions)})")
