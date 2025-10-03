@@ -52,21 +52,27 @@ export const TreemapPage: React.FC = () => {
   const hierarchies: HierarchyConfig[] = [
     {
       id: 'area-org-contractor-contracts',
-      label: 'Region → Agency → Contractor → Contracts',
-      description: 'Start with geographic region, see agencies, then contractors, then individual contracts',
+      label: 'Area → Agency → Contractor → Contracts',
+      description: 'Start with geographic area, see agencies, then contractors, then individual contracts',
       levels: ['area', 'organization', 'contractor', 'contracts']
     },
     {
       id: 'area-category-contractor-contracts',
-      label: 'Region → Category → Contractor → Contracts',
-      description: 'Start with geographic region, see spending categories, then contractors, then individual contracts',
+      label: 'Area → Category → Contractor → Contracts',
+      description: 'Start with geographic area, see spending categories, then contractors, then individual contracts',
       levels: ['area', 'category', 'contractor', 'contracts']
     },
     {
       id: 'area-contractor-contracts',
-      label: 'Region → Contractor → Contracts',
-      description: 'Start with geographic region, see contractors there, then their individual contracts',
+      label: 'Area → Contractor → Contracts',
+      description: 'Start with geographic area, see contractors there, then their individual contracts',
       levels: ['area', 'contractor', 'contracts']
+    },
+    {
+      id: 'contractor-area-contracts',
+      label: 'Contractor → Area → Contracts',
+      description: 'Start with contractor, see their geographic areas, then specific contracts',
+      levels: ['contractor', 'area', 'contracts']
     },
     {
       id: 'org-contractor-contracts',
