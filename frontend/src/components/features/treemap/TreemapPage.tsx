@@ -412,7 +412,7 @@ export const TreemapPage: React.FC = () => {
         {/* Header */}
         <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
           <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[4] }}>
-            🌳 Treemap Visualization
+          👁 Treemap Visualization
           </SectionTitle>
           <BodyText $isDark={isDark} style={{ marginBottom: spacing[4] }}>
             Interactive treemap visualization with drill-down capabilities. Explore government procurement data 
@@ -430,58 +430,64 @@ export const TreemapPage: React.FC = () => {
             Select Exploration Path
           </h3>
           
-          <Grid $columns={2} $gap={spacing[4]}>
-            {hierarchies.map(hierarchy => (
-              <GridItem key={hierarchy.id}>
-                <button
-                  onClick={() => handleHierarchyChange(hierarchy.id)}
-                  style={{
-                    width: '100%',
-                    padding: spacing[4],
-                    backgroundColor: selectedHierarchy === hierarchy.id 
-                      ? themeColors.primary[600] 
-                      : themeColors.background.secondary,
-                    color: selectedHierarchy === hierarchy.id 
-                      ? themeColors.text.inverse 
-                      : themeColors.text.primary,
-                    border: `2px solid ${selectedHierarchy === hierarchy.id 
-                      ? themeColors.primary[600] 
-                      : themeColors.border.medium}`,
-                    borderRadius: spacing[2],
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseOver={(e) => {
-                    if (selectedHierarchy !== hierarchy.id) {
-                      e.currentTarget.style.backgroundColor = themeColors.primary[50]
-                      e.currentTarget.style.borderColor = themeColors.primary[300]
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (selectedHierarchy !== hierarchy.id) {
-                      e.currentTarget.style.backgroundColor = themeColors.background.secondary
-                      e.currentTarget.style.borderColor = themeColors.border.medium
-                    }
-                  }}
-                >
-                  <div style={{
-                    fontSize: typography.fontSize.lg,
-                    fontWeight: typography.fontWeight.semibold,
-                    marginBottom: spacing[2]
-                  }}>
-                    {hierarchy.label}
-                  </div>
-                  <div style={{
-                    fontSize: typography.fontSize.sm,
-                    opacity: 0.8
-                  }}>
-                    {hierarchy.description}
-                  </div>
-                </button>
-              </GridItem>
-            ))}
-          </Grid>
+          <div style={{ marginBottom: spacing[4] }}>
+            <label style={{
+              display: 'block',
+              fontSize: typography.fontSize.sm,
+              fontWeight: typography.fontWeight.medium,
+              color: themeColors.text.secondary,
+              marginBottom: spacing[2]
+            }}>
+              Choose how you want to explore the data:
+            </label>
+            <select
+              value={selectedHierarchy}
+              onChange={(e) => handleHierarchyChange(e.target.value)}
+              style={{
+                width: '100%',
+                padding: `${spacing[3]} ${spacing[4]}`,
+                backgroundColor: themeColors.background.secondary,
+                color: themeColors.text.primary,
+                border: `1px solid ${themeColors.border.medium}`,
+                borderRadius: spacing[1],
+                fontSize: typography.fontSize.md,
+                fontWeight: typography.fontWeight.medium,
+                cursor: 'pointer',
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = themeColors.primary[500]
+                e.target.style.boxShadow = `0 0 0 2px ${themeColors.primary[100]}`
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = themeColors.border.medium
+                e.target.style.boxShadow = 'none'
+              }}
+            >
+              {hierarchies.map(hierarchy => (
+                <option key={hierarchy.id} value={hierarchy.id}>
+                  {hierarchy.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Selected Hierarchy Description */}
+          <div style={{
+            padding: spacing[3],
+            backgroundColor: themeColors.background.tertiary,
+            borderRadius: spacing[1],
+            border: `1px solid ${themeColors.border.light}`
+          }}>
+            <div style={{
+              fontSize: typography.fontSize.sm,
+              color: themeColors.text.secondary,
+              lineHeight: '1.5'
+            }}>
+              {hierarchies.find(h => h.id === selectedHierarchy)?.description}
+            </div>
+          </div>
         </Card>
 
         {/* Error State */}
