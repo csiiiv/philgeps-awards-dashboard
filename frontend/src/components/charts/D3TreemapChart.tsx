@@ -159,15 +159,16 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       .style('transition', 'all 0.2s ease')
       .style('pointer-events', 'all') // Ensure rectangles can receive events
 
-    // Add text labels with wrapping
+    // Add text labels with wrapping and value positioning
     const textGroups = cells.append('g')
-      .attr('transform', d => `translate(${(d.x1 - d.x0) / 2}, ${(d.y1 - d.y0) / 2 - 6})`)
+      .attr('transform', d => `translate(${(d.x1 - d.x0) / 2}, ${(d.y1 - d.y0) / 2})`)
 
     textGroups.each(function(d: any) {
       const group = d3.select(this)
       const rectWidth = d.x1 - d.x0
       const rectHeight = d.y1 - d.y0
       const fontSize = Math.max(8, Math.min(14, Math.min(rectWidth, rectHeight) / 8))
+      const valueFontSize = Math.max(6, Math.min(10, Math.min(rectWidth, rectHeight) / 12))
       
       // Only show text if rectangle is large enough
       if (rectHeight > 30 && rectWidth > 60) {
@@ -175,11 +176,16 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         
         // Limit to 3 lines maximum
         const linesToShow = wrappedLines.slice(0, 3)
+        const lineHeight = fontSize + 2
+        const totalLabelHeight = linesToShow.length * lineHeight
+        
+        // Position label text above center
+        const labelStartY = -totalLabelHeight / 2 - 6 // 6px gap from center
         
         linesToShow.forEach((line, index) => {
           group.append('text')
             .attr('x', 0)
-            .attr('y', index * (fontSize + 2) - (linesToShow.length - 1) * (fontSize + 2) / 2)
+            .attr('y', labelStartY + index * lineHeight)
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .attr('fill', themeColors.text.inverse)
@@ -189,32 +195,23 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
             .style('user-select', 'none')
             .text(line)
         })
-      }
-    })
-
-    // Add value labels with proper positioning
-    const valueGroups = cells.append('g')
-      .attr('transform', d => `translate(${(d.x1 - d.x0) / 2}, ${(d.y1 - d.y0) / 2 + 10})`)
-
-    valueGroups.each(function(d: any) {
-      const group = d3.select(this)
-      const rectWidth = d.x1 - d.x0
-      const rectHeight = d.y1 - d.y0
-      const fontSize = Math.max(6, Math.min(10, Math.min(rectWidth, rectHeight) / 12))
-      
-      // Only show value if rectangle is large enough
-      if (rectHeight > 50 && rectWidth > 80) {
-        group.append('text')
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('fill', themeColors.text.inverse)
-          .attr('font-size', fontSize + 'px')
-          .attr('font-weight', '400')
-          .style('pointer-events', 'none')
-          .style('user-select', 'none')
-          .text(formatValue(d.data.value))
+        
+        // Add value text below the label text
+        if (rectHeight > 50 && rectWidth > 80) {
+          const valueY = labelStartY + totalLabelHeight + 8 // 8px gap after label text
+          
+          group.append('text')
+            .attr('x', 0)
+            .attr('y', valueY)
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .attr('fill', themeColors.text.inverse)
+            .attr('font-size', valueFontSize + 'px')
+            .attr('font-weight', '400')
+            .style('pointer-events', 'none')
+            .style('user-select', 'none')
+            .text(formatValue(d.data.value))
+        }
       }
     })
 
