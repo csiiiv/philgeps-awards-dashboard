@@ -24,6 +24,7 @@ export interface D3TreemapChartProps {
   hierarchy: string[]
   currentLevel: number
   onDrillDown: (entity: { id: string; name: string; type: string }) => void
+  onDrillUp?: () => void
   onContractClick?: (contract: any) => void
 }
 
@@ -35,6 +36,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
   hierarchy,
   currentLevel,
   onDrillDown,
+  onDrillUp,
   onContractClick
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -247,10 +249,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
           padding: `0 ${spacing[2]}`
         }}>
           <button
-            onClick={() => {
-              // This will be handled by the parent component
-              console.log('Drill up requested')
-            }}
+            onClick={onDrillUp}
             style={{
               padding: `${spacing[2]} ${spacing[4]}`,
               backgroundColor: themeColors.background.secondary,
