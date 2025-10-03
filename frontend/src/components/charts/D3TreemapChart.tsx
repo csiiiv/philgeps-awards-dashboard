@@ -313,7 +313,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
             borderRadius: spacing[1],
             fontSize: typography.fontSize.sm,
             fontWeight: typography.fontWeight.medium,
-            boxShadow: `0 4px 12px ${themeColors.shadow.medium}`,
+            boxShadow: `0 4px 12px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
             border: `1px solid ${themeColors.border.medium}`,
             pointerEvents: 'none',
             zIndex: 1000,
