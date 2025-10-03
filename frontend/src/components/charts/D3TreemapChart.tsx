@@ -328,8 +328,26 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       const originalTooltipX = tooltipX
       const originalTooltipY = tooltipY
       
-      tooltipX = Math.max(margin, Math.min(tooltipX, svgRect.width - tooltipWidth - margin))
-      tooltipY = Math.max(margin, Math.min(tooltipY, svgRect.height - tooltipHeight - margin))
+      // Calculate maximum allowed positions
+      const maxX = svgRect.width - tooltipWidth - margin
+      const maxY = svgRect.height - tooltipHeight - margin
+      
+      tooltipX = Math.max(margin, Math.min(tooltipX, maxX))
+      tooltipY = Math.max(margin, Math.min(tooltipY, maxY))
+      
+      // Additional check: ensure tooltip bottom doesn't exceed chart bottom
+      const tooltipBottom = tooltipY + tooltipHeight
+      const chartBottom = svgRect.height - margin
+      
+      if (tooltipBottom > chartBottom) {
+        tooltipY = chartBottom - tooltipHeight
+        console.log('Adjusted tooltip Y due to bottom overflow:', {
+          originalY: tooltipY,
+          tooltipBottom,
+          chartBottom,
+          newY: tooltipY
+        })
+      }
       
       console.log('Final bounds check:', {
         original: { x: originalTooltipX, y: originalTooltipY },
