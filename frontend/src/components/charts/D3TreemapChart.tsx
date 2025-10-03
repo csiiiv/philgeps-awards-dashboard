@@ -40,7 +40,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
   const svgRef = useRef<SVGSVGElement>(null)
   const [hoveredItem, setHoveredItem] = useState<{ x: number; y: number; text: string } | null>(null)
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const themeColors = useMemo(() => getThemeColors(isDark), [isDark])
 
   // Format value for display
   const formatValue = useCallback((value: number) => {
@@ -68,24 +68,16 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
 
   // Memoize event handlers to prevent re-creation
   const handleClick = useCallback((event: MouseEvent, d: any) => {
-    console.log('Click event fired!', d) // Debug log
-    console.log('Data level:', data.level)
-    console.log('Current level:', currentLevel)
-    console.log('Hierarchy:', hierarchy)
-    console.log('Entity data:', d.data)
-    
     if (data.level === 'contracts' && onContractClick) {
-      console.log('Calling onContractClick')
       onContractClick(d.data)
     } else {
-      console.log('Calling onDrillDown')
       onDrillDown({
         id: d.data.id || d.data.name,
         name: d.data.name,
         type: hierarchy[currentLevel] || 'unknown'
       })
     }
-  }, [data.level, currentLevel, hierarchy, onContractClick, onDrillDown, onDrillDown])
+  }, [data.level, currentLevel, hierarchy, onContractClick, onDrillDown])
 
   // Render treemap using D3
   useEffect(() => {
@@ -201,11 +193,9 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       .on('mouseout', handleMouseOut)
       .on('click', handleClick)
 
-    // Debug: Log the data structure
-    console.log('Treemap data:', data)
-    console.log('Root leaves:', root.leaves())
+    // Debug logs removed to prevent continuous re-rendering
 
-  }, [hierarchyData, isDark, themeColors, hierarchy, currentLevel, handleClick, colorScale, data.level, formatValue])
+  }, [hierarchyData, themeColors, hierarchy, currentLevel, handleClick, colorScale, data.level, formatValue])
 
   return (
     <div className={className} style={{ width: '100%' }}>
