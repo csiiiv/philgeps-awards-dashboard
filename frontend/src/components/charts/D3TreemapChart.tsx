@@ -85,11 +85,11 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
     // Create hierarchy data for D3
     const root = d3.hierarchy({
       name: 'root',
-      children: data.entities.map(entity => ({
+      children: data.entities.map((entity, index) => ({
         name: entity.name,
         value: entity.value,
         count: entity.count,
-        id: entity.id,
+        id: entity.id || `entity_${index}`,
         contractDetails: entity.contractDetails
       }))
     })
@@ -191,6 +191,7 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
       console.log('Data level:', data.level)
       console.log('Current level:', currentLevel)
       console.log('Hierarchy:', hierarchy)
+      console.log('Entity data:', d.data)
       
       if (data.level === 'contracts' && onContractClick) {
         console.log('Calling onContractClick')
