@@ -97,7 +97,7 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
       .sort((a, b) => (b.value || 0) - (a.value || 0))
 
     // Create treemap layout
-    const treemap = d3.treemap<TreemapData['entities'][0]>()
+    const treemap = d3.treemap<any>()
       .size([width, height])
       .padding(2)
       .round(true)
@@ -186,11 +186,12 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
     }
 
     const handleClick = (event: MouseEvent, d: any) => {
+      console.log('Click event:', d.data) // Debug log
       if (data.level === 'contracts' && onContractClick) {
         onContractClick(d.data)
       } else {
         onDrillDown({
-          id: d.data.id,
+          id: d.data.id || d.data.name,
           name: d.data.name,
           type: hierarchy[currentLevel] || 'unknown'
         })
@@ -202,6 +203,10 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
       .on('mouseover', handleMouseOver)
       .on('mouseout', handleMouseOut)
       .on('click', handleClick)
+
+    // Debug: Log the data structure
+    console.log('Treemap data:', data)
+    console.log('Root leaves:', root.leaves())
 
   }, [data, isDark, themeColors, hierarchy, currentLevel, onDrillDown, onContractClick, colorScale])
 

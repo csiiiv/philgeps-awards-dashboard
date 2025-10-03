@@ -343,6 +343,7 @@ export const TreemapPage: React.FC = () => {
 
   // Event handlers
   const handleDrillDown = useCallback((entity: { id: string; name: string; type: string }) => {
+    console.log('handleDrillDown called with:', entity) // Debug log
     loadDrillDownData(entity)
   }, [loadDrillDownData])
 
