@@ -52,6 +52,38 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
     return `₱${value.toFixed(0)}`
   }, [])
 
+  // Function to wrap text based on available width
+  const wrapText = useCallback((text: string, maxWidth: number, fontSize: number) => {
+    const words = text.split(' ')
+    const lines: string[] = []
+    let currentLine = ''
+
+    // Estimate character width (rough approximation: fontSize * 0.6)
+    const charWidth = fontSize * 0.6
+    const maxCharsPerLine = Math.floor(maxWidth / charWidth)
+
+    for (const word of words) {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word
+      if (testLine.length <= maxCharsPerLine) {
+        currentLine = testLine
+      } else {
+        if (currentLine) {
+          lines.push(currentLine)
+          currentLine = word
+        } else {
+          // Single word is too long, truncate it
+          lines.push(word.substring(0, maxCharsPerLine - 3) + '...')
+        }
+      }
+    }
+    
+    if (currentLine) {
+      lines.push(currentLine)
+    }
+
+    return lines
+  }, [])
+
   // Memoize the color scale to prevent re-creation
   const colorScale = useMemo(() => {
     return d3.scaleOrdinal(d3.schemeCategory10)
@@ -127,45 +159,64 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       .style('transition', 'all 0.2s ease')
       .style('pointer-events', 'all') // Ensure rectangles can receive events
 
-    // Add text labels
-    const texts = cells.append('text')
-      .attr('x', d => (d.x1 - d.x0) / 2)
-      .attr('y', d => (d.y1 - d.y0) / 2 - 6)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', themeColors.text.inverse)
-      .attr('font-size', d => {
-        const size = Math.min(d.x1 - d.x0, d.y1 - d.y0)
-        return Math.max(8, Math.min(14, size / 8)) + 'px'
-      })
-      .attr('font-weight', '600')
-      .style('pointer-events', 'none')
-      .style('user-select', 'none')
-      .text(d => {
-        const maxLength = Math.floor((d.x1 - d.x0) / 8)
-        return d.data.name.length > maxLength 
-          ? d.data.name.substring(0, maxLength) + '...'
-          : d.data.name
-      })
+    // Add text labels with wrapping
+    const textGroups = cells.append('g')
+      .attr('transform', d => `translate(${(d.x1 - d.x0) / 2}, ${(d.y1 - d.y0) / 2 - 6})`)
 
-    // Add value labels
-    const valueTexts = cells.append('text')
-      .attr('x', d => (d.x1 - d.x0) / 2)
-      .attr('y', d => (d.y1 - d.y0) / 2 + 10)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', themeColors.text.inverse)
-      .attr('font-size', d => {
-        const size = Math.min(d.x1 - d.x0, d.y1 - d.y0)
-        return Math.max(6, Math.min(10, size / 12)) + 'px'
-      })
-      .attr('font-weight', '400')
-      .style('pointer-events', 'none')
-      .style('user-select', 'none')
-      .text(d => formatValue(d.data.value))
+    textGroups.each(function(d: any) {
+      const group = d3.select(this)
+      const rectWidth = d.x1 - d.x0
+      const rectHeight = d.y1 - d.y0
+      const fontSize = Math.max(8, Math.min(14, Math.min(rectWidth, rectHeight) / 8))
+      
+      // Only show text if rectangle is large enough
+      if (rectHeight > 30 && rectWidth > 60) {
+        const wrappedLines = wrapText(d.data.name, rectWidth - 8, fontSize) // 8px padding
+        
+        // Limit to 3 lines maximum
+        const linesToShow = wrappedLines.slice(0, 3)
+        
+        linesToShow.forEach((line, index) => {
+          group.append('text')
+            .attr('x', 0)
+            .attr('y', index * (fontSize + 2) - (linesToShow.length - 1) * (fontSize + 2) / 2)
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .attr('fill', themeColors.text.inverse)
+            .attr('font-size', fontSize + 'px')
+            .attr('font-weight', '600')
+            .style('pointer-events', 'none')
+            .style('user-select', 'none')
+            .text(line)
+        })
+      }
+    })
 
-    // Only show value text if rectangle is large enough
-    valueTexts.style('display', d => (d.y1 - d.y0) > 40 ? 'block' : 'none')
+    // Add value labels with proper positioning
+    const valueGroups = cells.append('g')
+      .attr('transform', d => `translate(${(d.x1 - d.x0) / 2}, ${(d.y1 - d.y0) / 2 + 10})`)
+
+    valueGroups.each(function(d: any) {
+      const group = d3.select(this)
+      const rectWidth = d.x1 - d.x0
+      const rectHeight = d.y1 - d.y0
+      const fontSize = Math.max(6, Math.min(10, Math.min(rectWidth, rectHeight) / 12))
+      
+      // Only show value if rectangle is large enough
+      if (rectHeight > 50 && rectWidth > 80) {
+        group.append('text')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('fill', themeColors.text.inverse)
+          .attr('font-size', fontSize + 'px')
+          .attr('font-weight', '400')
+          .style('pointer-events', 'none')
+          .style('user-select', 'none')
+          .text(formatValue(d.data.value))
+      }
+    })
 
     // Hover effects
     const handleMouseOver = (event: MouseEvent, d: any) => {
