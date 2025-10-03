@@ -7,96 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.2] - 2025-01-02
 
-### Added
-- **Data Clarity**: Clear distinction between all records (15.5M) and awarded contracts (5.0M)
-- **Financial Transparency**: Added ₱14.8T+ total value tracking for awarded contracts
-- **Data Types Clarification**: Specified procurement notices, contract awards, and bidding information
-- **CHANGELOG.md**: Comprehensive changelog for tracking all project changes
-- **Enhanced Documentation**: Updated README.md with accurate data metrics and file structure
+### What Changed
+- Made it clear that we have 15.5M total records but only 5M are actual awarded contracts worth ₱14.8T
+- Added proper attribution for flood control data from "Sumbong sa Pangulo" dataset
+- Updated README to distinguish between all procurement data vs awarded contracts only
 
-### Changed
-- **README.md**: Updated data overview section with clear record type distinctions
-- **Data Processing Pipeline**: Enhanced documentation with financial totals and record counts
-- **File Structure**: Updated project structure with accurate file sizes and record counts
-- **Version Number**: Updated to v3.0.2 to reflect data clarity improvements
-
-### Fixed
-- **Data Understanding**: Clarified scope of dataset to distinguish between all procurement data and awarded contracts
-- **Financial Tracking**: Added proper financial value tracking for awarded contracts only
+### Why It Matters
+- Users were confused about what data they were looking at
+- Financial totals were misleading without context about awarded vs non-awarded contracts
+- Data sources weren't properly credited
 
 ## [3.0.1] - 2025-01-01
 
-### Added
-- **📈 Trend Charts**: Interactive quarterly/yearly trend charts in drill-down modals
-- **🔄 Complete Data Rebuild**: Consolidated 2013-2025 dataset with 15.5M+ records
-- **📊 Enhanced Analytics**: Individual entity trend analysis with complete dataset processing
-- **🛠️ Data Pipeline**: Comprehensive processing scripts with full documentation
-- **📁 File Structure**: 225+ optimized parquet files for fast analytics
-- **🔧 Maintenance**: Automated cleanup and optimization scripts
-- **Data Pipeline Documentation**: Complete `scripts/DATA_PIPELINE.md` with visual diagrams
-- **Scripts Documentation**: Updated `scripts/README.md` with quick start guide
-- **Entity Drill-down Trends**: Added trend charts to entity drill-down modals
-- **Complete Dataset Processing**: Trend charts now process entire filtered dataset, not just paginated results
-- **Financial Value Tracking**: Proper numeric conversion for contract amounts in trend analysis
+### What Changed
+- Added trend charts to drill-down modals showing quarterly/yearly patterns
+- Rebuilt complete dataset from 2013-2025 (was 2013-2021) - now 15.5M total records
+- Fixed trend charts to use all filtered data, not just current page
+- Fixed string concatenation bug in financial calculations
+- Cleaned up 1.2GB of redundant quarterly files
+- Added comprehensive data pipeline documentation
 
-### Changed
-- **Data Coverage**: Extended from 2013-2021 to 2013-2025 (13 years)
-- **Performance**: Optimized search and analytics with DuckDB integration
-- **User Experience**: Enhanced drill-down modals with embedded trend charts
-- **Documentation**: Complete data pipeline documentation and maintenance guides
-- **Code Quality**: Cleaned up scripts directory and improved code organization
-- **Frontend Components**: Updated `QuarterlyTrendsChart` to limit year range to 2027
-- **Analytics Controls**: Updated year range generation to include 2013-2027
-- **Data Explorer**: Updated year options to include 2013-2027
-- **Entity Drill-down Modal**: Added trend chart integration with complete data processing
-- **Backend Services**: Updated `parquet_service.py` to handle singular entity types
-- **Search Services**: Fixed DuckDB date casting issues in `parquet_search.py`
-
-### Fixed
-- **String Concatenation**: Fixed trend chart data processing to properly convert contract amounts to numbers
-- **Pagination Issues**: Fixed trend chart to use all filtered contracts instead of just paginated results
-- **Date Formatting**: Fixed Excel serial date conversion issues in 2013-2020 data
-- **API Compatibility**: Fixed backend to handle both singular and plural entity types
-- **DuckDB Errors**: Fixed date casting and extraction errors in search queries
-- **Data Type Issues**: Fixed string to numeric conversion in trend analysis
-
-### Removed
-- **Debug Information**: Removed console logs and debug panels from production code
-- **Temporary Files**: Cleaned up analysis scripts, test files, and old backup files
-- **Legacy Scripts**: Archived unused scripts to `scripts/archive/` directory
-- **Quarterly Raw Files**: Cleaned up redundant quarterly raw data files (1.2GB freed)
-
-### Technical Details
-- **Total Records**: 15,451,722 government procurement records
-- **Awarded Contracts**: 4,993,608 contracts with financial values
-- **Total Value**: ₱14,838,640,444,850 (₱14.8T+)
-- **File Sizes**: 2.6GB consolidated dataset, 1.1GB clean awarded contracts
-- **Aggregation Files**: 225+ parquet files for fast analytics
-- **Data Sources**: PhilGEPS XLSX (2013-2020) + CSV (2021-2025) + Flood Control
-- **Columns**: 50 columns in consolidated dataset (44 original + 6 new)
+### Why It Matters
+- Users can now see trends for individual contractors/organizations
+- More complete dataset with recent years (2022-2025) - 15.5M total records, 5M awarded contracts worth ₱14.8T
+- Financial calculations are now accurate
+- Better performance with optimized file structure
 
 ## [3.0.0] - 2024-12-31
 
-### Added
-- **Initial Release**: Basic PhilGEPS Dashboard functionality
-- **Data Explorer**: Entity-first analysis by contractors, organizations, areas, business categories
-- **Advanced Search**: Multi-dimensional search with keyword matching and date filtering
-- **Analytics**: Contract analysis and performance metrics
-- **Dark/Light Mode**: Theme toggle functionality
-- **Responsive Design**: Mobile and desktop compatibility
-- **Django Backend**: RESTful API with DuckDB integration
-- **React Frontend**: Modern React 18 with TypeScript
-- **Data Processing**: Initial XLSX to Parquet conversion pipeline
-- **Documentation**: Basic project documentation and setup guides
+### What Changed
+- Initial release of complete PhilGEPS Dashboard
+- Data explorer with entity-first analysis
+- Advanced search with filters and keyword matching
+- Dark/light mode toggle
+- Django backend with DuckDB for analytics
+- React frontend with TypeScript
 
-### Technical Details
-- **Data Coverage**: 2013-2021 (9 years)
-- **Records**: ~8.9M records from XLSX files
-- **Columns**: 44 columns from original XLSX structure
-- **File Format**: Parquet files for efficient analytics
-- **Search**: Basic full-text search functionality
-- **API**: Django REST Framework endpoints
-- **Frontend**: React with Styled Components
+### Why It Matters
+- First public release of government procurement analytics dashboard
+- Covers 2013-2021 data (~8.9M total records, ~3.2M awarded contracts)
+- Provides transparency into government spending patterns
 
 ---
 
