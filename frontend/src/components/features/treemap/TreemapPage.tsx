@@ -37,7 +37,7 @@ export const TreemapPage: React.FC = () => {
   // State
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedHierarchy, setSelectedHierarchy] = useState<string>('org-category-contracts')
+  const [selectedHierarchy, setSelectedHierarchy] = useState<string>('area-org-contractor-contracts')
   const [drillDownState, setDrillDownState] = useState<DrillDownState>({
     level: 0,
     path: [],
@@ -50,6 +50,12 @@ export const TreemapPage: React.FC = () => {
 
   // Hierarchy configurations
   const hierarchies: HierarchyConfig[] = [
+    {
+      id: 'area-org-contractor-contracts',
+      label: 'Region → Agency → Contractor → Contracts',
+      description: 'Start with geographic region, see agencies, then contractors, then individual contracts',
+      levels: ['area', 'organization', 'contractor', 'contracts']
+    },
     {
       id: 'org-category-contracts',
       label: 'Agency → Category → Contracts',
@@ -187,6 +193,47 @@ export const TreemapPage: React.FC = () => {
             entities: contracts
           })
         }
+      } else if (currentLevelType === 'contractor') {
+        // Load contractors for the selected organization
+        const filters = {
+          ...drillDownState.filters,
+          [entity.type === 'organization' ? 'organizations' : 
+           entity.type === 'area' ? 'areas' :
+           entity.type === 'category' ? 'business_categories' : 'contractors']: [entity.name]
+        }
+
+        const response = await fetch('/api/v1/contracts/chip-aggregates/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...filters,
+            topN: 20,
+            include_flood_control: false
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load data')
+        }
+
+        const entities = (result.data.by_contractor || []).map((item: any, index: number) => ({
+          id: `contractor_${index}`,
+          name: item.label || item.name || 'Unknown',
+          value: parseFloat(item.total_value) || 0,
+          count: parseInt(item.count) || 0
+        }))
+
+        setTreemapData({
+          level: 'sub-grouping',
+          entities
+        })
       } else {
         // Load next level aggregations
         const filters = {
@@ -332,7 +379,7 @@ export const TreemapPage: React.FC = () => {
             Select Exploration Path
           </h3>
           
-          <Grid $columns={2} $gap={spacing[4]}>
+          <Grid $columns={3} $gap={spacing[4]}>
             {hierarchies.map(hierarchy => (
               <GridItem key={hierarchy.id}>
                 <button
