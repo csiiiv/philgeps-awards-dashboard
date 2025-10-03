@@ -218,6 +218,9 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
     // Hover effects
     const handleMouseOver = (event: MouseEvent, d: any) => {
       const rect = (event.target as Element).getBoundingClientRect()
+      const svgRect = svgRef.current?.getBoundingClientRect()
+      
+      if (!svgRect) return
       
       let tooltipText = ''
       
@@ -241,9 +244,42 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         tooltipText = `${d.data.name}: ${formatValue(d.data.value)}`
       }
       
+      // Calculate smart positioning relative to chart container
+      const tooltipWidth = 400 // Approximate tooltip width
+      const tooltipHeight = 200 // Approximate tooltip height
+      const padding = 10
+      
+      // Get mouse position relative to the chart container
+      const mouseX = event.clientX - svgRect.left
+      const mouseY = event.clientY - svgRect.top
+      
+      // Calculate tooltip position (accounting for transform: translate(-50%, -100%))
+      let tooltipX = mouseX
+      let tooltipY = mouseY
+      
+      // Adjust for right edge (tooltip extends right from center)
+      if (tooltipX + tooltipWidth / 2 > svgRect.width - padding) {
+        tooltipX = svgRect.width - tooltipWidth / 2 - padding
+      }
+      
+      // Adjust for left edge (tooltip extends left from center)
+      if (tooltipX - tooltipWidth / 2 < padding) {
+        tooltipX = tooltipWidth / 2 + padding
+      }
+      
+      // Adjust for top edge (tooltip appears above mouse)
+      if (mouseY - tooltipHeight - padding < padding) {
+        tooltipY = mouseY + tooltipHeight + padding // Show below mouse instead
+      }
+      
+      // Adjust for bottom edge (tooltip appears below mouse)
+      if (mouseY + tooltipHeight + padding > svgRect.height - padding) {
+        tooltipY = mouseY - tooltipHeight - padding // Show above mouse instead
+      }
+      
       setHoveredItem({
-        x: rect.left + rect.width / 2,
-        y: rect.top - 10,
+        x: tooltipX,
+        y: tooltipY,
         text: tooltipText,
         contractDetails: data.level === 'contracts' && d.data.contractDetails && d.data.contractDetails.length > 0 ? d.data.contractDetails[0] : undefined
       })
