@@ -247,7 +247,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       // Calculate smart positioning relative to chart container
       const tooltipWidth = 400 // Approximate tooltip width
       const tooltipHeight = 200 // Approximate tooltip height
-      const padding = 10
+      const padding = 15
       
       // Get mouse position relative to the chart container
       const mouseX = event.clientX - svgRect.left
@@ -257,25 +257,43 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       let tooltipX = mouseX
       let tooltipY = mouseY
       
-      // Adjust for right edge (tooltip extends right from center)
-      if (tooltipX + tooltipWidth / 2 > svgRect.width - padding) {
-        tooltipX = svgRect.width - tooltipWidth / 2 - padding
+      // More precise edge detection
+      const halfWidth = tooltipWidth / 2
+      const halfHeight = tooltipHeight / 2
+      
+      // Horizontal positioning - ensure tooltip stays within bounds
+      if (tooltipX + halfWidth > svgRect.width - padding) {
+        // Too far right - position tooltip to the left of mouse
+        tooltipX = svgRect.width - halfWidth - padding
+      } else if (tooltipX - halfWidth < padding) {
+        // Too far left - position tooltip to the right of mouse
+        tooltipX = halfWidth + padding
       }
       
-      // Adjust for left edge (tooltip extends left from center)
-      if (tooltipX - tooltipWidth / 2 < padding) {
-        tooltipX = tooltipWidth / 2 + padding
+      // Vertical positioning - try above first, then below
+      const spaceAbove = mouseY - tooltipHeight - padding
+      const spaceBelow = svgRect.height - mouseY - tooltipHeight - padding
+      
+      if (spaceAbove >= padding) {
+        // Enough space above - show tooltip above mouse
+        tooltipY = mouseY - tooltipHeight - padding
+      } else if (spaceBelow >= padding) {
+        // Not enough space above, but space below - show tooltip below mouse
+        tooltipY = mouseY + tooltipHeight + padding
+      } else {
+        // Not enough space above or below - center vertically and adjust
+        if (mouseY < svgRect.height / 2) {
+          // Mouse in upper half - show tooltip below
+          tooltipY = Math.min(mouseY + tooltipHeight + padding, svgRect.height - halfHeight - padding)
+        } else {
+          // Mouse in lower half - show tooltip above
+          tooltipY = Math.max(mouseY - tooltipHeight - padding, halfHeight + padding)
+        }
       }
       
-      // Adjust for top edge (tooltip appears above mouse)
-      if (mouseY - tooltipHeight - padding < padding) {
-        tooltipY = mouseY + tooltipHeight + padding // Show below mouse instead
-      }
-      
-      // Adjust for bottom edge (tooltip appears below mouse)
-      if (mouseY + tooltipHeight + padding > svgRect.height - padding) {
-        tooltipY = mouseY - tooltipHeight - padding // Show above mouse instead
-      }
+      // Final safety check - ensure tooltip is within bounds
+      tooltipX = Math.max(padding + halfWidth, Math.min(tooltipX, svgRect.width - halfWidth - padding))
+      tooltipY = Math.max(padding + halfHeight, Math.min(tooltipY, svgRect.height - halfHeight - padding))
       
       setHoveredItem({
         x: tooltipX,
