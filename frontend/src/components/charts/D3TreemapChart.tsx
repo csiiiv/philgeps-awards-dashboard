@@ -285,14 +285,28 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         // Check if the quadrant-based position would cause overflow
         const wouldOverflow = tooltipY + tooltipHeight > svgRect.height - margin
         
+        console.log('Bottom quadrant debug:', {
+          mouseY,
+          tooltipY,
+          tooltipHeight,
+          svgHeight: svgRect.height,
+          margin,
+          wouldOverflow,
+          spaceAbove: mouseY - tooltipHeight - margin
+        })
+        
         if (wouldOverflow) {
           // Try positioning above the mouse instead
           const spaceAbove = mouseY - tooltipHeight - margin
           if (spaceAbove >= margin) {
             // Enough space above mouse - position tooltip above
             tooltipY = mouseY - tooltipHeight - margin
+            console.log('Positioned above mouse:', tooltipY)
+          } else {
+            // Not enough space above - position at top of chart
+            tooltipY = margin
+            console.log('Positioned at top of chart:', tooltipY)
           }
-          // If no space above either, keep the quadrant positioning and let bounds check handle it
         }
       }
       
