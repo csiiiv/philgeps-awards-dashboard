@@ -244,13 +244,45 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         tooltipText = `${d.data.name}: ${formatValue(d.data.value)}`
       }
       
-      // Always position tooltip in the center of the chart
+      // Quadrant-based positioning to avoid blocking middle entities
       const tooltipWidth = 400
       const tooltipHeight = 200
+      const margin = 20
       
-      // Center the tooltip in the chart
-      const tooltipX = (svgRect.width - tooltipWidth) / 2
-      const tooltipY = (svgRect.height - tooltipHeight) / 2
+      // Get mouse position relative to the chart container
+      const mouseX = event.clientX - svgRect.left
+      const mouseY = event.clientY - svgRect.top
+      
+      // Determine which quadrant the mouse is in
+      const centerX = svgRect.width / 2
+      const centerY = svgRect.height / 2
+      const isLeft = mouseX < centerX
+      const isTop = mouseY < centerY
+      
+      // Position tooltip in the opposite quadrant
+      let tooltipX, tooltipY
+      
+      if (isLeft && isTop) {
+        // Mouse in top-left quadrant -> position tooltip in bottom-right
+        tooltipX = svgRect.width - tooltipWidth - margin
+        tooltipY = svgRect.height - tooltipHeight - margin
+      } else if (!isLeft && isTop) {
+        // Mouse in top-right quadrant -> position tooltip in bottom-left
+        tooltipX = margin
+        tooltipY = svgRect.height - tooltipHeight - margin
+      } else if (isLeft && !isTop) {
+        // Mouse in bottom-left quadrant -> position tooltip in top-right
+        tooltipX = svgRect.width - tooltipWidth - margin
+        tooltipY = margin
+      } else {
+        // Mouse in bottom-right quadrant -> position tooltip in top-left
+        tooltipX = margin
+        tooltipY = margin
+      }
+      
+      // Ensure tooltip stays within bounds
+      tooltipX = Math.max(margin, Math.min(tooltipX, svgRect.width - tooltipWidth - margin))
+      tooltipY = Math.max(margin, Math.min(tooltipY, svgRect.height - tooltipHeight - margin))
       
       setHoveredItem({
         x: tooltipX,
