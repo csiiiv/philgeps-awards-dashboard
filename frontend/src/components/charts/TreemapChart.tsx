@@ -47,9 +47,9 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
   const { isDark } = useTheme()
   const themeColors = getThemeColors(isDark)
   const svgRef = useRef<SVGSVGElement>(null)
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [, setHoveredItem] = useState<string | null>(null)
 
-  // Calculate treemap layout using squarified algorithm
+  // Calculate treemap layout using improved algorithm
   const calculateTreemapLayout = (items: TreemapData['entities'], width: number, height: number) => {
     if (items.length === 0) return []
 
@@ -65,26 +65,79 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
       data: typeof items[0]
     }> = []
 
-    // Simple grid layout for now (can be enhanced with squarified algorithm later)
-    const cols = Math.ceil(Math.sqrt(sortedItems.length))
-    const rows = Math.ceil(sortedItems.length / cols)
-    const cellWidth = width / cols
-    const cellHeight = height / rows
-
-    sortedItems.forEach((item, index) => {
-      const row = Math.floor(index / cols)
-      const col = index % cols
-      const itemValue = item.value
-      const itemHeight = (itemValue / totalValue) * height
-
+    // Use a more sophisticated layout that creates better-sized rectangles
+    const padding = 2
+    const minRectSize = 60 // Minimum rectangle size for readability
+    
+    if (sortedItems.length === 1) {
+      // Single item takes full space
       rectangles.push({
-        x: col * cellWidth,
-        y: row * cellHeight,
-        width: cellWidth,
-        height: Math.max(itemHeight, 20), // Minimum height
-        data: item
+        x: padding,
+        y: padding,
+        width: width - 2 * padding,
+        height: height - 2 * padding,
+        data: sortedItems[0]
       })
-    })
+    } else if (sortedItems.length <= 4) {
+      // 2x2 grid for small datasets
+      const cols = 2
+      const rows = Math.ceil(sortedItems.length / cols)
+      const cellWidth = (width - padding * (cols + 1)) / cols
+      const cellHeight = (height - padding * (rows + 1)) / rows
+
+      sortedItems.forEach((item, index) => {
+        const row = Math.floor(index / cols)
+        const col = index % cols
+        rectangles.push({
+          x: padding + col * (cellWidth + padding),
+          y: padding + row * (cellHeight + padding),
+          width: cellWidth,
+          height: cellHeight,
+          data: item
+        })
+      })
+    } else {
+      // Use a more sophisticated layout for larger datasets
+      // Calculate optimal grid based on data size and aspect ratio
+      const aspectRatio = width / height
+      let cols = Math.ceil(Math.sqrt(sortedItems.length * aspectRatio))
+      let rows = Math.ceil(sortedItems.length / cols)
+      
+      // Ensure we don't have too many rows (max 6 for readability)
+      if (rows > 6) {
+        rows = 6
+        cols = Math.ceil(sortedItems.length / rows)
+      }
+      
+      const cellWidth = (width - padding * (cols + 1)) / cols
+      const cellHeight = (height - padding * (rows + 1)) / rows
+
+      sortedItems.forEach((item, index) => {
+        const row = Math.floor(index / cols)
+        const col = index % cols
+        
+        // Calculate proportional height based on value, but with better constraints
+        const itemValue = item.value
+        const maxHeight = cellHeight * 1.2 // Allow rectangles to be 20% taller than cell
+        const minHeight = Math.max(cellHeight * 0.3, minRectSize) // Minimum 30% of cell height
+        
+        const proportionalHeight = Math.max(
+          minHeight,
+          Math.min(
+            maxHeight,
+            (itemValue / totalValue) * height * 0.6 // Use 60% of total height for proportional sizing
+          )
+        )
+        
+        rectangles.push({
+          x: padding + col * (cellWidth + padding),
+          y: padding + row * (cellHeight + padding),
+          width: cellWidth,
+          height: proportionalHeight,
+          data: item
+        })
+      })
+    }
 
     return rectangles
   }
@@ -145,34 +198,39 @@ export const TreemapChart: React.FC<TreemapChartProps> = ({
         }
       })
 
-      // Add text label
+      // Add text label with better sizing and positioning
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
       text.setAttribute('x', (rect.x + rect.width / 2).toString())
-      text.setAttribute('y', (rect.y + rect.height / 2).toString())
+      text.setAttribute('y', (rect.y + rect.height / 2 - 8).toString())
       text.setAttribute('text-anchor', 'middle')
       text.setAttribute('dominant-baseline', 'middle')
       text.setAttribute('fill', themeColors.text.inverse)
-      text.setAttribute('font-size', Math.min(rect.width, rect.height) / 8 + 'px')
+      
+      // Better font sizing based on rectangle size
+      const fontSize = Math.max(10, Math.min(16, Math.min(rect.width, rect.height) / 6))
+      text.setAttribute('font-size', fontSize + 'px')
       text.setAttribute('font-weight', '600')
       text.style.pointerEvents = 'none'
       text.style.userSelect = 'none'
 
-      // Truncate text if too long
-      const maxLength = Math.floor(rect.width / 8)
+      // Truncate text more intelligently
+      const maxLength = Math.floor(rect.width / (fontSize * 0.6))
       const displayText = rect.data.name.length > maxLength 
         ? rect.data.name.substring(0, maxLength) + '...'
         : rect.data.name
 
       text.textContent = displayText
 
-      // Add value label
+      // Add value label with better positioning
       const valueText = document.createElementNS('http://www.w3.org/2000/svg', 'text')
       valueText.setAttribute('x', (rect.x + rect.width / 2).toString())
-      valueText.setAttribute('y', (rect.y + rect.height / 2 + 16).toString())
+      valueText.setAttribute('y', (rect.y + rect.height / 2 + 12).toString())
       valueText.setAttribute('text-anchor', 'middle')
       valueText.setAttribute('dominant-baseline', 'middle')
       valueText.setAttribute('fill', themeColors.text.inverse)
-      valueText.setAttribute('font-size', Math.min(rect.width, rect.height) / 12 + 'px')
+      
+      const valueFontSize = Math.max(8, Math.min(12, fontSize * 0.8))
+      valueText.setAttribute('font-size', valueFontSize + 'px')
       valueText.setAttribute('font-weight', '400')
       valueText.style.pointerEvents = 'none'
       valueText.style.userSelect = 'none'

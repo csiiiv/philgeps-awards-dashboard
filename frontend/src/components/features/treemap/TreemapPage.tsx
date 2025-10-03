@@ -98,7 +98,7 @@ export const TreemapPage: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          topN: 50,
+          topN: 20, // Limit to top 20 for better visualization
           include_flood_control: false
         })
       })
@@ -203,7 +203,7 @@ export const TreemapPage: React.FC = () => {
           },
           body: JSON.stringify({
             ...filters,
-            topN: 50,
+            topN: 20, // Limit to top 20 for better visualization
             include_flood_control: false
           })
         })
