@@ -223,7 +223,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       
       if (data.level === 'contracts' && d.data.contractDetails) {
         // Show detailed contract information
-        const contract = d.data.contractDetails[0] // Get first contract for details
+        const contract = d.data.contractDetails // contractDetails is an object, not an array
         tooltipText = [
           `Award Date: ${contract.award_date || 'N/A'}`,
           `Award Title: ${contract.award_title || 'N/A'}`,
