@@ -224,6 +224,11 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       if (data.level === 'contracts' && d.data.contractDetails) {
         // Show detailed contract information
         const contract = d.data.contractDetails // contractDetails is an object, not an array
+        
+        // Debug: Log the actual contract data structure
+        console.log('Contract details structure:', contract)
+        console.log('Available keys:', Object.keys(contract))
+        
         tooltipText = [
           `Award Date: ${contract.award_date || 'N/A'}`,
           `Award Title: ${contract.award_title || 'N/A'}`,

@@ -187,10 +187,14 @@ export const TreemapPage: React.FC = () => {
             value: parseFloat(contract.contract_amount) || 0,
             count: 1,
             contractDetails: {
-              amount: parseFloat(contract.contract_amount) || 0,
-              date: contract.award_date || '',
-              description: contract.award_title || contract.notice_title || '',
-              contractor: contract.awardee_name || ''
+              award_date: contract.award_date || '',
+              award_title: contract.award_title || '',
+              notice_title: contract.notice_title || '',
+              awardee_name: contract.awardee_name || '',
+              organization_name: contract.organization_name || '',
+              business_category: contract.business_category || '',
+              area_of_delivery: contract.area_of_delivery || '',
+              contract_amount: parseFloat(contract.contract_amount) || 0
             }
           }))
 
