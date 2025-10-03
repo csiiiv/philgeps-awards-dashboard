@@ -246,8 +246,16 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       
       // Quadrant-based positioning to avoid blocking middle entities
       const tooltipWidth = 400
-      const tooltipHeight = 200
       const margin = 20
+      
+      // Calculate dynamic tooltip height based on content
+      let tooltipHeight = 200 // Default height
+      if (data.level === 'contracts' && d.data.contractDetails && d.data.contractDetails.length > 0) {
+        // For contract details, estimate height based on number of fields
+        const contract = d.data.contractDetails[0]
+        const fieldCount = Object.keys(contract).length
+        tooltipHeight = Math.max(200, 40 + (fieldCount * 25)) // 40px base + 25px per field
+      }
       
       // Get mouse position relative to the chart container
       const mouseX = event.clientX - svgRect.left
@@ -269,7 +277,9 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         centerY,
         isLeft,
         isTop,
-        quadrant: `${isLeft ? 'left' : 'right'}-${isTop ? 'top' : 'bottom'}`
+        quadrant: `${isLeft ? 'left' : 'right'}-${isTop ? 'top' : 'bottom'}`,
+        tooltipHeight,
+        tooltipWidth
       })
       
       if (isLeft && isTop) {
