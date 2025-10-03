@@ -98,7 +98,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
       const searchParams = {
         ...entityFilters,
         page: 1,
-        pageSize: 10000, // Large page size to get all results
+        pageSize: 999999, // Very large page size to get all results
         sortBy: 'award_date',
         sortDirection: 'desc',
         includeFloodControl: currentFilters.includeFloodControl || false
@@ -307,7 +307,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
          entityType === 'area' ? 'areas' : 'business_categories']: [entityName]
       }
       
-      // First, get total counts with a large topN to get accurate totals
+      // First, get total counts with a very large topN to get accurate totals
       const totalCountParams = {
         contractors: entityFilters.contractors || [],
         areas: entityFilters.areas || [],
@@ -315,7 +315,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         businessCategories: entityFilters.business_categories || [],
         keywords: entityFilters.keywords || [],
         timeRanges: entityFilters.time_ranges || [],
-        topN: 10000, // Large number to get all counts
+        topN: 999999, // Very large number to get all counts
         includeFloodControl: currentFilters.includeFloodControl || false
       }
       

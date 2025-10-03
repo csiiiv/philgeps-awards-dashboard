@@ -833,6 +833,9 @@ class ParquetSearchService:
 
         try:
             conn = duckdb.connect()
+            # Configure DuckDB for better performance with large datasets
+            conn.execute("SET memory_limit='2GB'")
+            conn.execute("SET threads=4")
             result: Dict[str, Any] = {}
             for key, q in queries.items():
                 try:
