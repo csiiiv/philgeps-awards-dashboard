@@ -122,6 +122,7 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
       .attr('ry', 4)
       .style('cursor', 'pointer')
       .style('transition', 'all 0.2s ease')
+      .style('pointer-events', 'all') // Ensure rectangles can receive events
 
     // Add text labels
     const texts = cells.append('text')
@@ -186,10 +187,16 @@ export const D3TreemapChart: React.FC<TreemapChartProps> = ({
     }
 
     const handleClick = (event: MouseEvent, d: any) => {
-      console.log('Click event:', d.data) // Debug log
+      console.log('Click event fired!', d) // Debug log
+      console.log('Data level:', data.level)
+      console.log('Current level:', currentLevel)
+      console.log('Hierarchy:', hierarchy)
+      
       if (data.level === 'contracts' && onContractClick) {
+        console.log('Calling onContractClick')
         onContractClick(d.data)
       } else {
+        console.log('Calling onDrillDown')
         onDrillDown({
           id: d.data.id || d.data.name,
           name: d.data.name,
