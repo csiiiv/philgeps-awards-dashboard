@@ -8,6 +8,7 @@ import { TAB_CONFIGS, DEFAULT_TAB, type TabType } from './constants/tabs'
 import {
   LazyDataExplorer,
   LazyAdvancedSearch,
+  LazyTreemapPage,
   LazyApiDocumentation,
   LazyHelp,
   LazyAbout,
@@ -55,6 +56,8 @@ const AppContent: React.FC = () => {
         return <LazyDataExplorer />
       case 'advanced-search':
         return <LazyAdvancedSearch />
+      case 'treemap':
+        return <LazyTreemapPage />
       case 'api-docs':
         return <LazyApiDocumentation />
       case 'help':

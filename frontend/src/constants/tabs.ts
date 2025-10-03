@@ -1,4 +1,4 @@
-export type TabType = 'data-explorer' | 'advanced-search' | 'api-docs' | 'help' | 'about'
+export type TabType = 'data-explorer' | 'advanced-search' | 'treemap' | 'api-docs' | 'help' | 'about'
 
 export interface TabConfig {
   id: TabType
@@ -22,6 +22,13 @@ export const TAB_CONFIGS: TabConfig[] = [
     icon: '🔎',
     description: 'Perform advanced searches with filters',
     ariaLabel: 'Navigate to Advanced Search tab'
+  },
+  {
+    id: 'treemap',
+    label: 'Treemap',
+    icon: '🌳',
+    description: 'Interactive treemap visualization with drill-down',
+    ariaLabel: 'Navigate to Treemap tab'
   },
   {
     id: 'api-docs',
