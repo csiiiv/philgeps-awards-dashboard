@@ -40,7 +40,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
   onContractClick
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const [hoveredItem, setHoveredItem] = useState<{ x: number; y: number; text: string } | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<{ x: number; y: number; text: string; contractDetails?: any } | null>(null)
   const { isDark } = useTheme()
   const themeColors = useMemo(() => getThemeColors(isDark), [isDark])
 
@@ -247,7 +247,8 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       setHoveredItem({
         x: rect.left + rect.width / 2,
         y: rect.top - 10,
-        text: tooltipText
+        text: tooltipText,
+        contractDetails: data.level === 'contracts' && d.data.contractDetails ? d.data.contractDetails : undefined
       })
 
       d3.select(event.target as Element)
@@ -381,11 +382,131 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
             pointerEvents: 'none',
             zIndex: 1000,
             transform: 'translate(-50%, -100%)',
-            maxWidth: '300px',
-            whiteSpace: 'pre-line',
-            lineHeight: '1.4'
+            maxWidth: '400px'
           }}>
-            {hoveredItem.text}
+            {data.level === 'contracts' && hoveredItem.contractDetails ? (
+              <table style={{
+                borderCollapse: 'collapse',
+                width: '100%',
+                fontSize: typography.fontSize.sm
+              }}>
+                <tbody>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Award Date:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary
+                    }}>{hoveredItem.contractDetails.award_date || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Award Title:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary,
+                      maxWidth: '250px',
+                      wordWrap: 'break-word'
+                    }}>{hoveredItem.contractDetails.award_title || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Notice Title:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary,
+                      maxWidth: '250px',
+                      wordWrap: 'break-word'
+                    }}>{hoveredItem.contractDetails.notice_title || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Contractor:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary
+                    }}>{hoveredItem.contractDetails.awardee_name || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Organization:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary
+                    }}>{hoveredItem.contractDetails.organization_name || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Category:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary
+                    }}>{hoveredItem.contractDetails.business_category || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Area:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary
+                    }}>{hoveredItem.contractDetails.area_of_delivery || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{
+                      padding: '2px 8px 2px 0',
+                      fontWeight: typography.fontWeight.semibold,
+                      color: themeColors.text.secondary,
+                      verticalAlign: 'top',
+                      whiteSpace: 'nowrap'
+                    }}>Value:</td>
+                    <td style={{
+                      padding: '2px 0',
+                      color: themeColors.text.primary,
+                      fontWeight: typography.fontWeight.semibold
+                    }}>{formatValue(hoveredItem.contractDetails.contract_amount || 0)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ whiteSpace: 'pre-line', lineHeight: '1.4' }}>
+                {hoveredItem.text}
+              </div>
+            )}
           </div>
         )}
       </div>
