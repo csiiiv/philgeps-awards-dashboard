@@ -26,7 +26,7 @@ export const TAB_CONFIGS: TabConfig[] = [
   {
     id: 'treemap',
     label: 'Treemap',
-    icon: '🌳',
+    icon: '🗺️',
     description: 'Interactive treemap visualization with drill-down',
     ariaLabel: 'Navigate to Treemap tab'
   },
