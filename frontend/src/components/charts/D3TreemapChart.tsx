@@ -280,15 +280,20 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         tooltipY = margin
       }
       
-      // For bottom quadrants, ensure tooltip doesn't overflow below chart
+      // For bottom quadrants, check if tooltip would overflow below chart
       if (!isTop) {
-        // If mouse is in bottom half, position tooltip above the mouse
-        const spaceAbove = mouseY - tooltipHeight - margin
-        if (spaceAbove >= margin) {
-          // Enough space above mouse - position tooltip above
-          tooltipY = mouseY - tooltipHeight - margin
+        // Check if the quadrant-based position would cause overflow
+        const wouldOverflow = tooltipY + tooltipHeight > svgRect.height - margin
+        
+        if (wouldOverflow) {
+          // Try positioning above the mouse instead
+          const spaceAbove = mouseY - tooltipHeight - margin
+          if (spaceAbove >= margin) {
+            // Enough space above mouse - position tooltip above
+            tooltipY = mouseY - tooltipHeight - margin
+          }
+          // If no space above either, keep the quadrant positioning and let bounds check handle it
         }
-        // Otherwise keep the quadrant-based positioning
       }
       
       // Ensure tooltip stays within bounds
