@@ -228,6 +228,13 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         // Debug: Log the actual contract data structure
         console.log('Contract details structure:', contract)
         console.log('Available keys:', Object.keys(contract))
+        console.log('Award date value:', contract.award_date)
+        console.log('Award title value:', contract.award_title)
+        console.log('Notice title value:', contract.notice_title)
+        console.log('Awardee name value:', contract.awardee_name)
+        console.log('Organization name value:', contract.organization_name)
+        console.log('Business category value:', contract.business_category)
+        console.log('Area of delivery value:', contract.area_of_delivery)
         
         tooltipText = [
           `Award Date: ${contract.award_date || 'N/A'}`,
