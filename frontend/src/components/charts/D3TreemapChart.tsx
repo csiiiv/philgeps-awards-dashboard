@@ -279,77 +279,45 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       const mouseX = event.clientX - svgRect.left
       const mouseY = event.clientY - svgRect.top
       
-      // Determine which quadrant the mouse is in
+      // Simple left/right division
       const centerX = svgRect.width / 2
-      const centerY = svgRect.height / 2
       const isLeft = mouseX < centerX
-      const isTop = mouseY < centerY
       
-      // Position tooltip in the opposite quadrant
+      // Position tooltip on the opposite side
       let tooltipX, tooltipY
       
-      console.log('Quadrant debug - Mouse position:', {
+      console.log('Left/Right debug - Mouse position:', {
         mouseX,
         mouseY,
         centerX,
-        centerY,
         isLeft,
-        isTop,
-        quadrant: `${isLeft ? 'left' : 'right'}-${isTop ? 'top' : 'bottom'}`,
+        side: isLeft ? 'left' : 'right',
         tooltipHeight,
         tooltipWidth
       })
       
-      if (isLeft && isTop) {
-        // Mouse in top-left quadrant -> position tooltip in bottom-right
+      if (isLeft) {
+        // Mouse on left side -> position tooltip on right side
         tooltipX = svgRect.width - tooltipWidth - margin
-        tooltipY = svgRect.height - tooltipHeight - margin
-        console.log('Top-left hover -> Bottom-right tooltip:', { tooltipX, tooltipY })
-      } else if (!isLeft && isTop) {
-        // Mouse in top-right quadrant -> position tooltip in bottom-left
-        tooltipX = margin
-        tooltipY = svgRect.height - tooltipHeight - margin
-        console.log('Top-right hover -> Bottom-left tooltip:', { tooltipX, tooltipY })
-      } else if (isLeft && !isTop) {
-        // Mouse in bottom-left quadrant -> position tooltip in top-right
-        tooltipX = svgRect.width - tooltipWidth - margin
-        tooltipY = margin
-        console.log('Bottom-left hover -> Top-right tooltip:', { tooltipX, tooltipY })
+        console.log('Left hover -> Right tooltip:', { tooltipX })
       } else {
-        // Mouse in bottom-right quadrant -> position tooltip in top-left
+        // Mouse on right side -> position tooltip on left side
         tooltipX = margin
-        tooltipY = margin
-        console.log('Bottom-right hover -> Top-left tooltip:', { tooltipX, tooltipY })
+        console.log('Right hover -> Left tooltip:', { tooltipX })
       }
       
-      // For bottom quadrants, check if tooltip would overflow below chart
-      if (!isTop) {
-        // Check if the quadrant-based position would cause overflow
-        const wouldOverflow = tooltipY + tooltipHeight > svgRect.height - margin
-        
-        console.log('Bottom quadrant debug:', {
-          mouseY,
-          tooltipY,
-          tooltipHeight,
-          svgHeight: svgRect.height,
-          margin,
-          wouldOverflow,
-          spaceAbove: mouseY - tooltipHeight - margin
-        })
-        
-        if (wouldOverflow) {
-          // Try positioning above the mouse instead
-          const spaceAbove = mouseY - tooltipHeight - margin
-          if (spaceAbove >= margin) {
-            // Enough space above mouse - position tooltip above
-            tooltipY = mouseY - tooltipHeight - margin
-            console.log('Positioned above mouse:', tooltipY)
-          } else {
-            // Not enough space above - position at top of chart
-            tooltipY = margin
-            console.log('Positioned at top of chart:', tooltipY)
-          }
-        }
+      // Always position tooltip vertically centered, but check for overflow
+      tooltipY = (svgRect.height - tooltipHeight) / 2
+      
+      // Check if tooltip would overflow above or below
+      if (tooltipY < margin) {
+        // Too close to top - position at top with margin
+        tooltipY = margin
+        console.log('Adjusted to top margin:', tooltipY)
+      } else if (tooltipY + tooltipHeight > svgRect.height - margin) {
+        // Too close to bottom - position at bottom with margin
+        tooltipY = svgRect.height - tooltipHeight - margin
+        console.log('Adjusted to bottom margin:', tooltipY)
       }
       
       // Ensure tooltip stays within bounds
