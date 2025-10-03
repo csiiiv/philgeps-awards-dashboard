@@ -7,14 +7,12 @@ import {
   ContentContainer,
   Card,
   SectionTitle,
-  BodyText,
-  Grid,
-  GridItem
+  BodyText
 } from '../../styled/Common.styled'
-import { D3TreemapChart as TreemapChart, TreemapData } from '../../charts/D3TreemapChart'
+import { D3TreemapChart as TreemapChart, type TreemapData } from '../../charts/D3TreemapChart'
 import { LoadingSpinner } from '../shared/LoadingSpinner'
 import { ErrorDisplay } from '../shared/ErrorDisplay'
-import { advancedSearchService } from '../../../services/AdvancedSearchService'
+import { advancedSearchService, type ChipSearchParams } from '../../../services/AdvancedSearchService'
 
 // Types
 interface HierarchyConfig {
@@ -69,16 +67,28 @@ export const TreemapPage: React.FC = () => {
       levels: ['area', 'contractor', 'contracts']
     },
     {
+      id: 'contractor-area-org-contracts',
+      label: 'Contractor → Area → Agency → Contracts',
+      description: 'Start with contractor, see their geographic areas, then agencies, then specific contracts',
+      levels: ['contractor', 'area', 'organization', 'contracts']
+    },
+    {
       id: 'contractor-area-contracts',
       label: 'Contractor → Area → Contracts',
       description: 'Start with contractor, see their geographic areas, then specific contracts',
       levels: ['contractor', 'area', 'contracts']
     },
     {
-      id: 'org-contractor-contracts',
-      label: 'Agency → Contractor → Contracts',
-      description: 'Start with government agency, see contractors, then their individual contracts',
-      levels: ['organization', 'contractor', 'contracts']
+      id: 'contractor-org-contracts',
+      label: 'Contractor → Agency → Contracts',
+      description: 'Start with contractor, see their government clients, then specific contracts',
+      levels: ['contractor', 'organization', 'contracts']
+    },
+    {
+      id: 'category-area-contractor-contracts',
+      label: 'Category → Area → Contractor → Contracts',
+      description: 'Start with business category, see geographic areas, then contractors, then individual contracts',
+      levels: ['category', 'area', 'contractor', 'contracts']
     },
     {
       id: 'category-contractor-contracts',
@@ -87,10 +97,16 @@ export const TreemapPage: React.FC = () => {
       levels: ['category', 'contractor', 'contracts']
     },
     {
-      id: 'contractor-org-contracts',
-      label: 'Contractor → Agency → Contracts',
-      description: 'Start with contractor, see their government clients, then specific contracts',
-      levels: ['contractor', 'organization', 'contracts']
+      id: 'category-org-contracts',
+      label: 'Category → Agency → Contracts',
+      description: 'Start with business category, see government agencies, then their individual contracts',
+      levels: ['category', 'organization', 'contracts']
+    },
+    {
+      id: 'org-contractor-contracts',
+      label: 'Agency → Contractor → Contracts',
+      description: 'Start with government agency, see contractors, then their individual contracts',
+      levels: ['organization', 'contractor', 'contracts']
     }
   ]
 
@@ -167,15 +183,24 @@ export const TreemapPage: React.FC = () => {
       
       if (currentLevelType === 'contracts') {
         // Load individual contracts
-        const searchParams = {
-          ...drillDownState.filters,
-          [entity.type === 'organization' ? 'organizations' : 
-           entity.type === 'area' ? 'areas' :
-           entity.type === 'category' ? 'business_categories' : 'contractors']: [entity.name],
-          page: 1,
-          pageSize: 100,
-          sortBy: 'award_date',
-          sortDirection: 'desc'
+        const searchParams: ChipSearchParams = {
+          contractors: drillDownState.filters.contractors || [],
+          areas: drillDownState.filters.areas || [],
+          organizations: drillDownState.filters.organizations || [],
+          businessCategories: drillDownState.filters.business_categories || [],
+          keywords: [],
+          timeRanges: []
+        }
+        
+        // Add the specific entity filter
+        if (entity.type === 'organization') {
+          searchParams.organizations = [entity.name]
+        } else if (entity.type === 'area') {
+          searchParams.areas = [entity.name]
+        } else if (entity.type === 'category') {
+          searchParams.businessCategories = [entity.name]
+        } else if (entity.type === 'contractor') {
+          searchParams.contractors = [entity.name]
         }
 
         const response = await advancedSearchService.searchContractsWithChips(searchParams)
@@ -186,7 +211,7 @@ export const TreemapPage: React.FC = () => {
             name: contract.award_title || contract.notice_title || 'Untitled Contract',
             value: parseFloat(contract.contract_amount) || 0,
             count: 1,
-            contractDetails: {
+            contractDetails: [{
               award_date: contract.award_date || '',
               award_title: contract.award_title || '',
               notice_title: contract.notice_title || '',
@@ -195,7 +220,7 @@ export const TreemapPage: React.FC = () => {
               business_category: contract.business_category || '',
               area_of_delivery: contract.area_of_delivery || '',
               contract_amount: parseFloat(contract.contract_amount) || 0
-            }
+            }]
           }))
 
           setTreemapData({
@@ -364,12 +389,13 @@ export const TreemapPage: React.FC = () => {
       
       if (currentLevelType === 'contracts') {
         // Load individual contracts
-        const searchParams = {
-          ...filters,
-          page: 1,
-          pageSize: 100,
-          sortBy: 'award_date',
-          sortDirection: 'desc'
+        const searchParams: ChipSearchParams = {
+          contractors: filters.contractors || [],
+          areas: filters.areas || [],
+          organizations: filters.organizations || [],
+          businessCategories: filters.business_categories || [],
+          keywords: [],
+          timeRanges: []
         }
 
         const response = await advancedSearchService.searchContractsWithChips(searchParams)
@@ -380,7 +406,7 @@ export const TreemapPage: React.FC = () => {
             name: contract.award_title || contract.notice_title || 'Untitled Contract',
             value: parseFloat(contract.contract_amount) || 0,
             count: 1,
-            contractDetails: {
+            contractDetails: [{
               award_date: contract.award_date || '',
               award_title: contract.award_title || '',
               notice_title: contract.notice_title || '',
@@ -389,7 +415,7 @@ export const TreemapPage: React.FC = () => {
               business_category: contract.business_category || '',
               area_of_delivery: contract.area_of_delivery || '',
               contract_amount: parseFloat(contract.contract_amount) || 0
-            }
+            }]
           }))
 
           setTreemapData({
@@ -542,7 +568,7 @@ export const TreemapPage: React.FC = () => {
                 color: themeColors.text.primary,
                 border: `1px solid ${themeColors.border.medium}`,
                 borderRadius: spacing[1],
-                fontSize: typography.fontSize.md,
+                fontSize: typography.fontSize.base,
                 fontWeight: typography.fontWeight.medium,
                 cursor: 'pointer',
                 outline: 'none',
@@ -588,7 +614,6 @@ export const TreemapPage: React.FC = () => {
             <ErrorDisplay
               error={error}
               onRetry={loadInitialData}
-              retryText="Retry loading data"
             />
           </Card>
         )}
