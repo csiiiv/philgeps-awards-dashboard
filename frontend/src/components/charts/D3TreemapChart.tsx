@@ -225,28 +225,6 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         // Show detailed contract information
         const contract = d.data.contractDetails[0] // contractDetails is now an array
         
-        // Debug: Log the actual contract data structure
-        console.log('Contract details structure:', contract)
-        console.log('Available keys:', Object.keys(contract))
-        console.log('Award date value:', contract.award_date)
-        console.log('Award title value:', contract.award_title)
-        console.log('Notice title value:', contract.notice_title)
-        console.log('Awardee name value:', contract.awardee_name)
-        console.log('Organization name value:', contract.organization_name)
-        console.log('Business category value:', contract.business_category)
-        console.log('Area of delivery value:', contract.area_of_delivery)
-        
-        // Test individual field access
-        const testFields = {
-          award_date: contract.award_date,
-          award_title: contract.award_title,
-          notice_title: contract.notice_title,
-          awardee_name: contract.awardee_name,
-          organization_name: contract.organization_name,
-          business_category: contract.business_category,
-          area_of_delivery: contract.area_of_delivery
-        }
-        console.log('Test field access:', testFields)
         
         tooltipText = [
           `Award Date: ${contract.award_date || 'N/A'}`,
@@ -267,7 +245,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         x: rect.left + rect.width / 2,
         y: rect.top - 10,
         text: tooltipText,
-        contractDetails: data.level === 'contracts' && d.data.contractDetails ? d.data.contractDetails : undefined
+        contractDetails: data.level === 'contracts' && d.data.contractDetails && d.data.contractDetails.length > 0 ? d.data.contractDetails[0] : undefined
       })
 
       d3.select(event.target as Element)
