@@ -218,10 +218,31 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
     // Hover effects
     const handleMouseOver = (event: MouseEvent, d: any) => {
       const rect = (event.target as Element).getBoundingClientRect()
+      
+      let tooltipText = ''
+      
+      if (data.level === 'contracts' && d.data.contractDetails) {
+        // Show detailed contract information
+        const contract = d.data.contractDetails[0] // Get first contract for details
+        tooltipText = [
+          `Award Date: ${contract.award_date || 'N/A'}`,
+          `Award Title: ${contract.award_title || 'N/A'}`,
+          `Notice Title: ${contract.notice_title || 'N/A'}`,
+          `Contractor: ${contract.awardee_name || 'N/A'}`,
+          `Organization: ${contract.organization_name || 'N/A'}`,
+          `Category: ${contract.business_category || 'N/A'}`,
+          `Area: ${contract.area_of_delivery || 'N/A'}`,
+          `Value: ${formatValue(d.data.value)}`
+        ].join('\n')
+      } else {
+        // Show simple entity information
+        tooltipText = `${d.data.name}: ${formatValue(d.data.value)}`
+      }
+      
       setHoveredItem({
         x: rect.left + rect.width / 2,
         y: rect.top - 10,
-        text: `${d.data.name}: ${formatValue(d.data.value)}`
+        text: tooltipText
       })
 
       d3.select(event.target as Element)
@@ -346,7 +367,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
             top: hoveredItem.y,
             backgroundColor: themeColors.background.primary,
             color: themeColors.text.primary,
-            padding: `${spacing[1]} ${spacing[2]}`,
+            padding: `${spacing[2]} ${spacing[3]}`,
             borderRadius: spacing[1],
             fontSize: typography.fontSize.sm,
             fontWeight: typography.fontWeight.medium,
@@ -354,7 +375,10 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
             border: `1px solid ${themeColors.border.medium}`,
             pointerEvents: 'none',
             zIndex: 1000,
-            transform: 'translate(-50%, -100%)'
+            transform: 'translate(-50%, -100%)',
+            maxWidth: '300px',
+            whiteSpace: 'pre-line',
+            lineHeight: '1.4'
           }}>
             {hoveredItem.text}
           </div>
