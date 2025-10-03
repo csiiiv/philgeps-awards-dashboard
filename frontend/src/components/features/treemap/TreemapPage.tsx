@@ -672,7 +672,7 @@ export const TreemapPage: React.FC = () => {
               onDrillUp={handleDrillUp}
               onContractClick={handleContractClick}
               title={`${currentHierarchy.label} - Level ${drillDownState.level + 1}`}
-              height={500}
+              height={700}
             />
           </Card>
         )}
