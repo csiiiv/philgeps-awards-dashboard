@@ -168,7 +168,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       const rectWidth = d.x1 - d.x0
       const rectHeight = d.y1 - d.y0
       const fontSize = Math.max(8, Math.min(14, Math.min(rectWidth, rectHeight) / 8))
-      const valueFontSize = Math.max(6, Math.min(10, Math.min(rectWidth, rectHeight) / 12))
+      const valueFontSize = Math.max(8, Math.min(14, Math.min(rectWidth, rectHeight) / 8))
       
       // Only show text if rectangle is large enough
       if (rectHeight > 30 && rectWidth > 60) {
@@ -197,7 +197,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         })
         
         // Add value text below the label text
-        if (rectHeight > 50 && rectWidth > 80) {
+        if (rectHeight > 40 && rectWidth > 70) {
           const valueY = labelStartY + totalLabelHeight + 8 // 8px gap after label text
           
           group.append('text')
@@ -207,7 +207,7 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
             .attr('dominant-baseline', 'middle')
             .attr('fill', themeColors.text.inverse)
             .attr('font-size', valueFontSize + 'px')
-            .attr('font-weight', '400')
+            .attr('font-weight', '600')
             .style('pointer-events', 'none')
             .style('user-select', 'none')
             .text(formatValue(d.data.value))
