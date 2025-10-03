@@ -110,22 +110,6 @@ export const TreemapPage: React.FC = () => {
     }
   ]
 
-  // Generate dynamic title based on current exploration path
-  const getDynamicTitle = useCallback(() => {
-    const hierarchy = hierarchies.find(h => h.id === selectedHierarchy)
-    if (!hierarchy) return '🗺️ Treemap Visualization'
-    
-    if (drillDownState.level === 0) {
-      return `🗺️ Treemap Visualization - ${hierarchy.label}`
-    }
-    
-    // Build path string from drillDownState.path
-    const pathString = drillDownState.path.map(item => item.name).join(' → ')
-    const currentLevel = hierarchy.levels[drillDownState.level]
-    
-    return `🗺️ ${pathString} → ${currentLevel === 'contracts' ? 'Contracts' : currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1)}`
-  }, [selectedHierarchy, drillDownState, hierarchies])
-
   // Load initial data
   const loadInitialData = useCallback(async () => {
     setLoading(true)
@@ -545,28 +529,9 @@ export const TreemapPage: React.FC = () => {
       <ContentContainer $isDark={isDark}>
         {/* Header */}
         <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
-          <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[2] }}>
-            {getDynamicTitle()}
+          <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[4] }}>
+            🗺️ Treemap Visualization
           </SectionTitle>
-          
-          {/* Breadcrumb Navigation */}
-          {drillDownState.level > 0 && (
-            <div style={{
-              marginBottom: spacing[4],
-              padding: spacing[2],
-              backgroundColor: themeColors.background.tertiary,
-              borderRadius: spacing[1],
-              border: `1px solid ${themeColors.border.light}`
-            }}>
-              <div style={{
-                fontSize: typography.fontSize.sm,
-                color: themeColors.text.secondary,
-                fontWeight: typography.fontWeight.medium
-              }}>
-                📍 Current Path: {drillDownState.path.map(item => item.name).join(' → ')}
-              </div>
-            </div>
-          )}
           
           <BodyText $isDark={isDark} style={{ marginBottom: spacing[4] }}>
             Interactive treemap visualization with drill-down capabilities. Explore government procurement data 
@@ -671,6 +636,34 @@ export const TreemapPage: React.FC = () => {
         {/* Treemap Visualization */}
         {!loading && !error && currentHierarchy && (
           <Card $isDark={isDark}>
+            {/* Dynamic Path Information */}
+            {drillDownState.level > 0 && (
+              <div style={{
+                marginBottom: spacing[4],
+                padding: spacing[3],
+                backgroundColor: themeColors.background.tertiary,
+                borderRadius: spacing[1],
+                border: `1px solid ${themeColors.border.light}`
+              }}>
+                <div style={{
+                  fontSize: typography.fontSize.base,
+                  color: themeColors.text.primary,
+                  fontWeight: typography.fontWeight.semibold,
+                  marginBottom: spacing[1]
+                }}>
+                  📍 Current View: {drillDownState.path.map(item => item.name).join(' → ')}
+                </div>
+                <div style={{
+                  fontSize: typography.fontSize.sm,
+                  color: themeColors.text.secondary
+                }}>
+                  {currentHierarchy.levels[drillDownState.level] === 'contracts' 
+                    ? 'Showing individual contracts' 
+                    : `Showing ${currentHierarchy.levels[drillDownState.level]}s`}
+                </div>
+              </div>
+            )}
+            
             <TreemapChart
               data={treemapData}
               hierarchy={currentHierarchy.levels}
