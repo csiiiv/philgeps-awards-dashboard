@@ -262,22 +262,36 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       // Position tooltip in the opposite quadrant
       let tooltipX, tooltipY
       
+      console.log('Quadrant debug - Mouse position:', {
+        mouseX,
+        mouseY,
+        centerX,
+        centerY,
+        isLeft,
+        isTop,
+        quadrant: `${isLeft ? 'left' : 'right'}-${isTop ? 'top' : 'bottom'}`
+      })
+      
       if (isLeft && isTop) {
         // Mouse in top-left quadrant -> position tooltip in bottom-right
         tooltipX = svgRect.width - tooltipWidth - margin
         tooltipY = svgRect.height - tooltipHeight - margin
+        console.log('Top-left hover -> Bottom-right tooltip:', { tooltipX, tooltipY })
       } else if (!isLeft && isTop) {
         // Mouse in top-right quadrant -> position tooltip in bottom-left
         tooltipX = margin
         tooltipY = svgRect.height - tooltipHeight - margin
+        console.log('Top-right hover -> Bottom-left tooltip:', { tooltipX, tooltipY })
       } else if (isLeft && !isTop) {
         // Mouse in bottom-left quadrant -> position tooltip in top-right
         tooltipX = svgRect.width - tooltipWidth - margin
         tooltipY = margin
+        console.log('Bottom-left hover -> Top-right tooltip:', { tooltipX, tooltipY })
       } else {
         // Mouse in bottom-right quadrant -> position tooltip in top-left
         tooltipX = margin
         tooltipY = margin
+        console.log('Bottom-right hover -> Top-left tooltip:', { tooltipX, tooltipY })
       }
       
       // For bottom quadrants, check if tooltip would overflow below chart
@@ -311,8 +325,19 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       }
       
       // Ensure tooltip stays within bounds
+      const originalTooltipX = tooltipX
+      const originalTooltipY = tooltipY
+      
       tooltipX = Math.max(margin, Math.min(tooltipX, svgRect.width - tooltipWidth - margin))
       tooltipY = Math.max(margin, Math.min(tooltipY, svgRect.height - tooltipHeight - margin))
+      
+      console.log('Final bounds check:', {
+        original: { x: originalTooltipX, y: originalTooltipY },
+        final: { x: tooltipX, y: tooltipY },
+        chartSize: { width: svgRect.width, height: svgRect.height },
+        tooltipSize: { width: tooltipWidth, height: tooltipHeight },
+        margin
+      })
       
       setHoveredItem({
         x: tooltipX,
