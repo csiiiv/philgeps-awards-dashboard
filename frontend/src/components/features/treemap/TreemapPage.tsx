@@ -351,6 +351,99 @@ export const TreemapPage: React.FC = () => {
     }
   }, [selectedHierarchy, drillDownState])
 
+  // Load data for a specific level with filters
+  const loadDataForLevel = useCallback(async (level: number, filters: Record<string, string[]>) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const hierarchy = hierarchies.find(h => h.id === selectedHierarchy)
+      if (!hierarchy) return
+
+      const currentLevelType = hierarchy.levels[level]
+      
+      if (currentLevelType === 'contracts') {
+        // Load individual contracts
+        const searchParams = {
+          ...filters,
+          page: 1,
+          pageSize: 100,
+          sortBy: 'award_date',
+          sortDirection: 'desc'
+        }
+
+        const response = await advancedSearchService.searchContractsWithChips(searchParams)
+        
+        if (response.success && response.data) {
+          const contracts = response.data.map((contract: any, index: number) => ({
+            id: `contract_${index}`,
+            name: contract.award_title || contract.notice_title || 'Untitled Contract',
+            value: parseFloat(contract.contract_amount) || 0,
+            count: 1,
+            contractDetails: {
+              award_date: contract.award_date || '',
+              award_title: contract.award_title || '',
+              notice_title: contract.notice_title || '',
+              awardee_name: contract.awardee_name || '',
+              organization_name: contract.organization_name || '',
+              business_category: contract.business_category || '',
+              area_of_delivery: contract.area_of_delivery || '',
+              contract_amount: parseFloat(contract.contract_amount) || 0
+            }
+          }))
+
+          setTreemapData({
+            level: 'contracts',
+            entities: contracts
+          })
+        }
+      } else {
+        // Load aggregations for the level
+        const response = await fetch('/api/v1/contracts/chip-aggregates/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...filters,
+            topN: 20,
+            include_flood_control: false
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load data')
+        }
+
+        const dataKey = `by_${currentLevelType === 'organization' ? 'organization' : 
+                                currentLevelType === 'area' ? 'area' :
+                                currentLevelType === 'category' ? 'category' : 'contractor'}`
+        
+        const entities = (result.data[dataKey] || []).map((item: any, index: number) => ({
+          id: `${currentLevelType}_${index}`,
+          name: item.label || item.name || 'Unknown',
+          value: parseFloat(item.total_value) || 0,
+          count: parseInt(item.count) || 0
+        }))
+
+        setTreemapData({
+          level: level === hierarchy.levels.length - 1 ? 'contracts' : 'sub-grouping',
+          entities
+        })
+      }
+    } catch (err) {
+      console.error('Error loading data for level:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load data')
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedHierarchy, hierarchies])
+
   // Event handlers
   const handleDrillDown = useCallback((entity: { id: string; name: string; type: string }) => {
     loadDrillDownData(entity)
@@ -382,12 +475,11 @@ export const TreemapPage: React.FC = () => {
       if (newLevel === 0) {
         loadInitialData()
       } else {
-        // This would need to be implemented to load data for intermediate levels
-        // For now, just reload initial data
-        loadInitialData()
+        // Load data for the intermediate level
+        loadDataForLevel(newLevel, newFilters)
       }
     }
-  }, [drillDownState, loadInitialData])
+  }, [drillDownState, loadInitialData, loadDataForLevel])
 
   const handleContractClick = useCallback((contract: any) => {
     // Open contract details modal or navigate to contract view
