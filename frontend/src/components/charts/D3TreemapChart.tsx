@@ -236,6 +236,18 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         console.log('Business category value:', contract.business_category)
         console.log('Area of delivery value:', contract.area_of_delivery)
         
+        // Test individual field access
+        const testFields = {
+          award_date: contract.award_date,
+          award_title: contract.award_title,
+          notice_title: contract.notice_title,
+          awardee_name: contract.awardee_name,
+          organization_name: contract.organization_name,
+          business_category: contract.business_category,
+          area_of_delivery: contract.area_of_delivery
+        }
+        console.log('Test field access:', testFields)
+        
         tooltipText = [
           `Award Date: ${contract.award_date || 'N/A'}`,
           `Award Title: ${contract.award_title || 'N/A'}`,
