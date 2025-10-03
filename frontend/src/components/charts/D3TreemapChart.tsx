@@ -244,53 +244,13 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
         tooltipText = `${d.data.name}: ${formatValue(d.data.value)}`
       }
       
-      // Simple and robust positioning logic
+      // Always position tooltip in the center of the chart
       const tooltipWidth = 400
       const tooltipHeight = 200
-      const margin = 20
       
-      // Get mouse position relative to the chart container
-      const mouseX = event.clientX - svgRect.left
-      const mouseY = event.clientY - svgRect.top
-      
-      // Calculate available space in each direction
-      const spaceLeft = mouseX
-      const spaceRight = svgRect.width - mouseX
-      const spaceAbove = mouseY
-      const spaceBelow = svgRect.height - mouseY
-      
-      // Determine horizontal position
-      let tooltipX = mouseX
-      if (spaceRight < tooltipWidth + margin) {
-        // Not enough space on right, position to the left
-        tooltipX = Math.max(margin, mouseX - tooltipWidth)
-      } else if (spaceLeft < tooltipWidth + margin) {
-        // Not enough space on left, position to the right
-        tooltipX = Math.min(svgRect.width - tooltipWidth - margin, mouseX)
-      }
-      
-      // Determine vertical position
-      let tooltipY = mouseY
-      if (spaceAbove >= tooltipHeight + margin) {
-        // Enough space above - show above mouse
-        tooltipY = mouseY - tooltipHeight - margin
-      } else if (spaceBelow >= tooltipHeight + margin) {
-        // Not enough space above, but space below - show below mouse
-        tooltipY = mouseY + tooltipHeight + margin
-      } else {
-        // Not enough space above or below - position optimally
-        if (spaceAbove > spaceBelow) {
-          // More space above - position at top with margin
-          tooltipY = margin
-        } else {
-          // More space below - position at bottom with margin
-          tooltipY = svgRect.height - tooltipHeight - margin
-        }
-      }
-      
-      // Final bounds check to ensure tooltip is fully visible
-      tooltipX = Math.max(margin, Math.min(tooltipX, svgRect.width - tooltipWidth - margin))
-      tooltipY = Math.max(margin, Math.min(tooltipY, svgRect.height - tooltipHeight - margin))
+      // Center the tooltip in the chart
+      const tooltipX = (svgRect.width - tooltipWidth) / 2
+      const tooltipY = (svgRect.height - tooltipHeight) / 2
       
       setHoveredItem({
         x: tooltipX,
@@ -300,15 +260,17 @@ export const D3TreemapChart: React.FC<D3TreemapChartProps> = ({
       })
 
       d3.select(event.target as Element)
-        .attr('stroke-width', 2)
-        .attr('fill', d3.color(colorScale(d.data.id))?.brighter(0.2)?.toString() || colorScale(d.data.id))
+        .attr('stroke-width', 3)
+        .attr('stroke', '#ffffff')
+        .attr('fill', d3.color(colorScale(d.data.id))?.brighter(0.3)?.toString() || colorScale(d.data.id))
     }
 
     const handleMouseOut = (event: MouseEvent, d: any) => {
       setHoveredItem(null)
       
       d3.select(event.target as Element)
-        .attr('stroke-width', 1)
+        .attr('stroke-width', 0)
+        .attr('stroke', 'none')
         .attr('fill', colorScale(d.data.id))
     }
 
