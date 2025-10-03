@@ -11,7 +11,7 @@ import {
   Grid,
   GridItem
 } from '../../styled/Common.styled'
-import { TreemapChart, TreemapData } from '../../charts/TreemapChart'
+import { D3TreemapChart as TreemapChart, TreemapData } from '../../charts/D3TreemapChart'
 import { LoadingSpinner } from '../shared/LoadingSpinner'
 import { ErrorDisplay } from '../shared/ErrorDisplay'
 import { advancedSearchService } from '../../../services/AdvancedSearchService'
