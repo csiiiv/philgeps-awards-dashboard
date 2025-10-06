@@ -20,6 +20,7 @@ export const About: React.FC = () => {
     { id: 'overview', title: 'Overview', icon: '🏛️', color: themeColors.primary[600] },
     { id: 'data', title: 'Data Sources', icon: '📊', color: themeColors.success[600] },
     { id: 'features', title: 'Key Features', icon: '⚡', color: themeColors.warning[600] },
+    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: themeColors.primary[500] },
     { id: 'architecture', title: 'Architecture', icon: '🏗️', color: themeColors.secondary[600] },
     { id: 'methodology', title: 'Methodology', icon: '🔬', color: themeColors.primary[500] },
     { id: 'quality', title: 'Data Quality', icon: '✅', color: themeColors.success[500] },
@@ -102,12 +103,12 @@ export const About: React.FC = () => {
             color: themeColors.primary[500],
             marginBottom: spacing[4]
           }}>
-            v3.0.1 - Government Procurement Transparency Dashboard
+            v3.1.0 - OpenAPI Migration Complete
           </p>
         <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.lg, lineHeight: 1.6 }}>
           A comprehensive transparency dashboard providing access to Philippine government procurement data 
           from 2013-2025. Built for citizens, journalists, researchers, and developers seeking to understand 
-          government spending and procurement patterns.
+          government spending and procurement patterns. Now with complete OpenAPI 3.0 compliance, enhanced export functionality, and production-ready deployment.
         </BodyText>
       </div>
 
@@ -284,6 +285,115 @@ export const About: React.FC = () => {
         <Alert $isDark={isDark} $variant="info">
           <strong>🌊 Sumbong sa Pangulo Dataset</strong><br />
           Optional dataset from 2022-2025 is included for comprehensive coverage of recent procurement activities.
+        </Alert>
+      </Card>
+    </div>
+  )
+
+  const renderUpdates = () => (
+    <div>
+      <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
+        <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[4] }}>
+          🆕 Latest Updates - v3.1.0
+        </SectionTitle>
+        
+        <div style={{
+          background: `linear-gradient(135deg, ${themeColors.success[50]} 0%, ${themeColors.success[100]} 100%)`,
+          borderRadius: spacing[2],
+          padding: spacing[4],
+          marginBottom: spacing[4],
+          border: `1px solid ${themeColors.success[600]}`
+        }}>
+          <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
+            ✅ OpenAPI 3.0 Migration Complete
+          </h3>
+          <BodyText $isDark={isDark} style={{ color: themeColors.success[600] }}>
+            Full OpenAPI 3.0 compliance with interactive documentation, Swagger UI, and ReDoc integration
+          </BodyText>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginBottom: spacing[4]
+        }}>
+          <div style={{
+            backgroundColor: themeColors.background.secondary,
+            padding: spacing[4],
+            borderRadius: spacing[2],
+            border: `1px solid ${themeColors.border.light}`
+          }}>
+            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[3] }}>
+              🔌 Enhanced API Documentation
+            </h4>
+            <ul style={{ color: themeColors.text.primary }}>
+              <li style={{ marginBottom: spacing[1] }}>Complete OpenAPI 3.0 schema</li>
+              <li style={{ marginBottom: spacing[1] }}>Interactive Swagger UI interface</li>
+              <li style={{ marginBottom: spacing[1] }}>ReDoc documentation viewer</li>
+              <li style={{ marginBottom: spacing[1] }}>Live API testing capabilities</li>
+              <li style={{ marginBottom: spacing[1] }}>Code examples for all endpoints</li>
+            </ul>
+          </div>
+
+          <div style={{
+            backgroundColor: themeColors.background.secondary,
+            padding: spacing[4],
+            borderRadius: spacing[2],
+            border: `1px solid ${themeColors.border.light}`
+          }}>
+            <h4 style={{ ...typography.textStyles.h4, color: themeColors.success[600], marginBottom: spacing[3] }}>
+              📥 Improved Export Functionality
+            </h4>
+            <ul style={{ color: themeColors.text.primary }}>
+              <li style={{ marginBottom: spacing[1] }}>Accurate file size estimation</li>
+              <li style={{ marginBottom: spacing[1] }}>Individual contract export</li>
+              <li style={{ marginBottom: spacing[1] }}>Aggregated data export</li>
+              <li style={{ marginBottom: spacing[1] }}>Progress tracking for large exports</li>
+              <li style={{ marginBottom: spacing[1] }}>Filtered search results export</li>
+            </ul>
+          </div>
+
+          <div style={{
+            backgroundColor: themeColors.background.secondary,
+            padding: spacing[4],
+            borderRadius: spacing[2],
+            border: `1px solid ${themeColors.border.light}`
+          }}>
+            <h4 style={{ ...typography.textStyles.h4, color: themeColors.warning[600], marginBottom: spacing[3] }}>
+              🚀 Production Ready
+            </h4>
+            <ul style={{ color: themeColors.text.primary }}>
+              <li style={{ marginBottom: spacing[1] }}>Mobile data loading fixed</li>
+              <li style={{ marginBottom: spacing[1] }}>PowerShell setup script improved</li>
+              <li style={{ marginBottom: spacing[1] }}>CORS configuration optimized</li>
+              <li style={{ marginBottom: spacing[1] }}>Rate limiting implemented</li>
+              <li style={{ marginBottom: spacing[1] }}>Error handling enhanced</li>
+            </ul>
+          </div>
+
+          <div style={{
+            backgroundColor: themeColors.background.secondary,
+            padding: spacing[4],
+            borderRadius: spacing[2],
+            border: `1px solid ${themeColors.border.light}`
+          }}>
+            <h4 style={{ ...typography.textStyles.h4, color: themeColors.secondary[600], marginBottom: spacing[3] }}>
+              🔧 Technical Improvements
+            </h4>
+            <ul style={{ color: themeColors.text.primary }}>
+              <li style={{ marginBottom: spacing[1] }}>13 active API endpoints</li>
+              <li style={{ marginBottom: spacing[1] }}>Comprehensive error handling</li>
+              <li style={{ marginBottom: spacing[1] }}>Input validation and sanitization</li>
+              <li style={{ marginBottom: spacing[1] }}>Performance optimizations</li>
+              <li style={{ marginBottom: spacing[1] }}>Security headers configured</li>
+            </ul>
+          </div>
+        </div>
+
+        <Alert $isDark={isDark} $variant="info">
+          <strong>🎯 Status:</strong> All features are production-ready and fully tested. 
+          The dashboard now provides a complete, professional-grade experience for government procurement data analysis.
         </Alert>
       </Card>
     </div>
@@ -732,6 +842,8 @@ export const About: React.FC = () => {
         return renderDataSources()
       case 'features':
         return renderFeatures()
+      case 'updates':
+        return renderUpdates()
       case 'architecture':
         return renderArchitecture()
       case 'methodology':

@@ -105,7 +105,7 @@ export const Help: React.FC = () => {
           marginBottom: spacing[4],
           fontWeight: typography.fontWeight.normal
         }}>
-          v3.0.1 - Data Explorer
+          v3.1.0 - OpenAPI Migration Complete
         </div>
         <p style={{
           ...typography.textStyles.body,
@@ -116,7 +116,7 @@ export const Help: React.FC = () => {
         }}>
           This dashboard provides access to Philippine government procurement data from 2013-2025. 
           Use the search and analytics tools to explore contract information, analyze spending patterns, 
-          and export data for further analysis.
+          and export data for further analysis. Now with complete OpenAPI 3.0 compliance and enhanced export functionality.
         </p>
       </div>
 

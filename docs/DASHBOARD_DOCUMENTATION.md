@@ -2,10 +2,10 @@
 
 ## Overview
 
-The PHILGEPS Awards Data Explorer is a comprehensive transparency dashboard that provides access to Philippine government procurement data from 2013-2021. The dashboard is built as a single-page application with a tabbed interface, featuring two main data exploration modes.
+The PHILGEPS Awards Data Explorer is a comprehensive transparency dashboard that provides access to Philippine government procurement data from 2013-2025. The dashboard is built as a single-page application with a tabbed interface, featuring advanced search, analytics, and export capabilities with complete OpenAPI 3.0 compliance.
 
-**Version**: v3.0.1 - Metrics Dashboard  
-**Last Updated**: January 27, 2025
+**Version**: v3.1.0 - OpenAPI Migration Complete  
+**Last Updated**: January 6, 2025
 
 ## 🏗️ Current Dashboard Architecture
 
@@ -24,9 +24,45 @@ The dashboard consists of five main tabs:
 - **Dark/Light Mode Toggle** - Seamless theme switching
 - **Responsive Design** - Mobile-friendly interface
 - **Real-time Search** - Fast, interactive search capabilities
-- **Data Export** - CSV export functionality
+- **Enhanced Data Export** - Individual and aggregated CSV export with accurate estimation
 - **Analytics Integration** - Charts and visualizations via modal
+- **OpenAPI 3.0 Compliance** - Complete API documentation with Swagger UI and ReDoc
 - **Service Worker** - Offline capability and update notifications
+
+---
+
+## 🆕 Latest Updates - v3.1.0
+
+### OpenAPI 3.0 Migration Complete
+
+The dashboard has been fully migrated to OpenAPI 3.0 compliance with the following enhancements:
+
+#### Enhanced API Documentation
+- **Complete OpenAPI 3.0 Schema** - Full compliance with OpenAPI 3.0.3 specification
+- **Interactive Swagger UI** - Live API testing and exploration interface
+- **ReDoc Documentation** - Clean, readable API documentation
+- **Code Examples** - JavaScript and cURL examples for all endpoints
+- **Live Testing** - Test API endpoints directly from the documentation
+
+#### Improved Export Functionality
+- **Accurate File Size Estimation** - Dynamic calculation based on data type and filters
+- **Individual Contract Export** - Export specific search results as CSV
+- **Aggregated Data Export** - Export analytics data from Data Explorer
+- **Progress Tracking** - Real-time progress for large export operations
+- **Filtered Results Export** - Export only filtered search results, not all contracts
+
+#### Production Readiness
+- **Mobile Data Loading Fixed** - Resolved issues with mobile device data loading
+- **PowerShell Setup Script** - Improved compatibility with external PowerShell windows
+- **CORS Configuration** - Optimized for both local and production environments
+- **Rate Limiting** - 240 requests per hour per IP address
+- **Enhanced Error Handling** - Comprehensive error messages and recovery
+
+#### Technical Improvements
+- **13 Active API Endpoints** - All endpoints documented and tested
+- **Input Validation** - Comprehensive validation and sanitization
+- **Security Headers** - Proper security configuration
+- **Performance Optimization** - Faster data processing and response times
 
 ---
 

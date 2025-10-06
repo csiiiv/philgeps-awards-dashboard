@@ -4,11 +4,13 @@
 
 This documentation provides a comprehensive reference for the PHILGEPS Awards Data Explorer API, built with full OpenAPI 3.0 compliance. The API provides search, analytics, and export functionality for Philippine government procurement data from 2013-2025.
 
-**API Version**: 1.0.0  
+**API Version**: 1.1.0  
 **OpenAPI Version**: 3.0.3  
 **Base URL**: `https://philgeps-api.simple-systems.dev/api/v1/`  
 **Local Development**: `http://localhost:3200/api/v1/`  
-**Documentation**: `https://philgeps-api.simple-systems.dev/api/docs/`
+**Documentation**: `https://philgeps-api.simple-systems.dev/api/docs/`  
+**ReDoc**: `https://philgeps-api.simple-systems.dev/api/redoc/`  
+**Last Updated**: January 6, 2025
 
 ## Table of Contents
 
