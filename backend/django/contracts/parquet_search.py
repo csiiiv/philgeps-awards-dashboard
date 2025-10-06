@@ -124,7 +124,8 @@ class ParquetSearchService:
         
         # Build the main query
         select_fields = """
-            contract_number,
+            contract_number as reference_id,
+            contract_number as contract_no,
             award_title,
             notice_title,
             award_date,
@@ -313,7 +314,8 @@ class ParquetSearchService:
                             contract_amount,
                             award_title,
                             notice_title,
-                            contract_number,
+                            contract_number as reference_id,
+            contract_number as contract_no,
                             search_text
                         FROM read_parquet('{file_path}')
                     """)
@@ -329,7 +331,8 @@ class ParquetSearchService:
                             contract_amount,
                             award_title,
                             notice_title,
-                            contract_number,
+                            contract_number as reference_id,
+            contract_number as contract_no,
                             search_text
                         FROM read_parquet('{file_path}')
                     """)
@@ -550,7 +553,8 @@ class ParquetSearchService:
         
         # Build the main query
         select_fields = """
-            contract_number,
+            contract_number as reference_id,
+            contract_number as contract_no,
             award_title,
             notice_title,
             award_date,
@@ -782,7 +786,8 @@ class ParquetSearchService:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
 
         select_fields = """
-            contract_number,
+            contract_number as reference_id,
+            contract_number as contract_no,
             award_title,
             notice_title,
             award_date,
