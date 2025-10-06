@@ -116,7 +116,8 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   // More accurate estimate based on data type
   // Aggregated data (contractors, organizations, etc.): ~120 bytes per row
   // Individual contracts: ~500 bytes per row
-  const bytesPerEntry = dataType.toLowerCase().includes('contract') && !dataType.toLowerCase().includes('analytics') ? 500 : 120
+  // DataExplorer exports aggregated data, so use 120 bytes per row
+  const bytesPerEntry = 120
   const estimatedSize = Math.round(entriesToExport * bytesPerEntry)
 
   const formatFileSize = (bytes: number) => {
