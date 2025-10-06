@@ -163,20 +163,26 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
           dimension: undefined
         })
         
-        if (!timeResponse.success) {
-          console.warn('[useAnalyticsData] Failed to load time-based data:', timeResponse.error)
+        if (!timeResponse.data) {
+          console.warn('[useAnalyticsData] Failed to load time-based data: No data in response')
+        } else {
+          console.log('[useAnalyticsData] Successfully loaded time-based data with summary:', timeResponse.data.summary)
         }
         
         // Convert paginated response to aggregates format
+        const summaryData = timeResponse.data ? timeResponse.data.summary : [{ 
+          count: response.pagination.total_count, 
+          total_value: response.data.reduce((sum, item) => sum + (item.total_value || 0), 0),
+          avg_value: response.data.length > 0 ? response.data.reduce((sum, item) => sum + (item.total_value || 0), 0) / response.data.length : 0
+        }]
+        
+        console.log('[useAnalyticsData] Using summary data:', summaryData)
+        
         const aggregates = {
           [params.dimension || 'by_contractor']: response.data,
-          summary: timeResponse.success ? timeResponse.data.summary : [{ 
-            count: response.pagination.total_count, 
-            total_value: response.data.reduce((sum, item) => sum + (item.total_value || 0), 0),
-            avg_value: response.data.length > 0 ? response.data.reduce((sum, item) => sum + (item.total_value || 0), 0) / response.data.length : 0
-          }],
-          by_month: timeResponse.success ? timeResponse.data.by_month : [],
-          by_year: timeResponse.success ? timeResponse.data.by_year : []
+          summary: summaryData,
+          by_month: timeResponse.data ? timeResponse.data.by_month : [],
+          by_year: timeResponse.data ? timeResponse.data.by_year : []
         }
         
         setAggregates(aggregates)
@@ -206,14 +212,14 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
         })
         console.log('[useAnalyticsData] chipAggregates summary response:', summaryResponse)
         
-        if (!summaryResponse.success) {
-          console.warn('[useAnalyticsData] Failed to load summary data:', summaryResponse.error)
+        if (!summaryResponse.data) {
+          console.warn('[useAnalyticsData] Failed to load summary data: No data in response')
         }
         
         // Convert paginated response to aggregates format for explorer mode
         const aggregates = {
           [params.dimension || 'by_contractor']: response.data,
-          summary: summaryResponse.success ? summaryResponse.data.summary : [{ 
+          summary: summaryResponse.data ? summaryResponse.data.summary : [{ 
             count: response.pagination.total_count, 
             total_value: response.data.reduce((sum, item) => sum + (item.total_value || 0), 0),
             avg_value: response.data.length > 0 ? response.data.reduce((sum, item) => sum + (item.total_value || 0), 0) / response.data.length : 0
