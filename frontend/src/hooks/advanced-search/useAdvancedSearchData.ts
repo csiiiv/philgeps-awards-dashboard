@@ -46,15 +46,15 @@ export const useAdvancedSearchData = (): UseAdvancedSearchDataReturn => {
       ])
       
       console.log('📊 useAdvancedSearchData - search response:', {
-        success: response.success,
+        success: true,
         dataCount: response.data?.length || 0,
-        aggregatesSuccess: aggs.success,
+        aggregatesSuccess: !!aggs.data,
         aggregatesCount: aggs.data ? Object.keys(aggs.data).length : 0
       })
 
-      if (response.success) {
+      if (response.data) {
         setSearchResults(response.data || [])
-        if (aggs.success) {
+        if (aggs.data) {
           setAggregates(aggs.data)
         } else {
           setAggregates(null)

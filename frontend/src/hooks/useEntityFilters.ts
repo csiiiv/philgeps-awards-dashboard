@@ -54,7 +54,7 @@ export const useEntityFilters = (): EntityFiltersState & EntityFiltersActions =>
         includeFloodControl: false
       })
       
-      if (response.success && response.data) {
+      if (response.data) {
         const entities = response.data[dataset] || []
         const options = entities.slice(0, 100).map((entity: any) => ({
           value: entity.label,

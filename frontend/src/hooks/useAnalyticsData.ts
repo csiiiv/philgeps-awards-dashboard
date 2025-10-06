@@ -149,7 +149,7 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
         })
         console.log('[useAnalyticsData] chipAggregatesPaginated response:', response)
         
-        if (!response.success) {
+        if (!response.data) {
           throw new Error('Failed to load analytics data')
         }
         
@@ -191,7 +191,7 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
         })
         console.log('[useAnalyticsData] chipAggregatesPaginated response:', response)
         
-        if (!response.success) {
+        if (!response.data) {
           throw new Error('Failed to load analytics data')
         }
         
@@ -212,7 +212,7 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
         const response = await advancedSearchService.chipAggregates(params)
         console.log('[useAnalyticsData] chipAggregates response:', response)
         
-        if (!response.success) {
+        if (!response.data) {
           throw new Error('Failed to load analytics data')
         }
         

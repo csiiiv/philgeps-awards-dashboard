@@ -106,7 +106,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
 
       const response = await advancedSearchService.searchContractsWithChips(searchParams)
       
-      if (response.success) {
+      if (response.data) {
         setTrendData(response.data || [])
       }
     } catch (error) {
@@ -280,7 +280,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
       console.log('API Response for contracts:', response)
       console.log('Sample contract from API:', response.data?.[0])
       
-      if (response.success) {
+      if (response.data) {
         setResults(response.data || [])
         setPagination({
           page: response.pagination?.page || 1,

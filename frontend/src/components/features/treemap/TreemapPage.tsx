@@ -136,9 +136,6 @@ export const TreemapPage: React.FC = () => {
       }
 
       const result = await response.json()
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to load data')
-      }
 
       const dataKey = `by_${currentLevelType === 'organization' ? 'organization' : 
                               currentLevelType === 'area' ? 'area' :
@@ -205,7 +202,7 @@ export const TreemapPage: React.FC = () => {
 
         const response = await advancedSearchService.searchContractsWithChips(searchParams)
         
-        if (response.success && response.data) {
+        if (response.data) {
           const contracts = response.data.map((contract: any, index: number) => ({
             id: `contract_${index}`,
             name: contract.award_title || contract.notice_title || 'Untitled Contract',
@@ -254,9 +251,6 @@ export const TreemapPage: React.FC = () => {
         }
 
         const result = await response.json()
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to load data')
-        }
 
         const entities = (result.data.by_contractor || []).map((item: any, index: number) => ({
           id: `contractor_${index}`,
@@ -295,9 +289,6 @@ export const TreemapPage: React.FC = () => {
         }
 
         const result = await response.json()
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to load data')
-        }
 
         const entities = (result.data.by_category || []).map((item: any, index: number) => ({
           id: `category_${index}`,
@@ -336,9 +327,6 @@ export const TreemapPage: React.FC = () => {
         }
 
         const result = await response.json()
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to load data')
-        }
 
         const dataKey = `by_${currentLevelType === 'organization' ? 'organization' : 
                                 currentLevelType === 'area' ? 'area' :
@@ -400,7 +388,7 @@ export const TreemapPage: React.FC = () => {
 
         const response = await advancedSearchService.searchContractsWithChips(searchParams)
         
-        if (response.success && response.data) {
+        if (response.data) {
           const contracts = response.data.map((contract: any, index: number) => ({
             id: `contract_${index}`,
             name: contract.award_title || contract.notice_title || 'Untitled Contract',
@@ -442,9 +430,6 @@ export const TreemapPage: React.FC = () => {
         }
 
         const result = await response.json()
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to load data')
-        }
 
         const dataKey = `by_${currentLevelType === 'organization' ? 'organization' : 
                                 currentLevelType === 'area' ? 'area' :

@@ -60,7 +60,6 @@ export interface SearchResult {
 }
 
 export interface SearchResponse {
-  success: boolean
   data: SearchResult[]
   pagination: {
     page: number
@@ -95,7 +94,6 @@ export interface FilterOptions {
 }
 
 export interface ChipAggregatesResponse {
-  success: boolean
   data: {
     summary: Array<{ count: number; total_value: number; avg_value: number }>
     by_year: Array<{ year: number; total_value: number; count: number }>
@@ -108,7 +106,6 @@ export interface ChipAggregatesResponse {
 }
 
 export interface ChipAggregatesPaginatedResponse {
-  success: boolean
   data: Array<{ label: string; total_value: number; count: number; avg_value: number }>
   pagination: {
     current_page: number
@@ -121,7 +118,6 @@ export interface ChipAggregatesPaginatedResponse {
 }
 
 export interface ExportEstimateResponse {
-  success: boolean
   total_count: number
   estimated_csv_bytes: number
 }

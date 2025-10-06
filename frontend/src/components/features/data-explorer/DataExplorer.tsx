@@ -215,7 +215,7 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
       
       const response = await advancedSearchService.chipExport(exportParams)
       
-      if (response.success) {
+      if (response.data) {
         // Create download link
         const blob = new Blob([response.data], { type: 'text/csv' })
         const url = window.URL.createObjectURL(blob)
