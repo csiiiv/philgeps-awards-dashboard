@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
   return {
-    base: '/',
+    base: '/static/',
     plugins: [react()],
     build: {
       rollupOptions: {
