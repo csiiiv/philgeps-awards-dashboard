@@ -135,7 +135,7 @@ if DEBUG:
         CORS_ALLOWED_ORIGINS.extend(frontend_domain_list)
 else:
     # Production: frontend domains from environment
-    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
 
 # Additional CORS settings
