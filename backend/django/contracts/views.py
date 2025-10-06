@@ -394,7 +394,76 @@ class ContractViewSet(viewsets.ModelViewSet):
             raise
         except Exception as e:
             raise ExportError(detail=f'An error occurred during export estimation: {str(e)}')
-
+    
+    @extend_schema(
+        operation_id='contracts_chip_export_aggregated_estimate',
+        summary='Estimate aggregated export size',
+        description='Estimate the size of aggregated CSV export for analytics data',
+        request=AggregatedExportRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=ExportEstimateResponseSerializer,
+                description='Aggregated export size estimate'
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['export']
+    )
+    @action(detail=False, methods=['post'], url_path='chip-export-aggregated-estimate')
+    def chip_export_aggregated_estimate(self, request):
+        try:
+            # Validate request data
+            serializer = AggregatedExportRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
+            dimension = validated_data.get('dimension', 'by_contractor')
+            
+            # Get actual count from the aggregated data
+            parquet_service = ParquetSearchService()
+            
+            # Get a small sample to estimate total count
+            result = parquet_service.chip_aggregates_paginated(
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
+                dimension=dimension,
+                page=1,
+                page_size=1,
+                sort_by='total_value',
+                sort_direction='desc',
+                include_flood_control=validated_data.get('include_flood_control', False)
+            )
+            
+            # Get total count from pagination info
+            total_count = result.get('pagination', {}).get('total_count', 0)
+            
+            # Estimate CSV size based on aggregated data structure
+            # Each row: label,total_value,count,avg_value (approximately 100-150 bytes)
+            avg_row_bytes = 120
+            estimated_bytes = total_count * avg_row_bytes
+            
+            return Response({
+                'total_count': total_count, 
+                'estimated_csv_bytes': estimated_bytes
+            }, status=status.HTTP_200_OK)
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ExportError(detail=f'An error occurred during aggregated export estimation: {str(e)}')
+    
     @extend_schema(
         operation_id='contracts_chip_export',
         summary='Export CSV data',

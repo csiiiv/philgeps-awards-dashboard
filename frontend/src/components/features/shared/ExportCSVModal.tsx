@@ -113,7 +113,11 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   }, [startRank, endRank, onExport, onClose, validateInputs])
 
   const entriesToExport = Math.max(0, endRank - startRank + 1)
-  const estimatedSize = Math.round(entriesToExport * 0.5) // Rough estimate: 0.5KB per entry
+  // More accurate estimate based on data type
+  // Aggregated data (contractors, organizations, etc.): ~120 bytes per row
+  // Individual contracts: ~500 bytes per row
+  const bytesPerEntry = dataType.toLowerCase().includes('contract') && !dataType.toLowerCase().includes('analytics') ? 500 : 120
+  const estimatedSize = Math.round(entriesToExport * bytesPerEntry)
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
