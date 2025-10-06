@@ -27,48 +27,6 @@ const ApiDocumentation: React.FC = () => {
           The API is built with Django REST Framework and uses DuckDB for efficient data processing with Parquet files.
         </p>
         
-        <div style={{
-          backgroundColor: themeColors.background.secondary,
-          border: `1px solid ${themeColors.border.medium}`,
-          borderRadius: spacing[2],
-          padding: spacing[4],
-          marginBottom: spacing[4]
-        }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[2] }}>
-            Interactive Documentation
-          </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, marginBottom: spacing[3] }}>
-            Use the tabs above to access interactive API documentation:
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: spacing[3] }}>
-            <div style={{
-            backgroundColor: themeColors.background.primary,
-              border: `1px solid ${themeColors.border.light}`,
-            borderRadius: spacing[1],
-              padding: spacing[3]
-            }}>
-              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[1] }}>
-                📚 Swagger UI
-            </h4>
-              <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
-                Interactive API explorer with testing capabilities
-            </p>
-          </div>
-          <div style={{
-              backgroundColor: themeColors.background.primary,
-              border: `1px solid ${themeColors.border.light}`,
-              borderRadius: spacing[1],
-              padding: spacing[3]
-            }}>
-              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[1] }}>
-                📖 ReDoc
-            </h4>
-              <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
-                Clean, readable API documentation format
-            </p>
-            </div>
-          </div>
-        </div>
 
           <div style={{
             backgroundColor: themeColors.background.secondary,
@@ -126,75 +84,69 @@ const ApiDocumentation: React.FC = () => {
           <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, marginBottom: spacing[4] }}>
             Access the full interactive API documentation with testing capabilities:
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: spacing[3] }}>
-            <a
-              href={swaggerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: spacing[4],
-                backgroundColor: themeColors.primary[600],
-                color: themeColors.text.inverse,
-                textDecoration: 'none',
-                borderRadius: spacing[2],
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                border: `2px solid ${themeColors.primary[600]}`
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary[700]
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary[600]
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              <div style={{ fontSize: '2.5rem', marginBottom: spacing[2] }}>📚</div>
-              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.inverse, marginBottom: spacing[1] }}>
-                Swagger UI
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
+            <div style={{
+              backgroundColor: themeColors.background.primary,
+              border: `1px solid ${themeColors.border.light}`,
+              borderRadius: spacing[1],
+              padding: spacing[3]
+            }}>
+              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+                📚 <a
+                  href={swaggerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: themeColors.primary[600],
+                    textDecoration: 'underline',
+                    fontSize: typography.fontSize.lg,
+                    fontWeight: typography.fontWeight.semibold
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.color = themeColors.primary[700]
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.color = themeColors.primary[600]
+                  }}
+                >
+                  Swagger UI
+                </a>
               </h4>
-              <p style={{ ...typography.textStyles.body, color: themeColors.text.inverse, fontSize: typography.fontSize.sm, margin: 0, opacity: 0.9 }}>
-                Interactive API explorer with testing capabilities
+              <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
+                Interactive API explorer with testing capabilities. Click to open in a new tab.
               </p>
-            </a>
-            <a
-              href={redocUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: spacing[4],
-                backgroundColor: themeColors.primary[600],
-                color: themeColors.text.inverse,
-                textDecoration: 'none',
-                borderRadius: spacing[2],
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                border: `2px solid ${themeColors.primary[600]}`
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary[700]
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary[600]
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              <div style={{ fontSize: '2.5rem', marginBottom: spacing[2] }}>📖</div>
-              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.inverse, marginBottom: spacing[1] }}>
-                ReDoc
+            </div>
+            <div style={{
+              backgroundColor: themeColors.background.primary,
+              border: `1px solid ${themeColors.border.light}`,
+              borderRadius: spacing[1],
+              padding: spacing[3]
+            }}>
+              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+                📖 <a
+                  href={redocUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: themeColors.primary[600],
+                    textDecoration: 'underline',
+                    fontSize: typography.fontSize.lg,
+                    fontWeight: typography.fontWeight.semibold
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.color = themeColors.primary[700]
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.color = themeColors.primary[600]
+                  }}
+                >
+                  ReDoc
+                </a>
               </h4>
-              <p style={{ ...typography.textStyles.body, color: themeColors.text.inverse, fontSize: typography.fontSize.sm, margin: 0, opacity: 0.9 }}>
-                Clean, readable API documentation format
+              <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
+                Clean, readable API documentation format. Click to open in a new tab.
               </p>
-            </a>
+            </div>
           </div>
         </div>
 
