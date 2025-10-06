@@ -40,7 +40,10 @@ The PHILGEPS Awards Dashboard has been successfully migrated to use OpenAPI 3.0 
 - ✅ `POST /api/v1/contracts/chip-search/` - Advanced search
 - ✅ `POST /api/v1/contracts/chip-aggregates/` - Analytics data
 - ✅ `POST /api/v1/contracts/chip-aggregates-paginated/` - Paginated analytics
-- ✅ `POST /api/v1/contracts/chip-export-estimate/` - Export estimation
+- ✅ `POST /api/v1/contracts/chip-export-estimate/` - Individual contracts export estimation
+- ✅ `POST /api/v1/contracts/chip-export/` - Individual contracts CSV export
+- ✅ `POST /api/v1/contracts/chip-export-aggregated-estimate/` - Aggregated data export estimation
+- ✅ `POST /api/v1/contracts/chip-export-aggregated/` - Aggregated data CSV export
 - ✅ `GET /api/v1/contracts/filter-options/` - Filter options
 
 ### Entity Search

@@ -359,10 +359,10 @@ Estimate the size of CSV export for current filters.
 }
 ```
 
-### 2. Export CSV
+### 2. Export CSV (Individual Contracts)
 **POST** `/contracts/chip-export/`
 
-Stream full CSV export for current filters.
+Stream full CSV export for individual contracts matching current filters.
 
 **Request Body:** Same as export estimate
 
@@ -378,6 +378,50 @@ Stream full CSV export for current filters.
 - contract_amount
 - award_date
 - award_status
+
+### 3. Estimate Aggregated Export Size
+**POST** `/contracts/chip-export-aggregated-estimate/`
+
+Estimate the size of aggregated CSV export for analytics data (contractors, organizations, etc.).
+
+**Request Body:**
+```json
+{
+  "contractors": ["ABC Construction"],
+  "areas": ["NCR - NATIONAL CAPITAL REGION"],
+  "organizations": ["DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS"],
+  "business_categories": ["CONSTRUCTION"],
+  "keywords": ["road"],
+  "time_ranges": [
+    {
+      "type": "yearly",
+      "year": 2023
+    }
+  ],
+  "dimension": "by_contractor"
+}
+```
+
+**Response:**
+```json
+{
+  "total_count": 120,
+  "estimated_csv_bytes": 14400
+}
+```
+
+### 4. Export Aggregated CSV
+**POST** `/contracts/chip-export-aggregated/`
+
+Stream aggregated CSV export for analytics data (contractors, organizations, areas, categories).
+
+**Request Body:** Same as aggregated export estimate
+
+**Response:** CSV file stream with headers:
+- label (contractor/organization/area/category name)
+- total_value (sum of contract amounts)
+- count (number of contracts)
+- avg_value (average contract amount)
 
 ---
 
@@ -603,7 +647,7 @@ curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-aggr
 
 #### Export Data
 ```bash
-# Estimate export size
+# Estimate individual contracts export size
 curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export-estimate/" \
   -H "Content-Type: application/json" \
   -d '{
@@ -615,7 +659,7 @@ curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-expo
     "time_ranges": []
   }'
 
-# Download CSV
+# Download individual contracts CSV
 curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export/" \
   -H "Content-Type: application/json" \
   -d '{
@@ -627,6 +671,33 @@ curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-expo
     "time_ranges": []
   }' \
   --output contracts_export.csv
+
+# Estimate aggregated export size
+curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export-aggregated-estimate/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contractors": [],
+    "areas": [],
+    "organizations": [],
+    "business_categories": [],
+    "keywords": ["road"],
+    "time_ranges": [],
+    "dimension": "by_contractor"
+  }'
+
+# Download aggregated CSV
+curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export-aggregated/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contractors": [],
+    "areas": [],
+    "organizations": [],
+    "business_categories": [],
+    "keywords": ["road"],
+    "time_ranges": [],
+    "dimension": "by_contractor"
+  }' \
+  --output contractors_export.csv
 ```
 
 ### JavaScript Examples
@@ -679,6 +750,53 @@ const analyticsResponse = await fetch('https://philgeps-api.simple-systems.dev/a
 });
 const analyticsData = await analyticsResponse.json();
 console.log(analyticsData.data);
+
+// Export individual contracts
+const exportResponse = await fetch('https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export/', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    contractors: ['PETRON CORPORATION'],
+    areas: ['NCR - NATIONAL CAPITAL REGION'],
+    organizations: [],
+    business_categories: [],
+    keywords: ['fuel'],
+    time_ranges: [{
+      type: 'yearly',
+      year: 2023
+    }]
+  })
+});
+const exportBlob = await exportResponse.blob();
+const url = window.URL.createObjectURL(exportBlob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'contracts_export.csv';
+a.click();
+
+// Export aggregated data
+const aggregatedExportResponse = await fetch('https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export-aggregated/', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    contractors: ['PETRON CORPORATION'],
+    areas: ['NCR - NATIONAL CAPITAL REGION'],
+    organizations: [],
+    business_categories: [],
+    keywords: ['fuel'],
+    time_ranges: [{
+      type: 'yearly',
+      year: 2023
+    }],
+    dimension: 'by_contractor'
+  })
+});
+const aggregatedBlob = await aggregatedExportResponse.blob();
+const aggregatedUrl = window.URL.createObjectURL(aggregatedBlob);
+const aggregatedA = document.createElement('a');
+aggregatedA.href = aggregatedUrl;
+aggregatedA.download = 'contractors_export.csv';
+aggregatedA.click();
 ```
 
 ---
@@ -701,9 +819,11 @@ console.log(analyticsData.data);
 
 ### Export Features
 - **Size Estimation**: Preview export size before downloading
-- **CSV Export**: Full dataset export with streaming
+- **Individual Contracts Export**: Full dataset export with streaming
+- **Aggregated Data Export**: Export analytics data (contractors, organizations, etc.)
 - **Filtered Export**: Export only filtered results
 - **Progress Tracking**: Real-time export progress
+- **Multiple Export Types**: Both individual contracts and aggregated analytics data
 
 ## Performance & Rate Limiting
 
@@ -714,12 +834,14 @@ console.log(analyticsData.data);
 - **Streaming**: Large CSV exports use streaming to handle memory efficiently
 
 ### Rate Limiting
-- **Search Endpoints**: No current rate limiting (may be added in future)
-- **Export Endpoints**: No current rate limiting (may be added in future)
+- **All Endpoints**: 240 requests per hour per IP address
+- **No Authentication**: All endpoints are publicly accessible
 - **Filter Options**: Cached responses reduce server load
 
 ### Data Sources
 - **Primary Data**: PHILGEPS contract data (2013-2025)
+- **Total Contracts**: ~5 million contract records
+- **Total Value**: ~₱15 trillion in contract amounts
 - **Extended Data**: Sumbong sa Pangulo dataset (2022-2025) - optional via `include_flood_control` parameter
 - **Data Format**: Optimized Parquet files for fast querying
 - **Update Frequency**: Data updated periodically as new contracts are processed

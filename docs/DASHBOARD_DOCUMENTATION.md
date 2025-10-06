@@ -179,9 +179,11 @@ The dashboard uses a unified analytics system that provides:
 - **Pagination** - Navigate through large datasets efficiently
 
 #### 3. Export Functionality
-- **CSV Export** - Download analytics data with progress tracking
+- **Individual Contracts Export** - Download individual contract records as CSV
+- **Aggregated Data Export** - Download analytics data (contractors, organizations, etc.) as CSV
 - **Export Estimation** - Preview export size before download
-- **Full Dataset Export** - Export complete filtered results
+- **Filtered Export** - Export only filtered results
+- **Progress Tracking** - Real-time export progress with file size estimates
 
 ### Analytics Workflows
 
@@ -310,9 +312,10 @@ The dashboard uses a comprehensive design system with:
 ## 📊 Data Coverage
 
 ### Dataset Statistics
-- **Time Period**: 2013-2021 (9+ years)
-- **Total Contracts**: 2.2M+ contract records
-- **Contractors**: 74K+ unique contractors
+- **Time Period**: 2013-2025 (13+ years)
+- **Total Contracts**: ~5M contract records
+- **Total Value**: ~₱15 trillion in contract amounts
+- **Contractors**: 120K+ unique contractors
 - **Organizations**: 14K+ government agencies
 - **Areas**: 520 delivery areas
 - **Categories**: 169 business categories
