@@ -10,6 +10,9 @@ This guide covers deploying the PHILGEPS Awards Dashboard with OpenAPI documenta
 - Nginx (recommended) or Apache
 - SSL certificate
 
+## Current Authentication Status
+**Note**: The API currently has **no authentication system** implemented. All endpoints are publicly accessible with rate limiting of 240 requests per hour per IP address. If authentication is needed, JWT authentication can be implemented using the `djangorestframework-simplejwt` package that's already included in requirements.txt.
+
 ## Backend Deployment
 
 ### 1. Environment Setup

@@ -76,7 +76,7 @@ The PHILGEPS Awards Dashboard has been successfully migrated to use OpenAPI 3.0 
 - Graceful error handling
 
 ### 3. **Security Enhancements**
-- Rate limiting (100/hour for anonymous, 1000/hour for users)
+- Rate limiting (240/hour for all users - no authentication system)
 - Security headers (XSS protection, content type sniffing)
 - CORS configuration
 - Production security settings
@@ -168,7 +168,7 @@ docs/
 
 ## 🔒 **Security Features**
 
-- **Rate Limiting**: 100/hour anonymous, 1000/hour authenticated
+- **Rate Limiting**: 240/hour for all users (no authentication system)
 - **Security Headers**: XSS protection, content type sniffing
 - **CORS**: Properly configured for production
 - **Input Validation**: Comprehensive request validation
