@@ -41,8 +41,8 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       console.log('📊 useAdvancedSearchExport - exportAllWithEstimate called with:', params)
       
       const est = await advancedSearchService.chipExportEstimate(params)
-      if (!est.success) {
-        console.error('❌ useAdvancedSearchExport - export estimate failed:', est.message)
+      if (!est || !est.total_count) {
+        console.error('❌ useAdvancedSearchExport - export estimate failed:', est)
         return
       }
       

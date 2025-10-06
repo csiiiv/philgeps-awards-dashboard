@@ -81,7 +81,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
   const [trendData, setTrendData] = useState<SearchResult[]>([])
   const [trendDataLoading, setTrendDataLoading] = useState(false)
 
-  // Fetch all contracts for trend chart (not paginated)
+  // Fetch aggregated data for trend chart using chip-aggregates endpoint
   const fetchAllContractsForTrends = async () => {
     if (!open) return
 
@@ -97,20 +97,42 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
 
       const searchParams = {
         ...entityFilters,
-        page: 1,
-        pageSize: 999999, // Very large page size to get all results
-        sortBy: 'award_date',
-        sortDirection: 'desc',
+        topN: 20,
         includeFloodControl: currentFilters.includeFloodControl || false
       }
 
-      const response = await advancedSearchService.searchContractsWithChips(searchParams)
+      const response = await advancedSearchService.chipAggregates(searchParams)
       
       if (response.data) {
-        setTrendData(response.data || [])
+        // Convert aggregated data to trend format
+        const trendData = []
+        
+        // Add yearly data
+        if (response.data.by_year) {
+          response.data.by_year.forEach((item: any) => {
+            trendData.push({
+              award_date: `${item.year}-01-01`,
+              contract_amount: item.total_value.toString(),
+              count: item.count
+            })
+          })
+        }
+        
+        // Add monthly data
+        if (response.data.by_month) {
+          response.data.by_month.forEach((item: any) => {
+            trendData.push({
+              award_date: `${item.month}-01`,
+              contract_amount: item.total_value.toString(),
+              count: item.count
+            })
+          })
+        }
+        
+        setTrendData(trendData)
       }
     } catch (error) {
-      console.error('Error fetching all contracts for trends:', error)
+      console.error('Error fetching aggregated data for trends:', error)
     } finally {
       setTrendDataLoading(false)
     }
@@ -320,8 +342,8 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
       }
       
       const totalRes = await advancedSearchService.chipAggregates(totalCountParams as any)
-      if ((totalRes as any)?.success) {
-        const totalData = (totalRes as any).data
+      if (totalRes?.data) {
+        const totalData = totalRes.data
         setEntityTotalCounts({
           contractors: (totalData?.by_contractor || []).length,
           organizations: (totalData?.by_organization || []).length,
@@ -343,8 +365,8 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
       }
       
       const res = await advancedSearchService.chipAggregates(params as any)
-      if ((res as any)?.success) {
-        const data = (res as any).data || null
+      if (res?.data) {
+        const data = res.data || null
         if (data) {
           // Apply client-side sorting
           const sortData = (entities: Array<{ label: string; total_value: number; count: number }>) => {

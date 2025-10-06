@@ -103,8 +103,8 @@ class ChipSearchRequestSerializer(serializers.Serializer):
         required=False,
         default=20,
         min_value=1,
-        max_value=10000,
-        help_text="Number of results per page (max 10000)"
+        max_value=1000,
+        help_text="Number of results per page (max 1000)"
     )
     sortBy = serializers.ChoiceField(
         choices=['award_date', 'contract_amount', 'reference_id', 'created_at'],
