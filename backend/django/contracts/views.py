@@ -13,6 +13,7 @@ from django.core.paginator import Paginator
 import os
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.openapi import AutoSchema
 
 from .models import Contract, Organization, Contractor, BusinessCategory, AreaOfDelivery, DataImport
 from .serializers import (
@@ -424,8 +425,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         request=ExportEstimateRequestSerializer,
         responses={
             200: OpenApiResponse(
-                description='CSV file download',
-                content={'text/csv': {'schema': {'type': 'string', 'format': 'binary'}}}
+                description='CSV file download'
             ),
             400: OpenApiResponse(
                 response=ErrorResponseSerializer,
