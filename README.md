@@ -1,17 +1,20 @@
 # PhilGEPS Dashboard
 
-[![Version](https://img.shields.io/badge/version-3.0.2-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Data](https://img.shields.io/badge/data-15.5M%20records-orange.svg)](data/)
+[![Data](https://img.shields.io/badge/data-5M%20contracts-orange.svg)](data/)
 [![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-compliant-brightgreen.svg)](docs/ACTIVE_API_DOCUMENTATION.md)
 
 A comprehensive government procurement analytics dashboard for the Philippines Government Electronic Procurement System (PhilGEPS). This application provides detailed insights into government contracts, spending patterns, and procurement analytics.
 
 ## 📊 **Data Overview**
 
-- **📈 Total Records**: 15.5M+ government procurement records (all notices + awards)
-- **💰 Awarded Contracts**: 5.0M+ contracts with financial values (₱14.8T+ total value)
-- **📋 Data Types**: Procurement notices, contract awards, and bidding information
+- **💰 Awarded Contracts**: 5M+ contracts with financial values (₱14.8T+ total value)
+- **👥 Contractors**: 119K+ registered contractors and suppliers
+- **🏢 Organizations**: 23K+ government agencies and contracting entities
+- **🌍 Areas**: 542+ delivery areas across the Philippines
+- **📋 Data Types**: Contract awards, contractor information, and procurement analytics
 - **📅 Time Coverage**: 2013-2025 (13 years of data)
 - **🏢 Data Sources**: PhilGEPS XLSX (2013-2020) + CSV (2021-2025) + Flood Control Projects from "Sumbong sa Pangulo" dataset
 - **📁 File Size**: 2.6GB consolidated dataset with 50 columns
@@ -20,22 +23,23 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 
 ## ✨ Recent Updates
 
-### **v3.0.2 - Data Clarity & Documentation (January 2025)**
-- **📈 Trend Charts**: Added interactive quarterly/yearly trend charts in drill-down modals
-- **🔄 Complete Data Rebuild**: Consolidated 2013-2025 dataset with 15.5M+ records
-- **📊 Enhanced Analytics**: Individual entity trend analysis with complete dataset processing
-- **🛠️ Data Pipeline**: Comprehensive processing scripts with full documentation
-- **📁 File Structure**: 225+ optimized parquet files for fast analytics
-- **🔧 Maintenance**: Automated cleanup and optimization scripts
+### **v3.1.0 - OpenAPI Migration Complete (October 2025)**
+- **📚 OpenAPI 3.0 Compliance**: Complete API documentation with Swagger UI and ReDoc
+- **📊 Enhanced Export**: Individual contracts and aggregated data export with accurate estimates
+- **🗺️ Treemap Visualization**: Interactive hierarchical data visualization with drill-down
+- **📱 Mobile Optimization**: Fixed mobile data loading and responsive design
+- **🔧 Production Ready**: Complete deployment configuration and environment setup
+- **📈 Accurate Statistics**: Updated all documentation with correct data counts
+- **🛠️ Developer Experience**: Comprehensive API documentation and testing tools
 
 ### **Key Improvements**
-- **Data Clarity**: Clear distinction between all records (15.5M) and awarded contracts (5.0M)
-- **Financial Transparency**: Added ₱14.8T+ total value tracking for awarded contracts
-- **Data Coverage**: Extended from 2013-2021 to 2013-2025 (13 years)
-- **Performance**: Optimized search and analytics with DuckDB integration
-- **User Experience**: Enhanced drill-down modals with embedded trend charts
-- **Documentation**: Complete data pipeline documentation and maintenance guides
-- **Code Quality**: Cleaned up scripts directory and improved code organization
+- **API Documentation**: Complete OpenAPI 3.0 specification with interactive testing
+- **Export Functionality**: Enhanced CSV export with individual and aggregated data options
+- **Visualization**: Added treemap charts for hierarchical data exploration
+- **Mobile Support**: Fixed mobile data loading issues and improved responsiveness
+- **Production Deployment**: Ready for production with proper configuration
+- **Data Accuracy**: All statistics now reflect actual API pagination totals
+- **Developer Tools**: Swagger UI and ReDoc for API exploration and testing
 
 ## 🚀 Features
 
@@ -44,6 +48,7 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **Interactive Filters**: Dynamic filtering based on selected dimension
 - **Real-time Search**: Search and filter entities with autocomplete
 - **Summary Statistics**: Quick overview of total contracts, values, and averages
+- **Export Capabilities**: Export individual contracts or aggregated data as CSV
 
 ### 🔍 Advanced Search
 - **Comprehensive Filtering**: Multi-dimensional search across all data fields
@@ -52,12 +57,24 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **Export Capabilities**: CSV export with rank range selection
 - **Filter Presets**: Save, load, and manage custom filter configurations
 
+### 🗺️ Treemap Visualization
+- **Interactive Charts**: Hierarchical data visualization with drill-down capabilities
+- **Visual Representation**: Rectangles sized by contract value with color coding
+- **Multi-dimensional**: View data by contractors, organizations, areas, or categories
+- **Filtering Support**: Apply filters to focus on specific data subsets
+
 ### 📈 Analytics
 - **Contract Analysis**: Detailed breakdown by various dimensions
 - **Trend Analysis**: Quarterly and yearly trend visualization with interactive charts
 - **Drill-down Capabilities**: Nested modals with embedded trend charts for granular data exploration
 - **Performance Metrics**: Contract value, count, and efficiency analysis
 - **Entity Trends**: Individual contractor/organization trend analysis with complete dataset processing
+
+### 📚 API Documentation
+- **OpenAPI 3.0**: Complete API specification with interactive testing
+- **Swagger UI**: Interactive API explorer for testing endpoints
+- **ReDoc**: Beautiful API documentation with examples
+- **Live Testing**: Test API endpoints directly from the documentation
 
 ### 🎨 User Experience
 - **Dark/Light Mode**: Toggle between themes
@@ -68,9 +85,11 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 
 ### Backend (Django)
 - **Django REST Framework**: RESTful API endpoints
+- **OpenAPI 3.0**: Complete API documentation with drf-spectacular
 - **DuckDB Integration**: High-performance analytics queries
 - **Parquet Data Processing**: Efficient data storage and retrieval
 - **CORS Support**: Cross-origin resource sharing for frontend
+- **Export APIs**: Individual contracts and aggregated data export endpoints
 
 ### Frontend (React + Vite)
 - **React 18**: Modern React with hooks and concurrent features
@@ -101,7 +120,9 @@ production1/
 │   └── raw/               # Raw data sources (XLSX/CSV)
 ├── docs/                   # Project documentation
 │   ├── DASHBOARD_DOCUMENTATION.md
-│   └── ACTIVE_API_DOCUMENTATION.md
+│   ├── ACTIVE_API_DOCUMENTATION.md
+│   ├── OPENAPI_MIGRATION_GUIDE.md
+│   └── PRODUCTION_DEPLOYMENT_GUIDE.md
 ├── scripts/                # Data processing scripts
 │   ├── core/              # Core processing utilities
 │   ├── archive/           # Legacy scripts (archived)
@@ -109,8 +130,9 @@ production1/
 │   └── README.md          # Scripts guide
 ├── setup_env.sh           # Environment configuration script
 ├── run_local.sh           # Unified run script (Linux)
-├── run_local.bat          # Unified run script (Windows)
 ├── run_local.ps1          # Unified run script (PowerShell)
+├── setup_env.ps1          # Environment setup script (PowerShell)
+├── setup_simple.ps1       # Simplified setup script (PowerShell)
 └── logs/                   # Application logs
 ```
 
@@ -389,7 +411,9 @@ Raw Data (XLSX/CSV) → Processing Scripts → Consolidated Data → Aggregation
 ## 📚 Documentation
 
 - [Dashboard Documentation](docs/DASHBOARD_DOCUMENTATION.md) - Comprehensive user guide
-- [API Documentation](docs/ACTIVE_API_DOCUMENTATION.md) - Complete API reference
+- [API Documentation](docs/ACTIVE_API_DOCUMENTATION.md) - Complete OpenAPI 3.0 reference
+- [OpenAPI Migration Guide](docs/OPENAPI_MIGRATION_GUIDE.md) - Migration to OpenAPI 3.0
+- [Production Deployment Guide](docs/PRODUCTION_DEPLOYMENT_GUIDE.md) - Production setup
 - [Data Pipeline](scripts/DATA_PIPELINE.md) - Complete data processing pipeline documentation
 - [Data Structure](data/README.md) - Data format and organization
 - [Component Documentation](frontend/src/components/README.md) - Frontend components
