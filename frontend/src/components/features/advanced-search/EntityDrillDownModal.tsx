@@ -34,7 +34,7 @@ interface EntityDrillDownModalProps {
     contractors: string[]
     areas: string[]
     organizations: string[]
-    business_categories: string[]
+    businessCategories: string[]
     keywords: string[]
     time_ranges: any[]
     includeFloodControl?: boolean
@@ -92,7 +92,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         ...currentFilters,
         [entityType === 'contractor' ? 'contractors' : 
          entityType === 'organization' ? 'organizations' :
-         entityType === 'area' ? 'areas' : 'business_categories']: [entityName]
+         entityType === 'area' ? 'areas' : 'businessCategories']: [entityName]
       }
 
       const searchParams = {
@@ -263,7 +263,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         ...currentFilters,
         [entityType === 'contractor' ? 'contractors' : 
          entityType === 'organization' ? 'organizations' :
-         entityType === 'area' ? 'areas' : 'business_categories']: [entityName]
+         entityType === 'area' ? 'areas' : 'businessCategories']: [entityName]
       }
 
       const searchParams = {
@@ -304,7 +304,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         ...currentFilters,
         [entityType === 'contractor' ? 'contractors' : 
          entityType === 'organization' ? 'organizations' :
-         entityType === 'area' ? 'areas' : 'business_categories']: [entityName]
+         entityType === 'area' ? 'areas' : 'businessCategories']: [entityName]
       }
       
       // First, get total counts with a very large topN to get accurate totals
@@ -312,7 +312,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         contractors: entityFilters.contractors || [],
         areas: entityFilters.areas || [],
         organizations: entityFilters.organizations || [],
-        businessCategories: entityFilters.business_categories || [],
+        businessCategories: entityFilters.businessCategories || [],
         keywords: entityFilters.keywords || [],
         timeRanges: entityFilters.time_ranges || [],
         topN: 999999, // Very large number to get all counts
@@ -335,7 +335,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         contractors: entityFilters.contractors || [],
         areas: entityFilters.areas || [],
         organizations: entityFilters.organizations || [],
-        businessCategories: entityFilters.business_categories || [],
+        businessCategories: entityFilters.businessCategories || [],
         keywords: entityFilters.keywords || [],
         timeRanges: entityFilters.time_ranges || [],
         topN: pageSize,
@@ -1032,7 +1032,7 @@ const NestedContractsModal: React.FC<{
     try {
       const combined = { ...parentFilters }
       const apply = (filters: any, type: 'contractor' | 'organization' | 'area' | 'category', name: string) => {
-        const key = type === 'contractor' ? 'contractors' : type === 'organization' ? 'organizations' : type === 'area' ? 'areas' : 'business_categories'
+        const key = type === 'contractor' ? 'contractors' : type === 'organization' ? 'organizations' : type === 'area' ? 'areas' : 'businessCategories'
         const prev = Array.isArray(filters[key]) ? filters[key] : []
         filters[key] = [...prev, name]
       }

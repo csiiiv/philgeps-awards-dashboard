@@ -176,12 +176,12 @@ export class AdvancedSearchService {
   async searchContractsWithChips(params: ChipSearchParams): Promise<SearchResponse> {
     try {
       const payload = {
-        contractors: params.contractors,
-        areas: params.areas,
-        organizations: params.organizations,
-        business_categories: params.businessCategories,
-        keywords: params.keywords,
-        time_ranges: params.timeRanges,
+        contractors: params.contractors || [],
+        areas: params.areas || [],
+        organizations: params.organizations || [],
+        business_categories: params.businessCategories || [],
+        keywords: params.keywords || [],
+        time_ranges: params.timeRanges || [],
         page: params.page || 1,
         page_size: params.pageSize || 20,
         sortBy: params.sortBy,
@@ -214,12 +214,12 @@ export class AdvancedSearchService {
 
   async chipAggregates(params: ChipSearchParams): Promise<ChipAggregatesResponse> {
     const payload = {
-      contractors: params.contractors,
-      areas: params.areas,
-      organizations: params.organizations,
-      business_categories: params.businessCategories,
-      keywords: params.keywords,
-      time_ranges: params.timeRanges,
+      contractors: params.contractors || [],
+      areas: params.areas || [],
+      organizations: params.organizations || [],
+      business_categories: params.businessCategories || [],
+      keywords: params.keywords || [],
+      time_ranges: params.timeRanges || [],
       topN: params.topN || 20,
       include_flood_control: params.includeFloodControl || false
     }
@@ -237,12 +237,12 @@ export class AdvancedSearchService {
 
   async chipAggregatesPaginated(params: ChipSearchParams & { dimension: string }): Promise<ChipAggregatesPaginatedResponse> {
     const payload = {
-      contractors: params.contractors,
-      areas: params.areas,
-      organizations: params.organizations,
-      business_categories: params.businessCategories,
-      keywords: params.keywords,
-      time_ranges: params.timeRanges,
+      contractors: params.contractors || [],
+      areas: params.areas || [],
+      organizations: params.organizations || [],
+      business_categories: params.businessCategories || [],
+      keywords: params.keywords || [],
+      time_ranges: params.timeRanges || [],
       page: params.page || 1,
       page_size: params.pageSize || 20,
       dimension: params.dimension || 'by_contractor',
@@ -264,12 +264,12 @@ export class AdvancedSearchService {
 
   async chipExportEstimate(params: ChipSearchParams): Promise<ExportEstimateResponse> {
     const payload = {
-      contractors: params.contractors,
-      areas: params.areas,
-      organizations: params.organizations,
-      business_categories: params.businessCategories,
-      keywords: params.keywords,
-      time_ranges: params.timeRanges
+      contractors: params.contractors || [],
+      areas: params.areas || [],
+      organizations: params.organizations || [],
+      business_categories: params.businessCategories || [],
+      keywords: params.keywords || [],
+      time_ranges: params.timeRanges || []
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-estimate/`, {
       method: 'POST',
@@ -282,12 +282,12 @@ export class AdvancedSearchService {
 
   async chipExport(params: ChipSearchParams): Promise<Blob> {
     const payload = {
-      contractors: params.contractors,
-      areas: params.areas,
-      organizations: params.organizations,
-      business_categories: params.businessCategories,
-      keywords: params.keywords,
-      time_ranges: params.timeRanges
+      contractors: params.contractors || [],
+      areas: params.areas || [],
+      organizations: params.organizations || [],
+      business_categories: params.businessCategories || [],
+      keywords: params.keywords || [],
+      time_ranges: params.timeRanges || []
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export/`, {
       method: 'POST',
