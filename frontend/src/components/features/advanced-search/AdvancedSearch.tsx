@@ -15,6 +15,7 @@ import { AdvancedSearchFilters } from './components/AdvancedSearchFilters'
 import { AdvancedSearchResults } from './components/AdvancedSearchResults'
 import { AdvancedSearchActions } from './components/AdvancedSearchActions'
 import { AnalyticsModal } from './AnalyticsModal'
+import { ExportCSVModal } from '../shared/ExportCSVModal'
 
 const AdvancedSearch: React.FC = () => {
   const { isDark } = useTheme()
@@ -291,118 +292,15 @@ const AdvancedSearch: React.FC = () => {
       )}
 
       {/* Export Modal */}
-      {exportHook.exportModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: themeColors.background.primary,
-            padding: spacing[6],
-            borderRadius: spacing[2],
-            maxWidth: '500px',
-            width: '90%',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)'
-          }}>
-            <h3 style={{
-              margin: `0 0 ${spacing[4]} 0`,
-              fontSize: typography.fontSize.lg,
-              fontWeight: typography.fontWeight.bold
-            }}>
-              Export All Contracts
-            </h3>
-            
-            {exportHook.exportEstimate && (
-              <div style={{
-                marginBottom: spacing[4],
-                padding: spacing[4],
-                backgroundColor: themeColors.background.secondary,
-                borderRadius: spacing[2]
-              }}>
-                <p style={{ margin: `0 0 ${spacing[2]} 0` }}>
-                  <strong>{exportHook.exportEstimate.count.toLocaleString()} contracts</strong> will be exported
-                </p>
-                <p style={{ margin: 0, color: themeColors.text.secondary }}>
-                  Estimated file size: <strong>{exportHook.getFormattedFileSize()}</strong>
-                </p>
-              </div>
-            )}
-
-            {exportHook.exportDownloading && (
-              <div style={{
-                marginBottom: spacing[4]
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: spacing[2]
-                }}>
-                  <span>Downloading...</span>
-                  <span>{exportHook.getFormattedProgress()}</span>
-                </div>
-                <div style={{
-                  width: '100%',
-                  height: 8,
-                  backgroundColor: themeColors.border.light,
-                  borderRadius: 4,
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    width: `${exportHook.exportProgress}%`,
-                    height: '100%',
-                    backgroundColor: themeColors.primary[600],
-                    transition: 'width 0.3s ease'
-                  }} />
-                </div>
-              </div>
-            )}
-
-            <div style={{
-              display: 'flex',
-              gap: spacing[3],
-              justifyContent: 'flex-end'
-            }}>
-              <button
-                onClick={() => exportHook.setExportModalOpen(false)}
-                disabled={exportHook.exportDownloading}
-                style={{
-                  padding: `${spacing[2]} ${spacing[4]}`,
-                  backgroundColor: 'transparent',
-                  color: themeColors.text.secondary,
-                  border: `1px solid ${themeColors.border.medium}`,
-                  borderRadius: spacing[2],
-                  cursor: exportHook.exportDownloading ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={exportHook.downloadExport}
-                disabled={exportHook.exportDownloading}
-                style={{
-                  padding: `${spacing[2]} ${spacing[4]}`,
-                  backgroundColor: themeColors.primary[600],
-                  color: themeColors.text.inverse,
-                  border: 'none',
-                  borderRadius: spacing[2],
-                  cursor: exportHook.exportDownloading ? 'progress' : 'pointer'
-                }}
-              >
-                {exportHook.exportDownloading ? 'Downloading...' : 'Download'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ExportCSVModal
+        open={exportHook.exportModalOpen}
+        onClose={() => exportHook.setExportModalOpen(false)}
+        onExport={exportHook.downloadExport}
+        totalCount={exportHook.exportEstimate?.count || 0}
+        dataType="Search Results"
+        isDark={isDark}
+        loading={exportHook.exportDownloading}
+      />
     </div>
   )
 }

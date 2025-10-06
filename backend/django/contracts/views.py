@@ -361,32 +361,34 @@ class ContractViewSet(viewsets.ModelViewSet):
             
             validated_data = serializer.validated_data
 
-            # For now, provide a simple estimate based on the full dataset
-            # This avoids the performance issues with complex queries
-            total = 4993608  # Total contracts in the dataset
+            # Get actual count from filtered search results
+            parquet_service = ParquetSearchService()
             
-            # Check if there are any filters applied
-            has_filters = any([
-                validated_data.get('contractors', []),
-                validated_data.get('areas', []),
-                validated_data.get('organizations', []),
-                validated_data.get('business_categories', []),
-                validated_data.get('keywords', []),
-                validated_data.get('time_ranges', [])
-            ])
+            # Get a small sample to estimate total count
+            result = parquet_service.search_contracts_with_chips(
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
+                page=1,
+                page_size=1,
+                sort_by='award_date',
+                sort_direction='desc',
+                include_flood_control=validated_data.get('include_flood_control', False)
+            )
             
-            # If filters are applied, estimate a smaller subset
-            if has_filters:
-                # Conservative estimate: assume filters reduce results by 50-90%
-                total = int(total * 0.3)  # Assume 30% of data matches filters
+            # Get total count from pagination info
+            total_count = result.get('pagination', {}).get('total_count', 0)
             
-            # Estimate CSV size based on average row size
-            # Based on the data structure, each row is approximately 200-300 bytes
-            avg_row_bytes = 250
-            estimated_bytes = total * avg_row_bytes
+            # Estimate CSV size based on individual contract data structure
+            # Each row: reference_id, award_title, award_date, awardee_name, etc. (~300-400 bytes)
+            avg_row_bytes = 350
+            estimated_bytes = total_count * avg_row_bytes
             
             return Response({
-                'total_count': total, 
+                'total_count': total_count, 
                 'estimated_csv_bytes': estimated_bytes
             }, status=status.HTTP_200_OK)
             
