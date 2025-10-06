@@ -315,7 +315,7 @@ export class AdvancedSearchService {
       }
 
       const data = await response.json()
-      return data.data
+      return data
     } catch (error) {
       console.error('Filter options error:', error)
       throw new Error('Failed to load filter options. Please try again.')

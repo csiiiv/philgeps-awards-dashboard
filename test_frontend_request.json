@@ -1,0 +1,13 @@
+{
+  "contractors": [],
+  "areas": [],
+  "organizations": [],
+  "business_categories": [],
+  "keywords": [],
+  "time_ranges": [],
+  "page": 1,
+  "page_size": 5,
+  "sortBy": "award_date",
+  "sortDirection": "desc",
+  "include_flood_control": false
+}
