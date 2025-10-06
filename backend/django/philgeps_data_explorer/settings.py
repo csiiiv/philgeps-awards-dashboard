@@ -145,7 +145,7 @@ CORS_ALLOW_ALL_ORIGINS = False  # Security: only allow specific origins
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Rate limiting (basic)
 REST_FRAMEWORK = {
