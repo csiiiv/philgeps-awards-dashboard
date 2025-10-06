@@ -530,7 +530,7 @@ export const TreemapPage: React.FC = () => {
         {/* Header */}
         <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
           <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[4] }}>
-            🗺️ Treemap Visualization
+          👁 Treemap Visualization
           </SectionTitle>
           
           <BodyText $isDark={isDark} style={{ marginBottom: spacing[4] }}>
