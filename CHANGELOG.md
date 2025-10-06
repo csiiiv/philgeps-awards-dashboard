@@ -5,7 +5,7 @@ All notable changes to the PHILGEPS Awards Data Explorer will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.0] - 2025-01-06
+## [3.1.0] - 2025-10-07
 
 ### Added
 - **OpenAPI 3.0 Compliance**: Complete migration to OpenAPI 3.0.3 specification
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **User Guides**: Updated help and about pages with latest features
 - **Technical Docs**: Updated architecture and methodology documentation
 
-## [3.0.1] - 2025-01-27
+## [3.0.1] - 2025-10-02
 
 ### Added
 - **Data Explorer**: Primary analytics interface with entity-based analysis
@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Storage**: Parquet files for columnar storage
 - **API**: RESTful endpoints with comprehensive error handling
 
-## [3.0.0] - 2025-01-01
+## [3.0.0] - 2025-10-01
 
 ### Added
 - **Initial Release**: PHILGEPS Awards Data Explorer
@@ -104,9 +104,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Major Changes |
 |---------|------|---------------|
-| 3.1.0 | 2025-01-06 | OpenAPI 3.0 migration, enhanced exports, production readiness |
-| 3.0.1 | 2025-01-27 | Data Explorer, Advanced Search, Analytics Dashboard |
-| 3.0.0 | 2025-01-01 | Initial release with core functionality |
+| 3.1.0 | 2025-10-07 | OpenAPI 3.0 migration, enhanced exports, production readiness |
+| 3.0.1 | 2025-10-02 | Data Explorer, Advanced Search, Analytics Dashboard |
+| 3.0.0 | 2025-10-01 | Initial release with core functionality |
 
 ## Migration Guide
 
