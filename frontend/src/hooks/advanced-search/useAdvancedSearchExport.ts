@@ -34,11 +34,15 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
   const [exportDownloading, setExportDownloading] = useState(false)
   const [exportProgress, setExportProgress] = useState<number>(0)
   const [exportAbort, setExportAbort] = useState<AbortController | null>(null)
+  const [exportParams, setExportParams] = useState<ChipSearchParams | null>(null)
 
   // Export with estimate function
   const exportAllWithEstimate = useCallback(async (params: ChipSearchParams) => {
     try {
       console.log('📊 useAdvancedSearchExport - exportAllWithEstimate called with:', params)
+      
+      // Store the parameters for later use in downloadExport
+      setExportParams(params)
       
       const est = await advancedSearchService.chipExportEstimate(params)
       if (!est || !est.total_count) {
@@ -61,29 +65,21 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
 
   // Download export function
   const downloadExport = useCallback(async () => {
-    if (!exportEstimate) {
-      console.error('❌ useAdvancedSearchExport - downloadExport called but no estimate available')
+    if (!exportEstimate || !exportParams) {
+      console.error('❌ useAdvancedSearchExport - downloadExport called but no estimate or params available')
       return
     }
 
     try {
-      console.log('📥 useAdvancedSearchExport - downloadExport called')
+      console.log('📥 useAdvancedSearchExport - downloadExport called with params:', exportParams)
       setExportDownloading(true)
       setExportProgress(0)
       
       const controller = new AbortController()
       setExportAbort(controller)
 
-      // Build export parameters
-      const params: ChipSearchParams = {
-        contractors: [],
-        areas: [],
-        organizations: [],
-        businessCategories: [],
-        keywords: [],
-        timeRanges: [],
-        includeFloodControl: true
-      }
+      // Use the stored parameters from exportAllWithEstimate
+      const params = exportParams
 
       // Stream the download and update progress
       const payload = {
@@ -158,7 +154,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       setExportAbort(null)
       setExportDownloading(false)
     }
-  }, [exportEstimate])
+  }, [exportEstimate, exportParams])
 
   // Cancel export function
   const cancelExport = useCallback(() => {
@@ -178,6 +174,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
     setExportEstimate(null)
     setExportDownloading(false)
     setExportProgress(0)
+    setExportParams(null)
     if (exportAbort) {
       exportAbort.abort()
       setExportAbort(null)
