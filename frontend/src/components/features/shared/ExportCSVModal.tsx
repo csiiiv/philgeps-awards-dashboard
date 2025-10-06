@@ -217,10 +217,10 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
           <div style={{ 
             marginBottom: spacing[4], 
             padding: spacing[2], 
-            backgroundColor: theme.colors.error + '20', 
-            border: `1px solid ${theme.colors.error}`,
+            backgroundColor: theme.error[500] + '20', 
+            border: `1px solid ${theme.error[500]}`,
             borderRadius: spacing[1],
-            color: theme.colors.error, 
+            color: theme.error[500], 
             fontSize: typography.fontSize.sm 
           }}>
             {error}
@@ -248,7 +248,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
               <div style={{
                 width: `${progress}%`,
                 height: '100%',
-                backgroundColor: theme.colors.primary,
+                backgroundColor: theme.primary[500],
                 borderRadius: spacing[1],
                 transition: 'width 0.3s ease'
               }} />
