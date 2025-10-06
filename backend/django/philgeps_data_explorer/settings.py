@@ -110,6 +110,7 @@ SPECTACULAR_SETTINGS = {
         {'name': 'contracts', 'description': 'Contract search and analytics'},
         {'name': 'entities', 'description': 'Entity search (contractors, organizations, etc.)'},
         {'name': 'export', 'description': 'Data export functionality'},
+        {'name': 'data-processing', 'description': 'Data processing and parquet service endpoints'},
     ],
 }
 

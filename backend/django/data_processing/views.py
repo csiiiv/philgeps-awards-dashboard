@@ -5,10 +5,21 @@ from django.utils.decorators import method_decorator
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 import json
 
 from .parquet_service import parquet_service
 
+@extend_schema(
+    operation_id='data_processing_home',
+    summary='Data Processing Home',
+    description='Basic data processing home view',
+    responses={
+        200: OpenApiResponse(description='Success response'),
+    },
+    tags=['data-processing']
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def data_processing_home(request):
@@ -18,6 +29,30 @@ def data_processing_home(request):
         'status': 'success'
     })
 
+@extend_schema(
+    operation_id='query_entities',
+    summary='Query Entities',
+    description='Query entities with pagination and filtering',
+    parameters=[
+        OpenApiParameter(name='entity_type', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Type of entity to query'),
+        OpenApiParameter(name='page_index', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Page index for pagination'),
+        OpenApiParameter(name='page_size', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Number of items per page'),
+        OpenApiParameter(name='time_range', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Time range filter'),
+        OpenApiParameter(name='year', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Year filter'),
+        OpenApiParameter(name='quarter', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Quarter filter'),
+        OpenApiParameter(name='start_date', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Start date filter'),
+        OpenApiParameter(name='end_date', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='End date filter'),
+        OpenApiParameter(name='search', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Search query'),
+        OpenApiParameter(name='sort_by', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Sort field'),
+        OpenApiParameter(name='sort_dir', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Sort direction'),
+        OpenApiParameter(name='include_flood_control', type=OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, description='Include flood control data'),
+    ],
+    responses={
+        200: OpenApiResponse(description='Success response with entity data'),
+        500: OpenApiResponse(description='Server error'),
+    },
+    tags=['data-processing']
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def query_entities(request):
@@ -62,6 +97,26 @@ def query_entities(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@extend_schema(
+    operation_id='query_related_entities',
+    summary='Query Related Entities',
+    description='Query related entities for drill-down functionality',
+    parameters=[
+        OpenApiParameter(name='source_dim', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Source dimension'),
+        OpenApiParameter(name='source_value', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Source value'),
+        OpenApiParameter(name='target_dim', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Target dimension'),
+        OpenApiParameter(name='limit', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Limit number of results'),
+        OpenApiParameter(name='time_range', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description='Time range filter'),
+        OpenApiParameter(name='year', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Year filter'),
+        OpenApiParameter(name='quarter', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description='Quarter filter'),
+    ],
+    responses={
+        200: OpenApiResponse(description='Success response with related entity data'),
+        400: OpenApiResponse(description='Bad request - missing required parameters'),
+        500: OpenApiResponse(description='Server error'),
+    },
+    tags=['data-processing']
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def query_related_entities(request):
@@ -96,6 +151,34 @@ def query_related_entities(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@extend_schema(
+    operation_id='query_contracts_by_entity',
+    summary='Query Contracts by Entity',
+    description='Query contracts filtered by entity dimensions',
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'filters': {
+                    'type': 'array',
+                    'items': {'type': 'object'},
+                    'description': 'Array of filter objects'
+                },
+                'page_index': {'type': 'integer', 'description': 'Page index'},
+                'page_size': {'type': 'integer', 'description': 'Page size'},
+                'order_by': {'type': 'string', 'description': 'Order by clause'},
+                'time_range': {'type': 'string', 'description': 'Time range filter'},
+                'year': {'type': 'integer', 'description': 'Year filter'},
+                'quarter': {'type': 'integer', 'description': 'Quarter filter'},
+            }
+        }
+    },
+    responses={
+        200: OpenApiResponse(description='Success response with contract data'),
+        500: OpenApiResponse(description='Server error'),
+    },
+    tags=['data-processing']
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def query_contracts_by_entity(request):
@@ -139,6 +222,16 @@ def query_contracts_by_entity(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@extend_schema(
+    operation_id='get_available_time_ranges',
+    summary='Get Available Time Ranges',
+    description='Get available time ranges and years/quarters',
+    responses={
+        200: OpenApiResponse(description='Success response with available time ranges'),
+        500: OpenApiResponse(description='Server error'),
+    },
+    tags=['data-processing']
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_available_time_ranges(request):
