@@ -614,6 +614,42 @@ class ContractorViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
 
+    @extend_schema(
+        operation_id='contractors_list',
+        summary='Search contractors',
+        description='Search contractors with substring or exact word matching',
+        parameters=[
+            OpenApiParameter(
+                name='search',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description='Substring search (e.g., "petron" matches "PETRON CORPORATION")'
+            ),
+            OpenApiParameter(
+                name='word',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description='Exact word search (e.g., "deo" won\'t match "montevideo")'
+            ),
+            OpenApiParameter(
+                name='page_size',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description='Results per page (default: 20)'
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=EntityListResponseSerializer,
+                description='List of contractors'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['entities']
+    )
     def list(self, request, *args, **kwargs):
         word = request.query_params.get('word', '').strip()
         if not word:
@@ -642,6 +678,18 @@ class BusinessCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
 
+    @extend_schema(
+        operation_id='business_categories_list',
+        summary='Search business categories',
+        description='Search business categories with substring or exact word matching',
+        parameters=[
+            OpenApiParameter(name='search', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY),
+            OpenApiParameter(name='word', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY),
+            OpenApiParameter(name='page_size', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY)
+        ],
+        responses={200: OpenApiResponse(response=EntityListResponseSerializer), 500: OpenApiResponse(response=ErrorResponseSerializer)},
+        tags=['entities']
+    )
     def list(self, request, *args, **kwargs):
         word = request.query_params.get('word', '').strip()
         if not word:
@@ -670,6 +718,18 @@ class AreaOfDeliveryViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
 
+    @extend_schema(
+        operation_id='areas_of_delivery_list',
+        summary='Search areas of delivery',
+        description='Search delivery areas with substring or exact word matching',
+        parameters=[
+            OpenApiParameter(name='search', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY),
+            OpenApiParameter(name='word', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY),
+            OpenApiParameter(name='page_size', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY)
+        ],
+        responses={200: OpenApiResponse(response=EntityListResponseSerializer), 500: OpenApiResponse(response=ErrorResponseSerializer)},
+        tags=['entities']
+    )
     def list(self, request, *args, **kwargs):
         word = request.query_params.get('word', '').strip()
         if not word:
