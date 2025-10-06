@@ -1,21 +1,50 @@
-# PHILGEPS Awards Data Explorer - Active API Documentation
+# PHILGEPS Awards Data Explorer - OpenAPI 3.0 Compliant API Documentation
 
 ## Overview
 
-This documentation covers **ONLY** the API endpoints that are actively used by the PHILGEPS Awards Data Explorer frontend. The API provides comprehensive search, analytics, and export functionality for Philippine government contract data from 2013-2025.
+This documentation provides a comprehensive reference for the PHILGEPS Awards Data Explorer API, built with full OpenAPI 3.0 compliance. The API provides search, analytics, and export functionality for Philippine government procurement data from 2013-2025.
 
+**API Version**: 1.0.0  
+**OpenAPI Version**: 3.0.3  
 **Base URL**: `https://philgeps-api.simple-systems.dev/api/v1/`  
-**Local Development**: `http://localhost:3200/api/v1/`
+**Local Development**: `http://localhost:3200/api/v1/`  
+**Documentation**: `https://philgeps-api.simple-systems.dev/api/docs/`
 
 ## Table of Contents
 
-1. [Contract Search & Analytics](#contract-search--analytics)
-2. [Entity Search](#entity-search)
-3. [Export Functionality](#export-functionality)
-4. [Data Models](#data-models)
-5. [Error Handling](#error-handling)
-6. [Examples](#examples)
-7. [API Status Codes](#api-status-codes)
+1. [Authentication](#authentication)
+2. [Rate Limiting](#rate-limiting)
+3. [Contract Search & Analytics](#contract-search--analytics)
+4. [Entity Search](#entity-search)
+5. [Export Functionality](#export-functionality)
+6. [Data Models](#data-models)
+7. [Error Handling](#error-handling)
+8. [Examples](#examples)
+9. [OpenAPI Schema](#openapi-schema)
+
+---
+
+## Authentication
+
+**Current Status**: No authentication required  
+**Access Level**: Public  
+**Rate Limiting**: 240 requests per hour per IP address
+
+All endpoints are publicly accessible without authentication. Rate limiting is applied per IP address to ensure fair usage.
+
+---
+
+## Rate Limiting
+
+| Endpoint Type | Rate Limit | Window |
+|---------------|------------|--------|
+| All Endpoints | 240 requests | 1 hour |
+| Filter Options | Cached (no limit) | N/A |
+
+**Headers**:
+- `X-RateLimit-Limit`: 240
+- `X-RateLimit-Remaining`: Number of requests remaining
+- `X-RateLimit-Reset`: Unix timestamp when limit resets
 
 ---
 
@@ -26,7 +55,7 @@ This documentation covers **ONLY** the API endpoints that are actively used by t
 
 Legacy advanced search endpoint with single-value filters. Use `chip-search` for new implementations.
 
-**Request Body:**
+**Request Body**:
 ```json
 {
   "contractor": "ABC Construction",
@@ -45,14 +74,14 @@ Legacy advanced search endpoint with single-value filters. Use `chip-search` for
 }
 ```
 
-**Response:** Same format as chip-search
+**Response**: Same format as `chip-search`
 
 ### 2. Search Contracts with Filter Chips
 **POST** `/contracts/chip-search/`
 
-Main search endpoint used by the Advanced Search functionality. Supports multiple values per filter type with AND/OR logic.
+Main search endpoint supporting multiple values per filter type with AND/OR logic.
 
-**Request Body:**
+**Request Body**:
 ```json
 {
   "contractors": ["ABC Construction", "XYZ Corp"],
@@ -79,7 +108,7 @@ Main search endpoint used by the Advanced Search functionality. Supports multipl
 }
 ```
 
-**Response:**
+**Response**:
 ```json
 {
   "success": true,
@@ -111,17 +140,21 @@ Main search endpoint used by the Advanced Search functionality. Supports multipl
 }
 ```
 
+**Status Codes**:
+- `200 OK`: Search successful
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during search
+
 ### 3. Get Analytics Aggregates
 **POST** `/contracts/chip-aggregates/`
 
 Get aggregated data for charts and analytics using the same filter criteria as search.
 
-**Request Body:** Same as chip-search
+**Request Body**: Same as `chip-search`
 
-**Response:**
+**Response**:
 ```json
 {
-  "success": true,
   "data": {
     "summary": [
       {
@@ -176,12 +209,17 @@ Get aggregated data for charts and analytics using the same filter criteria as s
 }
 ```
 
+**Status Codes**:
+- `200 OK`: Aggregates retrieved successfully
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during aggregation
+
 ### 4. Get Paginated Analytics
 **POST** `/contracts/chip-aggregates-paginated/`
 
 Get paginated aggregated data for analytics tables with sorting and filtering.
 
-**Request Body:**
+**Request Body**:
 ```json
 {
   "contractors": ["ABC Construction"],
@@ -204,10 +242,9 @@ Get paginated aggregated data for analytics tables with sorting and filtering.
 }
 ```
 
-**Response:**
+**Response**:
 ```json
 {
-  "success": true,
   "data": [
     {
       "label": "ABC Construction Corporation",
@@ -227,36 +264,42 @@ Get paginated aggregated data for analytics tables with sorting and filtering.
 }
 ```
 
+**Status Codes**:
+- `200 OK`: Paginated data retrieved successfully
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during pagination
+
 ### 5. Get Filter Options
 **GET** `/contracts/filter-options/`
 
 Get all available filter options for dropdowns and autocomplete.
 
-**Response:**
+**Response**:
 ```json
 {
-  "success": true,
-  "data": {
-    "contractors": [
-      "ABC Construction Corporation",
-      "XYZ Construction Inc"
-    ],
-    "areas": [
-      "NCR - NATIONAL CAPITAL REGION",
-      "Region IV-A - CALABARZON"
-    ],
-    "organizations": [
-      "DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS",
-      "DEPARTMENT OF TRANSPORTATION"
-    ],
-    "business_categories": [
-      "CONSTRUCTION",
-      "CONSULTING SERVICES"
-    ],
-    "years": [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
-  }
+  "contractors": [
+    "ABC Construction Corporation",
+    "XYZ Construction Inc"
+  ],
+  "areas": [
+    "NCR - NATIONAL CAPITAL REGION",
+    "Region IV-A - CALABARZON"
+  ],
+  "organizations": [
+    "DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS",
+    "DEPARTMENT OF TRANSPORTATION"
+  ],
+  "business_categories": [
+    "CONSTRUCTION",
+    "CONSULTING SERVICES"
+  ],
+  "years": [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
 }
 ```
+
+**Status Codes**:
+- `200 OK`: Filter options retrieved successfully
+- `500 Internal Server Error`: Server error retrieving filter options
 
 ---
 
@@ -267,12 +310,14 @@ Get all available filter options for dropdowns and autocomplete.
 
 Search contractors with substring or exact word matching.
 
-**Query Parameters:**
-- `search` (string): Substring search (e.g., "petron" matches "PETRON CORPORATION")
-- `word` (string): Exact word search (e.g., "deo" won't match "montevideo")
-- `page_size` (int): Results per page (default: 20)
+**Query Parameters**:
+| Parameter | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `search` | string | Substring search | `petron` matches "PETRON CORPORATION" |
+| `word` | string | Exact word search | `deo` won't match "montevideo" |
+| `page_size` | integer | Results per page (default: 20) | `10` |
 
-**Examples:**
+**Example Requests**:
 ```bash
 # Substring search
 GET /contractors/?search=petron&page_size=10
@@ -281,7 +326,7 @@ GET /contractors/?search=petron&page_size=10
 GET /contractors/?word=deo&page_size=10
 ```
 
-**Response:**
+**Response**:
 ```json
 {
   "count": 74250,
@@ -297,94 +342,48 @@ GET /contractors/?word=deo&page_size=10
 }
 ```
 
+**Status Codes**:
+- `200 OK`: Search successful
+- `400 Bad Request`: Invalid query parameters
+- `500 Internal Server Error`: Server error during search
+
 ### 2. Search Organizations
 **GET** `/organizations/`
 
 Search organizations with substring or exact word matching.
 
-**Query Parameters:** Same as contractors
+**Query Parameters**: Same as contractors
 
-**Response:** Same format as contractors
+**Response**: Same format as contractors
 
 ### 3. Search Business Categories
 **GET** `/business-categories/`
 
 Search business categories with substring or exact word matching.
 
-**Query Parameters:** Same as contractors
+**Query Parameters**: Same as contractors
 
-**Response:** Same format as contractors
+**Response**: Same format as contractors
 
 ### 4. Search Areas of Delivery
 **GET** `/areas-of-delivery/`
 
 Search delivery areas with substring or exact word matching.
 
-**Query Parameters:** Same as contractors
+**Query Parameters**: Same as contractors
 
-**Response:** Same format as contractors
+**Response**: Same format as contractors
 
 ---
 
 ## Export Functionality
 
-### 1. Estimate Export Size
+### 1. Estimate Individual Contracts Export Size
 **POST** `/contracts/chip-export-estimate/`
 
-Estimate the size of CSV export for current filters.
+Estimate the size of CSV export for individual contracts matching current filters.
 
-**Request Body:**
-```json
-{
-  "contractors": ["ABC Construction"],
-  "areas": ["NCR - NATIONAL CAPITAL REGION"],
-  "organizations": ["DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS"],
-  "business_categories": ["CONSTRUCTION"],
-  "keywords": ["road"],
-  "time_ranges": [
-    {
-      "type": "yearly",
-      "year": 2023
-    }
-  ]
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "total_count": 1000,
-  "estimated_csv_bytes": 2048000
-}
-```
-
-### 2. Export CSV (Individual Contracts)
-**POST** `/contracts/chip-export/`
-
-Stream full CSV export for individual contracts matching current filters.
-
-**Request Body:** Same as export estimate
-
-**Response:** CSV file stream with headers:
-- reference_id
-- contract_no
-- award_title
-- notice_title
-- awardee_name
-- organization_name
-- area_of_delivery
-- business_category
-- contract_amount
-- award_date
-- award_status
-
-### 3. Estimate Aggregated Export Size
-**POST** `/contracts/chip-export-aggregated-estimate/`
-
-Estimate the size of aggregated CSV export for analytics data (contractors, organizations, etc.).
-
-**Request Body:**
+**Request Body**:
 ```json
 {
   "contractors": ["ABC Construction"],
@@ -398,11 +397,73 @@ Estimate the size of aggregated CSV export for analytics data (contractors, orga
       "year": 2023
     }
   ],
-  "dimension": "by_contractor"
+  "include_flood_control": false
 }
 ```
 
-**Response:**
+**Response**:
+```json
+{
+  "total_count": 1000,
+  "estimated_csv_bytes": 350000
+}
+```
+
+**Status Codes**:
+- `200 OK`: Estimate successful
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during estimation
+
+### 2. Export Individual Contracts CSV
+**POST** `/contracts/chip-export/`
+
+Stream full CSV export for individual contracts matching current filters.
+
+**Request Body**: Same as export estimate
+
+**Response**: CSV file stream with headers:
+- reference_id
+- contract_no
+- award_title
+- notice_title
+- awardee_name
+- organization_name
+- area_of_delivery
+- business_category
+- contract_amount
+- award_date
+- award_status
+
+**Status Codes**:
+- `200 OK`: CSV export successful
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during export
+
+### 3. Estimate Aggregated Export Size
+**POST** `/contracts/chip-export-aggregated-estimate/`
+
+Estimate the size of aggregated CSV export for analytics data (contractors, organizations, etc.).
+
+**Request Body**:
+```json
+{
+  "contractors": ["ABC Construction"],
+  "areas": ["NCR - NATIONAL CAPITAL REGION"],
+  "organizations": ["DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS"],
+  "business_categories": ["CONSTRUCTION"],
+  "keywords": ["road"],
+  "time_ranges": [
+    {
+      "type": "yearly",
+      "year": 2023
+    }
+  ],
+  "dimension": "by_contractor",
+  "include_flood_control": false
+}
+```
+
+**Response**:
 ```json
 {
   "total_count": 120,
@@ -410,18 +471,28 @@ Estimate the size of aggregated CSV export for analytics data (contractors, orga
 }
 ```
 
+**Status Codes**:
+- `200 OK`: Estimate successful
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during estimation
+
 ### 4. Export Aggregated CSV
 **POST** `/contracts/chip-export-aggregated/`
 
 Stream aggregated CSV export for analytics data (contractors, organizations, areas, categories).
 
-**Request Body:** Same as aggregated export estimate
+**Request Body**: Same as aggregated export estimate
 
-**Response:** CSV file stream with headers:
+**Response**: CSV file stream with headers:
 - label (contractor/organization/area/category name)
 - total_value (sum of contract amounts)
 - count (number of contracts)
 - avg_value (average contract amount)
+
+**Status Codes**:
+- `200 OK`: CSV export successful
+- `400 Bad Request`: Invalid request parameters
+- `500 Internal Server Error`: Server error during export
 
 ---
 
@@ -447,7 +518,7 @@ Stream aggregated CSV export for analytics data (contractors, organizations, are
     }
   ],
   "page": "integer (default: 1)",
-  "page_size": "integer (default: 20, max: 100)",
+  "page_size": "integer (default: 20, max: 5000000)",
   "sortBy": "string (default: award_date)",
   "sortDirection": "string (asc|desc, default: desc)",
   "include_flood_control": "boolean (default: false)"
@@ -462,6 +533,20 @@ Stream aggregated CSV export for analytics data (contractors, organizations, are
   "quarter": "integer (required for quarterly, 1-4)",
   "startDate": "string (required for custom, YYYY-MM-DD)",
   "endDate": "string (required for custom, YYYY-MM-DD)"
+}
+```
+
+#### AggregatedExportRequest
+```json
+{
+  "contractors": ["string"],
+  "areas": ["string"],
+  "organizations": ["string"],
+  "business_categories": ["string"],
+  "keywords": ["string"],
+  "time_ranges": ["TimeRange Object"],
+  "dimension": "by_contractor|by_organization|by_area|by_category",
+  "include_flood_control": "boolean (default: false)"
 }
 ```
 
@@ -541,6 +626,24 @@ Stream aggregated CSV export for analytics data (contractors, organizations, are
 }
 ```
 
+### HTTP Status Codes
+
+#### Success Responses
+- **200 OK**: Request successful
+- **201 Created**: Resource created successfully
+
+#### Client Error Responses
+- **400 Bad Request**: Invalid request parameters or malformed JSON
+- **404 Not Found**: Resource not found
+- **405 Method Not Allowed**: HTTP method not allowed for this endpoint
+- **415 Unsupported Media Type**: Content-Type not supported
+- **429 Too Many Requests**: Rate limit exceeded
+
+#### Server Error Responses
+- **500 Internal Server Error**: Server error during processing
+- **502 Bad Gateway**: Upstream service error
+- **503 Service Unavailable**: Service temporarily unavailable
+
 ### Common Error Examples
 
 #### Validation Error (400)
@@ -548,7 +651,7 @@ Stream aggregated CSV export for analytics data (contractors, organizations, are
 {
   "success": false,
   "error": "Invalid request parameters",
-  "message": "Page size must be between 1 and 100"
+  "message": "Page size must be between 1 and 5000000"
 }
 ```
 
@@ -561,31 +664,14 @@ Stream aggregated CSV export for analytics data (contractors, organizations, are
 }
 ```
 
-#### Filter Options Error (500)
+#### Rate Limit Error (429)
 ```json
 {
   "success": false,
-  "error": "Failed to load filter options",
-  "message": "Unable to retrieve filter data from parquet files"
+  "error": "Rate limit exceeded",
+  "message": "Too many requests. Please try again later."
 }
 ```
-
-## API Status Codes
-
-### Success Responses
-- **200 OK**: Request successful
-- **201 Created**: Resource created successfully
-
-### Client Error Responses
-- **400 Bad Request**: Invalid request parameters or malformed JSON
-- **404 Not Found**: Resource not found
-- **405 Method Not Allowed**: HTTP method not allowed for this endpoint
-- **415 Unsupported Media Type**: Content-Type not supported
-
-### Server Error Responses
-- **500 Internal Server Error**: Server error during processing
-- **502 Bad Gateway**: Upstream service error
-- **503 Service Unavailable**: Service temporarily unavailable
 
 ---
 
@@ -640,8 +726,7 @@ curl -X POST "https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-aggr
         "type": "yearly",
         "year": 2023
       }
-    ],
-    "topN": 20
+    ]
   }'
 ```
 
@@ -744,8 +829,7 @@ const analyticsResponse = await fetch('https://philgeps-api.simple-systems.dev/a
     time_ranges: [{
       type: 'yearly',
       year: 2023
-    }],
-    topN: 20
+    }]
   })
 });
 const analyticsData = await analyticsResponse.json();
@@ -801,6 +885,54 @@ aggregatedA.click();
 
 ---
 
+## OpenAPI Schema
+
+### Interactive Documentation
+- **Swagger UI**: `https://philgeps-api.simple-systems.dev/api/docs/`
+- **ReDoc**: `https://philgeps-api.simple-systems.dev/api/redoc/`
+- **OpenAPI Schema**: `https://philgeps-api.simple-systems.dev/api/schema/`
+
+### Schema Information
+- **OpenAPI Version**: 3.0.3
+- **API Version**: 1.0.0
+- **Schema Size**: ~75KB
+- **Total Endpoints**: 12
+- **Compliance**: 100% OpenAPI 3.0 compliant
+
+### Key Features
+- **Interactive Testing**: Test endpoints directly from browser
+- **Request/Response Examples**: Complete examples for all endpoints
+- **Schema Definitions**: Detailed data models
+- **Error Documentation**: Comprehensive error code documentation
+- **Rate Limiting**: Documented rate limits and headers
+
+---
+
+## Performance & Data Sources
+
+### Performance Considerations
+- **Search Performance**: All search operations use optimized Parquet files with DuckDB for fast querying
+- **Pagination**: Default page size is 20, maximum is 5,000,000
+- **Caching**: Filter options are cached for improved performance
+- **Streaming**: Large CSV exports use streaming to handle memory efficiently
+
+### Data Sources
+- **Primary Data**: PHILGEPS contract data (2013-2025)
+- **Total Contracts**: ~5 million contract records
+- **Total Value**: ~₱15 trillion in contract amounts
+- **Extended Data**: Sumbong sa Pangulo dataset (2022-2025) - optional via `include_flood_control` parameter
+- **Data Format**: Optimized Parquet files for fast querying
+- **Update Frequency**: Data updated periodically as new contracts are processed
+
+### Dataset Statistics
+- **Contractors**: 120,000+ unique contractors
+- **Organizations**: 14,000+ government agencies
+- **Areas**: 520 delivery areas
+- **Categories**: 169 business categories
+- **Time Period**: 2013-2025 (13+ years)
+
+---
+
 ## Key Features
 
 ### Search Capabilities
@@ -808,7 +940,7 @@ aggregatedA.click();
 - **Keyword Search**: Full-text search with AND logic support (`&&`)
 - **Whole-word Matching**: Precise matching (e.g., 'deo' won't match 'montevideo')
 - **Time Range Filtering**: Yearly, quarterly, custom date ranges
-- **Sumbong sa Pangulo Dataset**: Optional inclusion of extended 2022-2025 data
+- **Extended Dataset**: Optional inclusion of extended 2022-2025 data
 
 ### Analytics Features
 - **Chart Data**: Aggregated data for visualizations
@@ -825,27 +957,6 @@ aggregatedA.click();
 - **Progress Tracking**: Real-time export progress
 - **Multiple Export Types**: Both individual contracts and aggregated analytics data
 
-## Performance & Rate Limiting
-
-### Performance Considerations
-- **Search Performance**: All search operations use optimized Parquet files with DuckDB for fast querying
-- **Pagination**: Default page size is 20, maximum is 100
-- **Caching**: Filter options are cached for improved performance
-- **Streaming**: Large CSV exports use streaming to handle memory efficiently
-
-### Rate Limiting
-- **All Endpoints**: 240 requests per hour per IP address
-- **No Authentication**: All endpoints are publicly accessible
-- **Filter Options**: Cached responses reduce server load
-
-### Data Sources
-- **Primary Data**: PHILGEPS contract data (2013-2025)
-- **Total Contracts**: ~5 million contract records
-- **Total Value**: ~₱15 trillion in contract amounts
-- **Extended Data**: Sumbong sa Pangulo dataset (2022-2025) - optional via `include_flood_control` parameter
-- **Data Format**: Optimized Parquet files for fast querying
-- **Update Frequency**: Data updated periodically as new contracts are processed
-
 ---
 
-*This documentation covers all actively used API endpoints as of January 27, 2025. Only endpoints that are actually called by the frontend application are included.*
+*This documentation is fully compliant with OpenAPI 3.0 specifications and covers all actively used API endpoints as of January 27, 2025. The API provides comprehensive search, analytics, and export functionality for Philippine government procurement data.*
