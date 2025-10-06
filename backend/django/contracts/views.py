@@ -11,12 +11,26 @@ from django.http import StreamingHttpResponse
 import re
 from django.core.paginator import Paginator
 import os
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from .models import Contract, Organization, Contractor, BusinessCategory, AreaOfDelivery, DataImport
 from .serializers import (
     ContractListSerializer, ContractDetailSerializer, ContractCreateSerializer,
     OrganizationSerializer, ContractorSerializer, BusinessCategorySerializer,
     AreaOfDeliverySerializer, DataImportSerializer, ContractStatsSerializer
+)
+from .openapi_serializers import (
+    ChipSearchRequestSerializer, ContractSearchResponseSerializer,
+    AggregatesResponseSerializer, PaginatedAggregatesRequestSerializer,
+    PaginatedAggregatesResponseSerializer, FilterOptionsSerializer,
+    ExportEstimateRequestSerializer, ExportEstimateResponseSerializer,
+    ErrorResponseSerializer, EntityListResponseSerializer
+)
+from .exceptions import (
+    ValidationError, SearchError, FilterOptionsError, ExportError,
+    ParquetDataError, InvalidTimeRangeError, InvalidPageSizeError,
+    InvalidSortFieldError, InvalidSortDirectionError
 )
 from .filters import ContractFilter
 from .parquet_search import ParquetSearchService
@@ -120,91 +134,127 @@ class ContractViewSet(viewsets.ModelViewSet):
                 'message': 'An error occurred during search'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    @extend_schema(
+        operation_id='contracts_chip_search',
+        summary='Search contracts with filter chips',
+        description='Advanced search with multiple values per filter type using AND/OR logic',
+        request=ChipSearchRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=ContractSearchResponseSerializer,
+                description='Search results with pagination'
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['contracts']
+    )
     @action(detail=False, methods=['post'], url_path='chip-search')
     def chip_search(self, request):
         """
         Advanced search with filter chips (multiple values per filter type)
         """
         try:
-            # Extract search parameters
-            contractors = request.data.get('contractors', [])
-            areas = request.data.get('areas', [])
-            organizations = request.data.get('organizations', [])
-            business_categories = request.data.get('business_categories', [])
-            keywords = request.data.get('keywords', [])
-            time_ranges = request.data.get('time_ranges', [])
-            page = int(request.data.get('page', 1))
-            page_size = int(request.data.get('page_size', 20))
-            sort_by = request.data.get('sortBy', 'award_date')
-            sort_direction = request.data.get('sortDirection', 'desc')
-            include_flood_control = request.data.get('include_flood_control', False)
+            # Validate request data
+            serializer = ChipSearchRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
             
             # Use parquet search service to search ALL contracts with chip logic
             parquet_service = ParquetSearchService()
             result = parquet_service.search_contracts_with_chips(
-                contractors=contractors,
-                areas=areas,
-                organizations=organizations,
-                business_categories=business_categories,
-                keywords=keywords,
-                time_ranges=time_ranges,
-                page=page,
-                page_size=page_size,
-                sort_by=sort_by,
-                sort_direction=sort_direction,
-                include_flood_control=include_flood_control
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
+                page=validated_data.get('page', 1),
+                page_size=validated_data.get('page_size', 20),
+                sort_by=validated_data.get('sortBy', 'award_date'),
+                sort_direction=validated_data.get('sortDirection', 'desc'),
+                include_flood_control=validated_data.get('include_flood_control', False)
             )
             
             if result['success']:
                 return Response({
-                    'success': True,
                     'data': result['data'],
                     'pagination': result['pagination']
                 }, status=status.HTTP_200_OK)
             else:
-                return Response({
-                    'success': False,
-                    'error': result.get('error', 'Search failed'),
-                    'data': [],
-                    'pagination': result['pagination']
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                raise SearchError(detail=result.get('error', 'Search failed'))
             
+        except ValidationError:
+            raise
+        except SearchError:
+            raise
         except Exception as e:
-            return Response({
-                'success': False,
-                'error': str(e),
-                'message': 'An error occurred during search'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise SearchError(detail=f'An error occurred during search: {str(e)}')
 
+    @extend_schema(
+        operation_id='contracts_chip_aggregates',
+        summary='Get analytics aggregates',
+        description='Get aggregated data for charts and analytics using the same filter criteria as search',
+        request=ChipSearchRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=AggregatesResponseSerializer,
+                description='Aggregated analytics data'
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['contracts']
+    )
     @action(detail=False, methods=['post'], url_path='chip-aggregates')
     def chip_aggregates(self, request):
         """Aggregates for charts using same chip filters."""
         try:
-            contractors = request.data.get('contractors', [])
-            areas = request.data.get('areas', [])
-            organizations = request.data.get('organizations', [])
-            business_categories = request.data.get('business_categories', [])
-            keywords = request.data.get('keywords', [])
-            time_ranges = request.data.get('time_ranges', [])
-            topN = request.data.get('topN', 20)
-            include_flood_control = request.data.get('include_flood_control', False)
+            # Validate request data
+            serializer = ChipSearchRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
+            topN = request.data.get('topN', 20)  # Additional parameter not in serializer
 
             parquet_service = ParquetSearchService()
             result = parquet_service.chip_aggregates(
-                contractors=contractors,
-                areas=areas,
-                organizations=organizations,
-                business_categories=business_categories,
-                keywords=keywords,
-                time_ranges=time_ranges,
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
                 topN=topN,
-                include_flood_control=include_flood_control
+                include_flood_control=validated_data.get('include_flood_control', False)
             )
+            
             if result.get('success'):
-                return Response({'success': True, 'data': result['data']}, status=status.HTTP_200_OK)
-            return Response({'success': False, 'error': result.get('error', 'Aggregation failed')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'data': result['data']}, status=status.HTTP_200_OK)
+            else:
+                raise SearchError(detail=result.get('error', 'Aggregation failed'))
+                
+        except ValidationError:
+            raise
+        except SearchError:
+            raise
         except Exception as e:
-            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise SearchError(detail=f'An error occurred during aggregation: {str(e)}')
 
     @action(detail=False, methods=['post'], url_path='chip-aggregates-paginated')
     def chip_aggregates_paginated(self, request):

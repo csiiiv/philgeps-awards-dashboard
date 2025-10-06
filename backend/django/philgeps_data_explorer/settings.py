@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'drf_spectacular',
     'contracts',
     'data_processing',
 ]
@@ -93,6 +94,22 @@ STATICFILES_DIRS = [
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# Spectacular Settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'PHILGEPS Awards Data Explorer API',
+    'DESCRIPTION': 'API for Philippine government contract data exploration and analytics',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/v1/',
+    'TAGS': [
+        {'name': 'contracts', 'description': 'Contract search and analytics'},
+        {'name': 'entities', 'description': 'Entity search (contractors, organizations, etc.)'},
+        {'name': 'export', 'description': 'Data export functionality'},
     ],
 }
 
