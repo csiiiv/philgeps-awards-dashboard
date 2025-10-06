@@ -121,7 +121,7 @@ export const About: React.FC = () => {
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📈</div>
           <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[600], marginBottom: spacing[2] }}>
-            2.2M+ Contracts
+            5M+ Contracts
           </h3>
           <BodyText $isDark={isDark}>
             Comprehensive dataset spanning 13 years of government procurement data
@@ -131,7 +131,7 @@ export const About: React.FC = () => {
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>🏢</div>
           <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
-            14K+ Agencies
+            23K+ Agencies
           </h3>
           <BodyText $isDark={isDark}>
             Government organizations and contractors across all regions
@@ -145,6 +145,26 @@ export const About: React.FC = () => {
           </h3>
           <BodyText $isDark={isDark}>
             Advanced filtering and analytics with instant results
+          </BodyText>
+        </Card>
+        
+        <Card $isDark={isDark} style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>👁</div>
+          <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[500], marginBottom: spacing[2] }}>
+            Treemap Visualization
+          </h3>
+          <BodyText $isDark={isDark}>
+            Interactive hierarchical data visualization with drill-down
+          </BodyText>
+        </Card>
+        
+        <Card $isDark={isDark} style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📚</div>
+          <h3 style={{ ...typography.textStyles.h3, color: themeColors.secondary[600], marginBottom: spacing[2] }}>
+            API Documentation
+          </h3>
+          <BodyText $isDark={isDark}>
+            Complete OpenAPI 3.0 documentation with live testing
           </BodyText>
         </Card>
       </div>

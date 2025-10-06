@@ -22,6 +22,7 @@ export const Help: React.FC = () => {
     { id: 'search', title: 'Advanced Search', icon: '🔍', color: themeColors.primary[500] },
     { id: 'analytics', title: 'Analytics', icon: '📊', color: themeColors.warning[600] },
     { id: 'drilldown', title: 'Drill-down', icon: '🔍', color: themeColors.secondary[600] },
+    { id: 'treemap', title: 'Treemap', icon: '�', color: themeColors.primary[400] },
     { id: 'presets', title: 'Filter Presets', icon: '💾', color: themeColors.warning[500] },
     { id: 'dataset', title: 'Sumbong sa Pangulo', icon: '🌊', color: themeColors.primary[400] },
     { id: 'examples', title: 'Examples', icon: '💡', color: themeColors.success[500] },
@@ -130,7 +131,7 @@ export const Help: React.FC = () => {
         }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📊</div>
           <h3 style={{ ...typography.textStyles.h4, color: themeColors.success[600], marginBottom: spacing[2] }}>
-            2.2M+ Contracts
+            5M+ Contracts
           </h3>
           <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
             Comprehensive database of awarded government contracts
@@ -145,7 +146,7 @@ export const Help: React.FC = () => {
         }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>🏢</div>
           <h3 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[2] }}>
-            14K+ Organizations
+            23K+ Organizations
           </h3>
           <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
             Government agencies and contracting entities
@@ -160,7 +161,7 @@ export const Help: React.FC = () => {
         }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>👥</div>
           <h3 style={{ ...typography.textStyles.h4, color: themeColors.warning[600], marginBottom: spacing[2] }}>
-            74K+ Contractors
+            119K+ Contractors
           </h3>
           <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
             Registered contractors and suppliers
@@ -193,7 +194,7 @@ export const Help: React.FC = () => {
             Export & Download
           </h3>
           <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
-            Download results as CSV for further analysis
+            Export individual contracts or aggregated data as CSV
           </p>
         </Card>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
@@ -203,6 +204,24 @@ export const Help: React.FC = () => {
           </h3>
           <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
             Multi-level data exploration and detailed insights
+          </p>
+        </Card>
+        <Card $isDark={isDark} style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>👁</div>
+          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+            Treemap Visualization
+          </h3>
+          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+            Interactive treemap charts with drill-down capabilities
+          </p>
+        </Card>
+        <Card $isDark={isDark} style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>📚</div>
+          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+            API Documentation
+          </h3>
+          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+            Complete OpenAPI 3.0 documentation with live testing
           </p>
         </Card>
       </div>
@@ -489,6 +508,103 @@ export const Help: React.FC = () => {
           Click on table rows for detailed drill-down analysis
         </li>
       </ol>
+    </Card>
+  )
+
+  const renderTreemap = () => (
+    <Card $isDark={isDark}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3], marginBottom: spacing[4] }}>
+        <div style={{
+          backgroundColor: themeColors.primary[50],
+          borderRadius: '50%',
+          width: '60px',
+          height: '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.8em'
+        }}>
+          �
+        </div>
+        <div>
+          <SectionTitle $isDark={isDark} style={{ margin: 0 }}>Treemap Visualization</SectionTitle>
+          <BodyText $isDark={isDark} style={{ margin: 0, color: themeColors.text.secondary }}>
+            Interactive treemap charts with drill-down capabilities
+          </BodyText>
+        </div>
+      </div>
+
+      <BodyText $isDark={isDark} style={{ marginBottom: spacing[4] }}>
+        The Treemap feature provides an interactive visualization of government procurement data using 
+        hierarchical rectangles. Each rectangle's size represents the relative value of contracts, 
+        making it easy to identify the largest spending areas at a glance.
+      </BodyText>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: spacing[4], marginBottom: spacing[6] }}>
+        <div style={{
+          backgroundColor: themeColors.background.secondary,
+          border: `1px solid ${themeColors.border.medium}`,
+          borderRadius: spacing[2],
+          padding: spacing[4]
+        }}>
+          <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[3], display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+            <span>📊</span> Visual Representation
+          </h4>
+          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0, fontSize: typography.fontSize.sm }}>
+            Rectangles sized by contract value with color coding for different categories
+          </p>
+        </div>
+        <div style={{
+          backgroundColor: themeColors.background.secondary,
+          border: `1px solid ${themeColors.border.medium}`,
+          borderRadius: spacing[2],
+          padding: spacing[4]
+        }}>
+          <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[3], display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+            <span>🔍</span> Drill-down
+          </h4>
+          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0, fontSize: typography.fontSize.sm }}>
+            Click on rectangles to explore detailed contract information
+          </p>
+        </div>
+        <div style={{
+          backgroundColor: themeColors.background.secondary,
+          border: `1px solid ${themeColors.border.medium}`,
+          borderRadius: spacing[2],
+          padding: spacing[4]
+        }}>
+          <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[3], display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+            <span>🎯</span> Filtering
+          </h4>
+          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0, fontSize: typography.fontSize.sm }}>
+            Apply filters to focus on specific contractors, areas, or time periods
+          </p>
+        </div>
+      </div>
+
+      <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[3] }}>How to Use Treemap</h4>
+      <ol style={{ paddingLeft: spacing[4], marginBottom: spacing[4] }}>
+        <li style={{ ...typography.textStyles.body, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          Navigate to the Treemap tab in the main interface
+        </li>
+        <li style={{ ...typography.textStyles.body, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          Select a dimension (Contractor, Organization, Area, Category) to visualize
+        </li>
+        <li style={{ ...typography.textStyles.body, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          Apply filters to focus on specific data subsets
+        </li>
+        <li style={{ ...typography.textStyles.body, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          Click on rectangles to drill down into detailed contract information
+        </li>
+        <li style={{ ...typography.textStyles.body, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          Use the legend to understand color coding and categories
+        </li>
+      </ol>
+
+      <Alert $isDark={isDark} $variant="info">
+        <strong>💡 Tip:</strong> The treemap is most effective for identifying the largest spending areas. 
+        Use it in combination with the Data Explorer for comprehensive analysis.
+      </Alert>
     </Card>
   )
 
@@ -1015,6 +1131,8 @@ export const Help: React.FC = () => {
         return renderAnalytics()
       case 'drilldown':
         return renderDrillDown()
+      case 'treemap':
+        return renderTreemap()
       case 'presets':
         return renderPresets()
       case 'dataset':
