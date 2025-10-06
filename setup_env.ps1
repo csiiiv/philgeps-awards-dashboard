@@ -33,7 +33,7 @@ $PROD_SSL_REDIRECT = "True"
 # 1 = Public API (use your hosted backend - no local backend needed)
 # 2 = Local Development (use local backend - for development/testing)
 # 3 = Custom URL (use any custom backend URL)
-    $API_SOURCE_OPTION = 2
+    $API_SOURCE_OPTION = 1
 
 # API Source URLs - Configure these as needed:
 $PUBLIC_API_URL = "https://philgeps-api.simple-systems.dev"  # API subdomain (preferred)

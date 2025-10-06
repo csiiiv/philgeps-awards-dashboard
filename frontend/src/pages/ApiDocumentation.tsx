@@ -28,10 +28,10 @@ const ApiDocumentation: React.FC = () => {
         </p>
         
 
-          <div style={{
-            backgroundColor: themeColors.background.secondary,
-            border: `1px solid ${themeColors.border.medium}`,
-            borderRadius: spacing[2],
+        <div style={{
+          backgroundColor: themeColors.background.secondary,
+          border: `1px solid ${themeColors.border.medium}`,
+          borderRadius: spacing[2],
           padding: spacing[4],
           marginBottom: spacing[4]
         }}>
@@ -42,34 +42,34 @@ const ApiDocumentation: React.FC = () => {
     <div>
               <strong style={{ color: themeColors.text.primary }}>Base URL:</strong>
               <br />
-              <code style={{
-                backgroundColor: themeColors.background.primary,
+          <code style={{
+            backgroundColor: themeColors.background.primary,
                 padding: spacing[1],
-                borderRadius: spacing[1],
-                fontFamily: 'monospace',
-                color: themeColors.primary[600],
+            borderRadius: spacing[1],
+            fontFamily: 'monospace',
+            color: themeColors.primary[600],
                 fontSize: typography.fontSize.sm
-              }}>
-                {apiBaseUrl}/api/v1/
-              </code>
-            </div>
+          }}>
+            {apiBaseUrl}/api/v1/
+          </code>
+        </div>
               <div>
               <strong style={{ color: themeColors.text.primary }}>OpenAPI Version:</strong>
               <br />
               <span style={{ color: themeColors.text.secondary }}>3.0.3</span>
-    </div>
+      </div>
             <div>
               <strong style={{ color: themeColors.text.primary }}>Total Endpoints:</strong>
               <br />
               <span style={{ color: themeColors.text.secondary }}>12</span>
-            </div>
+          </div>
             <div>
               <strong style={{ color: themeColors.text.primary }}>Rate Limit:</strong>
               <br />
               <span style={{ color: themeColors.text.secondary }}>240/hour</span>
-            </div>
           </div>
         </div>
+      </div>
 
         <div style={{
           backgroundColor: themeColors.background.secondary,
@@ -150,12 +150,12 @@ const ApiDocumentation: React.FC = () => {
           </div>
         </div>
 
-        <div style={{
-          backgroundColor: themeColors.background.secondary,
-          border: `1px solid ${themeColors.border.medium}`,
-          borderRadius: spacing[2],
-          padding: spacing[4]
-        }}>
+          <div style={{
+            backgroundColor: themeColors.background.secondary,
+            border: `1px solid ${themeColors.border.medium}`,
+            borderRadius: spacing[2],
+            padding: spacing[4]
+          }}>
           <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[3] }}>
             Additional Resources
           </h3>
@@ -172,7 +172,7 @@ const ApiDocumentation: React.FC = () => {
                 borderRadius: spacing[1],
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium,
-                border: `1px solid ${themeColors.border.medium}`,
+              border: `1px solid ${themeColors.border.medium}`,
                 display: 'flex',
                 alignItems: 'center',
                 gap: spacing[2]
@@ -192,7 +192,7 @@ const ApiDocumentation: React.FC = () => {
                 borderRadius: spacing[1],
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium,
-                border: `1px solid ${themeColors.border.medium}`,
+            border: `1px solid ${themeColors.border.medium}`,
                 display: 'flex',
                 alignItems: 'center',
                 gap: spacing[2]
