@@ -256,67 +256,109 @@ class ContractViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise SearchError(detail=f'An error occurred during aggregation: {str(e)}')
 
+    @extend_schema(
+        operation_id='contracts_chip_aggregates_paginated',
+        summary='Get paginated analytics aggregates',
+        description='Get paginated aggregated data for analytics tables with sorting and filtering',
+        request=PaginatedAggregatesRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=PaginatedAggregatesResponseSerializer,
+                description='Paginated aggregated analytics data'
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['contracts']
+    )
     @action(detail=False, methods=['post'], url_path='chip-aggregates-paginated')
     def chip_aggregates_paginated(self, request):
         """Paginated aggregates for analytics table using chip filters."""
         try:
-            contractors = request.data.get('contractors', [])
-            areas = request.data.get('areas', [])
-            organizations = request.data.get('organizations', [])
-            business_categories = request.data.get('business_categories', [])
-            keywords = request.data.get('keywords', [])
-            time_ranges = request.data.get('time_ranges', [])
-            page = request.data.get('page', 1)
-            page_size = request.data.get('page_size', 20)
-            dimension = request.data.get('dimension', 'by_contractor')
-            sort_by = request.data.get('sort_by', 'total_value')
-            sort_direction = request.data.get('sort_direction', 'desc')
-            include_flood_control = request.data.get('include_flood_control', False)
+            # Validate request data
+            serializer = PaginatedAggregatesRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
 
             parquet_service = ParquetSearchService()
             result = parquet_service.chip_aggregates_paginated(
-                contractors=contractors,
-                areas=areas,
-                organizations=organizations,
-                business_categories=business_categories,
-                keywords=keywords,
-                time_ranges=time_ranges,
-                page=page,
-                page_size=page_size,
-                dimension=dimension,
-                sort_by=sort_by,
-                sort_direction=sort_direction,
-                include_flood_control=include_flood_control
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
+                page=validated_data.get('page', 1),
+                page_size=validated_data.get('page_size', 20),
+                dimension=validated_data.get('dimension', 'by_contractor'),
+                sort_by=validated_data.get('sort_by', 'total_value'),
+                sort_direction=validated_data.get('sort_direction', 'desc'),
+                include_flood_control=validated_data.get('include_flood_control', False)
             )
+            
             if result.get('success'):
                 return Response({
-                    'success': True, 
                     'data': result['data'],
                     'pagination': result['pagination']
                 }, status=status.HTTP_200_OK)
-            return Response({'success': False, 'error': result.get('error', 'Paginated aggregation failed')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                raise SearchError(detail=result.get('error', 'Paginated aggregation failed'))
+                
+        except ValidationError:
+            raise
+        except SearchError:
+            raise
         except Exception as e:
-            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise SearchError(detail=f'An error occurred during paginated aggregation: {str(e)}')
 
+    @extend_schema(
+        operation_id='contracts_chip_export_estimate',
+        summary='Estimate export size',
+        description='Estimate the size of CSV export for current filters',
+        request=ExportEstimateRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=ExportEstimateResponseSerializer,
+                description='Export size estimate'
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['export']
+    )
     @action(detail=False, methods=['post'], url_path='chip-export-estimate')
     def chip_export_estimate(self, request):
         try:
-            contractors = request.data.get('contractors', [])
-            areas = request.data.get('areas', [])
-            organizations = request.data.get('organizations', [])
-            business_categories = request.data.get('business_categories', [])
-            keywords = request.data.get('keywords', [])
-            time_ranges = request.data.get('time_ranges', [])
+            # Validate request data
+            serializer = ExportEstimateRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
 
             parquet_service = ParquetSearchService()
             # Count
             result = parquet_service.search_contracts_with_chips(
-                contractors=contractors,
-                areas=areas,
-                organizations=organizations,
-                business_categories=business_categories,
-                keywords=keywords,
-                time_ranges=time_ranges,
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
                 page=1,
                 page_size=1,
                 sort_by='award_date',
@@ -326,12 +368,12 @@ class ContractViewSet(viewsets.ModelViewSet):
             # Sample up to 100 rows
             sample_size = min(100, max(1, total))
             sample = parquet_service.search_contracts_with_chips(
-                contractors=contractors,
-                areas=areas,
-                organizations=organizations,
-                business_categories=business_categories,
-                keywords=keywords,
-                time_ranges=time_ranges,
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
                 page=1,
                 page_size=sample_size,
                 sort_by='award_date',
@@ -366,19 +408,45 @@ class ContractViewSet(viewsets.ModelViewSet):
                 csv_rows = [row_to_csv(r) for r in rows]
                 avg_row = sum(len(s) for s in csv_rows) / len(csv_rows) + 1 + len(','.join(headers)) / max(1,len(csv_rows))
             estimated_bytes = int(total * avg_row)
-            return Response({'success': True, 'total_count': total, 'estimated_csv_bytes': estimated_bytes})
+            return Response({
+                'total_count': total, 
+                'estimated_csv_bytes': estimated_bytes
+            }, status=status.HTTP_200_OK)
+        except ValidationError:
+            raise
         except Exception as e:
-            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ExportError(detail=f'An error occurred during export estimation: {str(e)}')
 
+    @extend_schema(
+        operation_id='contracts_chip_export',
+        summary='Export CSV data',
+        description='Stream full CSV export for current filters',
+        request=ExportEstimateRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                description='CSV file download',
+                content={'text/csv': {'schema': {'type': 'string', 'format': 'binary'}}}
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['export']
+    )
     @action(detail=False, methods=['post'], url_path='chip-export')
     def chip_export(self, request):
         try:
-            contractors = request.data.get('contractors', [])
-            areas = request.data.get('areas', [])
-            organizations = request.data.get('organizations', [])
-            business_categories = request.data.get('business_categories', [])
-            keywords = request.data.get('keywords', [])
-            time_ranges = request.data.get('time_ranges', [])
+            # Validate request data
+            serializer = ExportEstimateRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
 
             parquet_service = ParquetSearchService()
             headers = [
@@ -411,12 +479,12 @@ class ContractViewSet(viewsets.ModelViewSet):
                 page_size = 1000
                 while True:
                     result = parquet_service.search_contracts_with_chips(
-                        contractors=contractors,
-                        areas=areas,
-                        organizations=organizations,
-                        business_categories=business_categories,
-                        keywords=keywords,
-                        time_ranges=time_ranges,
+                        contractors=validated_data.get('contractors', []),
+                        areas=validated_data.get('areas', []),
+                        organizations=validated_data.get('organizations', []),
+                        business_categories=validated_data.get('business_categories', []),
+                        keywords=validated_data.get('keywords', []),
+                        time_ranges=validated_data.get('time_ranges', []),
                         page=page,
                         page_size=page_size,
                         sort_by='award_date',
@@ -434,9 +502,27 @@ class ContractViewSet(viewsets.ModelViewSet):
             response = StreamingHttpResponse(generate(), content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="contracts_export.csv"'
             return response
+        except ValidationError:
+            raise
         except Exception as e:
-            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ExportError(detail=f'An error occurred during CSV export: {str(e)}')
     
+    @extend_schema(
+        operation_id='contracts_filter_options',
+        summary='Get filter options',
+        description='Get all available filter options for dropdowns and autocomplete',
+        responses={
+            200: OpenApiResponse(
+                response=FilterOptionsSerializer,
+                description='Available filter options'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['contracts']
+    )
     @action(detail=False, methods=['get'], url_path='filter-options')
     def filter_options(self, request):
         """
@@ -447,17 +533,10 @@ class ContractViewSet(viewsets.ModelViewSet):
             parquet_service = ParquetSearchService()
             filter_options = parquet_service.get_filter_options()
             
-            return Response({
-                'success': True,
-                'data': filter_options
-            })
+            return Response(filter_options, status=status.HTTP_200_OK)
             
         except Exception as e:
-            return Response({
-                'success': False,
-                'error': str(e),
-                'message': 'Failed to load filter options'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise FilterOptionsError(detail=f'Failed to load filter options: {str(e)}')
 
 
 class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -470,6 +549,42 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
 
+    @extend_schema(
+        operation_id='organizations_list',
+        summary='Search organizations',
+        description='Search organizations with substring or exact word matching',
+        parameters=[
+            OpenApiParameter(
+                name='search',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description='Substring search (e.g., "petron" matches "PETRON CORPORATION")'
+            ),
+            OpenApiParameter(
+                name='word',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description='Exact word search (e.g., "deo" won\'t match "montevideo")'
+            ),
+            OpenApiParameter(
+                name='page_size',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description='Results per page (default: 20)'
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=EntityListResponseSerializer,
+                description='List of organizations'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['entities']
+    )
     def list(self, request, *args, **kwargs):
         word = request.query_params.get('word', '').strip()
         if not word:
