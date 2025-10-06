@@ -26,6 +26,7 @@ from .openapi_serializers import (
     AggregatesResponseSerializer, PaginatedAggregatesRequestSerializer,
     PaginatedAggregatesResponseSerializer, FilterOptionsSerializer,
     ExportEstimateRequestSerializer, ExportEstimateResponseSerializer,
+    AggregatedExportRequestSerializer,
     ErrorResponseSerializer, EntityListResponseSerializer
 )
 from .exceptions import (
@@ -482,6 +483,94 @@ class ContractViewSet(viewsets.ModelViewSet):
             raise
         except Exception as e:
             raise ExportError(detail=f'An error occurred during CSV export: {str(e)}')
+    
+    @extend_schema(
+        operation_id='contracts_chip_export_aggregated',
+        summary='Export aggregated CSV data',
+        description='Stream aggregated CSV export for analytics data (contractors, organizations, etc.)',
+        request=AggregatedExportRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                description='CSV file download'
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['export']
+    )
+    @action(detail=False, methods=['post'], url_path='chip-export-aggregated')
+    def chip_export_aggregated(self, request):
+        try:
+            # Validate request data
+            serializer = AggregatedExportRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
+            
+            # Get dimension from request data (default to contractor)
+            dimension = validated_data.get('dimension', 'by_contractor')
+            
+            parquet_service = ParquetSearchService()
+            
+            # Headers for aggregated data
+            headers = ['label', 'total_value', 'count', 'avg_value']
+            
+            def esc(v):
+                s = '' if v is None else str(v)
+                s = s.replace('"','""')
+                return f'"{s}"' if (',' in s or '"' in s or '\n' in s) else s
+            
+            def row_to_csv(r):
+                vals = [
+                    r.get('label') or '',
+                    r.get('total_value') or '',
+                    r.get('count') or '',
+                    r.get('avg_value') or ''
+                ]
+                return ','.join(esc(v) for v in vals)
+
+            def generate():
+                yield ','.join(headers) + '\n'
+                page = 1
+                page_size = 1000
+                while True:
+                    result = parquet_service.chip_aggregates_paginated(
+                        contractors=validated_data.get('contractors', []),
+                        areas=validated_data.get('areas', []),
+                        organizations=validated_data.get('organizations', []),
+                        business_categories=validated_data.get('business_categories', []),
+                        keywords=validated_data.get('keywords', []),
+                        time_ranges=validated_data.get('time_ranges', []),
+                        dimension=dimension,
+                        page=page,
+                        page_size=page_size,
+                        sort_by='total_value',
+                        sort_direction='desc',
+                        include_flood_control=validated_data.get('include_flood_control', False)
+                    )
+                    rows = result.get('data', [])
+                    if not rows:
+                        break
+                    for r in rows:
+                        yield row_to_csv(r) + '\n'
+                    if len(rows) < page_size:
+                        break
+                    page += 1
+
+            response = StreamingHttpResponse(generate(), content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{dimension.replace("by_", "")}_export.csv"'
+            return response
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ExportError(detail=f'An error occurred during aggregated CSV export: {str(e)}')
     
     @extend_schema(
         operation_id='contracts_filter_options',

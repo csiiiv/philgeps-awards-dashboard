@@ -336,6 +336,67 @@ class ExportEstimateRequestSerializer(serializers.Serializer):
         required=False,
         default=list
     )
+    include_flood_control = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text="Whether to include flood control related contracts"
+    )
+    dimension = serializers.ChoiceField(
+        choices=['by_contractor', 'by_organization', 'by_area', 'by_category'],
+        required=False,
+        default='by_contractor',
+        help_text="Dimension for aggregated export"
+    )
+
+
+class AggregatedExportRequestSerializer(serializers.Serializer):
+    """Serializer for aggregated export requests"""
+    contractors = serializers.ListField(
+        child=serializers.CharField(max_length=500),
+        required=False,
+        default=list,
+        help_text="List of contractor names to filter by"
+    )
+    areas = serializers.ListField(
+        child=serializers.CharField(max_length=200),
+        required=False,
+        default=list,
+        help_text="List of delivery areas to filter by"
+    )
+    organizations = serializers.ListField(
+        child=serializers.CharField(max_length=500),
+        required=False,
+        default=list,
+        help_text="List of organization names to filter by"
+    )
+    business_categories = serializers.ListField(
+        child=serializers.CharField(max_length=200),
+        required=False,
+        default=list,
+        help_text="List of business categories to filter by"
+    )
+    keywords = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        required=False,
+        default=list,
+        help_text="List of keywords to search for"
+    )
+    time_ranges = TimeRangeSerializer(
+        many=True,
+        required=False,
+        default=list,
+        help_text="List of time range objects to filter by"
+    )
+    include_flood_control = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text="Whether to include flood control related contracts"
+    )
+    dimension = serializers.ChoiceField(
+        choices=['by_contractor', 'by_organization', 'by_area', 'by_category'],
+        required=True,
+        help_text="Dimension for aggregated export (required)"
+    )
 
 
 class ExportEstimateResponseSerializer(serializers.Serializer):

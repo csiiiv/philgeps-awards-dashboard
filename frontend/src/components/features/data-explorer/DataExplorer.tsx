@@ -213,24 +213,23 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
         endRank
       }
       
-      const response = await advancedSearchService.chipExport(exportParams)
+      // Use aggregated export for data explorer (exports the aggregated data being displayed)
+      const response = await advancedSearchService.chipExportAggregated({
+        ...exportParams,
+        dimension: analyticsControls.dimension
+      })
       
-      if (response.data) {
-        // Create download link
-        const blob = new Blob([response.data], { type: 'text/csv' })
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = `philgeps-data-explorer-${analyticsControls.dimension.replace('by_', '')}-${Date.now()}.csv`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-        
-        announce('Data exported successfully', 'polite')
-      } else {
-        throw new Error(response.error || 'Export failed')
-      }
+      // Create download link
+      const url = window.URL.createObjectURL(response)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `philgeps-data-explorer-${analyticsControls.dimension.replace('by_', '')}-${Date.now()}.csv`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      announce('Data exported successfully', 'polite')
     } catch (error) {
       console.error('Export error:', error)
       announce('Export failed', 'polite')

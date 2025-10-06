@@ -298,6 +298,26 @@ export class AdvancedSearchService {
     return response.blob()
   }
 
+  async chipExportAggregated(params: ChipSearchParams & { dimension: string }): Promise<Blob> {
+    const payload = {
+      contractors: params.contractors || [],
+      areas: params.areas || [],
+      organizations: params.organizations || [],
+      business_categories: params.businessCategories || [],
+      keywords: params.keywords || [],
+      time_ranges: params.timeRanges || [],
+      dimension: params.dimension || 'by_contractor',
+      include_flood_control: params.includeFloodControl || false
+    }
+    const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    if (!response.ok) throw new Error('Aggregated export failed')
+    return response.blob()
+  }
+
   /**
    * Get filter options for dropdowns
    */
