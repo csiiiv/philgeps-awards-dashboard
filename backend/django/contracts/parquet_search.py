@@ -20,16 +20,12 @@ class ParquetSearchService:
         
     def _get_parquet_files(self, include_flood_control: bool = False) -> List[str]:
         """Get parquet files with optimization for analytics"""
-        # Check for optimized files first
-        title_optimized_file = os.path.join(self.data_dir, 'facts_awards_title_optimized.parquet')
-        super_optimized_file = os.path.join(self.data_dir, 'facts_awards_super_optimized.parquet')
+        # Use all_time file for complete data (5M contracts)
+        all_time_file = os.path.join(self.data_dir, 'facts_awards_all_time.parquet')
         
-        if os.path.exists(title_optimized_file):
-            # Use title-optimized file for better performance
-            files = [title_optimized_file]
-        elif os.path.exists(super_optimized_file):
-            # Use super-optimized file as fallback
-            files = [super_optimized_file]
+        if os.path.exists(all_time_file):
+            # Use all_time file for complete dataset
+            files = [all_time_file]
         else:
             # Fallback to original logic
             pattern = os.path.join(self.data_dir, 'facts_awards_*.parquet')
@@ -1032,6 +1028,13 @@ class ParquetSearchService:
             }
 
         base_query = " UNION ALL ".join(union_queries)
+        
+        # Debug logging
+        print(f"DEBUG: Base query: {base_query}")
+        print(f"DEBUG: Where conditions: {where_conditions}")
+        print(f"DEBUG: Group column: {group_column}")
+        print(f"DEBUG: Sort column: {sort_column}")
+        print(f"DEBUG: Sort direction: {sort_direction}")
         
         # Build the main query with pagination
         query = f"""

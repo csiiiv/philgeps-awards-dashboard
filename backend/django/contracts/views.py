@@ -282,6 +282,10 @@ class ContractViewSet(viewsets.ModelViewSet):
     def chip_aggregates_paginated(self, request):
         """Paginated aggregates for analytics table using chip filters."""
         try:
+            # Debug logging
+            print(f"DEBUG: Request data type: {type(request.data)}")
+            print(f"DEBUG: Request data: {request.data}")
+            
             # Validate request data
             serializer = PaginatedAggregatesRequestSerializer(data=request.data)
             if not serializer.is_valid():

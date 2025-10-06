@@ -182,7 +182,9 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
         setAggregates(aggregates)
         setTotalCount(response.pagination.total_count)
       } else if (isExplorerMode) {
-        console.log('[useAnalyticsData] Explorer mode - calling chipAggregatesPaginated with params:', params)
+        console.log('[useAnalyticsData] Explorer mode - calling chipAggregatesPaginated and chipAggregates with params:', params)
+        
+        // Get paginated data for the table
         const response = await advancedSearchService.chipAggregatesPaginated({
           ...params,
           dimension: params.dimension || 'by_contractor',
@@ -195,10 +197,23 @@ export const useAnalyticsData = (): AnalyticsDataState & AnalyticsDataActions =>
           throw new Error('Failed to load analytics data')
         }
         
+        // Get summary data from chipAggregates for correct totals
+        const summaryResponse = await advancedSearchService.chipAggregates({
+          ...params,
+          page: undefined,
+          pageSize: undefined,
+          dimension: undefined
+        })
+        console.log('[useAnalyticsData] chipAggregates summary response:', summaryResponse)
+        
+        if (!summaryResponse.success) {
+          console.warn('[useAnalyticsData] Failed to load summary data:', summaryResponse.error)
+        }
+        
         // Convert paginated response to aggregates format for explorer mode
         const aggregates = {
           [params.dimension || 'by_contractor']: response.data,
-          summary: [{ 
+          summary: summaryResponse.success ? summaryResponse.data.summary : [{ 
             count: response.pagination.total_count, 
             total_value: response.data.reduce((sum, item) => sum + (item.total_value || 0), 0),
             avg_value: response.data.length > 0 ? response.data.reduce((sum, item) => sum + (item.total_value || 0), 0) / response.data.length : 0
