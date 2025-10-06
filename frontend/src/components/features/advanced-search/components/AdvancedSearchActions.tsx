@@ -158,7 +158,7 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
         title="Estimate and export all matches"
       >
         <span>📊</span>
-        Export All (Estimate)
+        Export CSV
       </button>
 
       {/* Analytics Button */}
