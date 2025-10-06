@@ -1,0 +1,2784 @@
+openapi: 3.0.3
+info:
+  title: PHILGEPS Awards Data Explorer API
+  version: 1.0.0
+  description: API for Philippine government contract data exploration and analytics
+paths:
+  /api/v1/areas-of-delivery/:
+    get:
+      operationId: areas_of_delivery_list
+      description: Search delivery areas with substring or exact word matching
+      summary: Search areas of delivery
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: word
+        schema:
+          type: string
+      tags:
+      - entities
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityListResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/areas-of-delivery/{id}/:
+    get:
+      operationId: areas_of_delivery_retrieve
+      description: ViewSet for areas of delivery
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Area of Delivery.
+        required: true
+      tags:
+      - areas-of-delivery
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaOfDelivery'
+          description: ''
+  /api/v1/business-categories/:
+    get:
+      operationId: business_categories_list
+      description: Search business categories with substring or exact word matching
+      summary: Search business categories
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: word
+        schema:
+          type: string
+      tags:
+      - entities
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityListResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/business-categories/{id}/:
+    get:
+      operationId: business_categories_retrieve
+      description: ViewSet for business categories
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Business Category.
+        required: true
+      tags:
+      - business-categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessCategory'
+          description: ''
+  /api/v1/contractors/:
+    get:
+      operationId: contractors_list
+      description: Search contractors with substring or exact word matching
+      summary: Search contractors
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Results per page (default: 20)'
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Substring search (e.g., "petron" matches "PETRON CORPORATION")
+      - in: query
+        name: word
+        schema:
+          type: string
+        description: Exact word search (e.g., "deo" won't match "montevideo")
+      tags:
+      - entities
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityListResponse'
+          description: List of contractors
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/contractors/{id}/:
+    get:
+      operationId: contractors_retrieve
+      description: ViewSet for contractors
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Contractor.
+        required: true
+      tags:
+      - contractors
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contractor'
+          description: ''
+  /api/v1/contracts/:
+    get:
+      operationId: contracts_list
+      description: ViewSet for managing contracts
+      parameters:
+      - in: query
+        name: area_of_delivery
+        schema:
+          type: string
+      - in: query
+        name: award_date_from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: award_date_to
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: award_status
+        schema:
+          type: string
+      - in: query
+        name: business_category
+        schema:
+          type: string
+      - in: query
+        name: classification
+        schema:
+          type: string
+      - in: query
+        name: contractor
+        schema:
+          type: string
+      - in: query
+        name: is_awarded
+        schema:
+          type: boolean
+      - in: query
+        name: max_amount
+        schema:
+          type: number
+      - in: query
+        name: min_amount
+        schema:
+          type: number
+      - in: query
+        name: notice_status
+        schema:
+          type: string
+      - in: query
+        name: notice_type
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: string
+      - in: query
+        name: procurement_mode
+        schema:
+          type: string
+      - in: query
+        name: publish_date_from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: publish_date_to
+        schema:
+          type: string
+          format: date
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - contracts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContractList'
+          description: ''
+    post:
+      operationId: contracts_create
+      description: ViewSet for managing contracts
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractCreate'
+          description: ''
+  /api/v1/contracts/{id}/:
+    get:
+      operationId: contracts_retrieve
+      description: ViewSet for managing contracts
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Contract.
+        required: true
+      tags:
+      - contracts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractDetail'
+          description: ''
+    put:
+      operationId: contracts_update
+      description: ViewSet for managing contracts
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Contract.
+        required: true
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContractDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContractDetailRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractDetail'
+          description: ''
+    patch:
+      operationId: contracts_partial_update
+      description: ViewSet for managing contracts
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Contract.
+        required: true
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedContractDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedContractDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedContractDetailRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractDetail'
+          description: ''
+    delete:
+      operationId: contracts_destroy
+      description: ViewSet for managing contracts
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Contract.
+        required: true
+      tags:
+      - contracts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/contracts/advanced-search/:
+    post:
+      operationId: contracts_advanced_search_create
+      description: Advanced search for contracts with multiple criteria using ALL
+        parquet data
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContractDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContractDetailRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractDetail'
+          description: ''
+  /api/v1/contracts/chip-aggregates/:
+    post:
+      operationId: contracts_chip_aggregates
+      description: Get aggregated data for charts and analytics using the same filter
+        criteria as search
+      summary: Get analytics aggregates
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChipSearchRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChipSearchRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChipSearchRequestRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregatesResponse'
+          description: Aggregated analytics data
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/contracts/chip-aggregates-paginated/:
+    post:
+      operationId: contracts_chip_aggregates_paginated
+      description: Get paginated aggregated data for analytics tables with sorting
+        and filtering
+      summary: Get paginated analytics aggregates
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginatedAggregatesRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaginatedAggregatesRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaginatedAggregatesRequestRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAggregatesResponse'
+          description: Paginated aggregated analytics data
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/contracts/chip-export/:
+    post:
+      operationId: contracts_chip_export
+      description: Stream full CSV export for current filters
+      summary: Export CSV data
+      tags:
+      - export
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportEstimateRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExportEstimateRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExportEstimateRequestRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: CSV file download
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/contracts/chip-export-estimate/:
+    post:
+      operationId: contracts_chip_export_estimate
+      description: Estimate the size of CSV export for current filters
+      summary: Estimate export size
+      tags:
+      - export
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportEstimateRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExportEstimateRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExportEstimateRequestRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportEstimateResponse'
+          description: Export size estimate
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/contracts/chip-search/:
+    post:
+      operationId: contracts_chip_search
+      description: Advanced search with multiple values per filter type using AND/OR
+        logic
+      summary: Search contracts with filter chips
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChipSearchRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChipSearchRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChipSearchRequestRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractSearchResponse'
+          description: Search results with pagination
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/contracts/filter-options/:
+    get:
+      operationId: contracts_filter_options
+      description: Get all available filter options for dropdowns and autocomplete
+      summary: Get filter options
+      tags:
+      - contracts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterOptions'
+          description: Available filter options
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/data-imports/:
+    get:
+      operationId: data_imports_list
+      description: ViewSet for data imports
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - data-imports
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataImport'
+          description: ''
+    post:
+      operationId: data_imports_create
+      description: ViewSet for data imports
+      tags:
+      - data-imports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataImportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DataImportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DataImportRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataImport'
+          description: ''
+  /api/v1/data-imports/{id}/:
+    get:
+      operationId: data_imports_retrieve
+      description: ViewSet for data imports
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Data Import.
+        required: true
+      tags:
+      - data-imports
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataImport'
+          description: ''
+    put:
+      operationId: data_imports_update
+      description: ViewSet for data imports
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Data Import.
+        required: true
+      tags:
+      - data-imports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataImportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DataImportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DataImportRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataImport'
+          description: ''
+    patch:
+      operationId: data_imports_partial_update
+      description: ViewSet for data imports
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Data Import.
+        required: true
+      tags:
+      - data-imports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDataImportRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDataImportRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDataImportRequest'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataImport'
+          description: ''
+    delete:
+      operationId: data_imports_destroy
+      description: ViewSet for data imports
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Data Import.
+        required: true
+      tags:
+      - data-imports
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/data-processing/:
+    get:
+      operationId: data_processing_retrieve
+      description: Basic data processing home view
+      tags:
+      - data-processing
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/data-processing/available-time-ranges/:
+    get:
+      operationId: data_processing_available_time_ranges_retrieve
+      description: Get available time ranges and years/quarters
+      tags:
+      - data-processing
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/data-processing/query-contracts-by-entity/:
+    post:
+      operationId: data_processing_query_contracts_by_entity_create
+      description: Query contracts filtered by entity dimensions
+      tags:
+      - data-processing
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/data-processing/query-entities/:
+    get:
+      operationId: data_processing_query_entities_retrieve
+      description: Query entities with pagination and filtering
+      tags:
+      - data-processing
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/data-processing/query-related-entities/:
+    get:
+      operationId: data_processing_query_related_entities_retrieve
+      description: Query related entities for drill-down functionality
+      tags:
+      - data-processing
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/organizations/:
+    get:
+      operationId: organizations_list
+      description: Search organizations with substring or exact word matching
+      summary: Search organizations
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Results per page (default: 20)'
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Substring search (e.g., "petron" matches "PETRON CORPORATION")
+      - in: query
+        name: word
+        schema:
+          type: string
+        description: Exact word search (e.g., "deo" won't match "montevideo")
+      tags:
+      - entities
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityListResponse'
+          description: List of organizations
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/v1/organizations/{id}/:
+    get:
+      operationId: organizations_retrieve
+      description: ViewSet for organizations
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Organization.
+        required: true
+      tags:
+      - organizations
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+          description: ''
+components:
+  schemas:
+    AggregatesResponse:
+      type: object
+      description: Serializer for aggregates response
+      properties:
+        summary:
+          type: array
+          items:
+            $ref: '#/components/schemas/Summary'
+          description: Summary statistics
+        by_year:
+          type: array
+          items:
+            $ref: '#/components/schemas/YearlyAggregation'
+          description: Aggregations by year
+        by_month:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyAggregation'
+          description: Aggregations by month
+        by_contractor:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregationItem'
+          description: Aggregations by contractor
+        by_organization:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregationItem'
+          description: Aggregations by organization
+        by_area:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregationItem'
+          description: Aggregations by area
+        by_category:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregationItem'
+          description: Aggregations by category
+      required:
+      - by_area
+      - by_category
+      - by_contractor
+      - by_month
+      - by_organization
+      - by_year
+      - summary
+    AggregationItem:
+      type: object
+      description: Serializer for aggregation items
+      properties:
+        label:
+          type: string
+          description: Label for the aggregation
+        total_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Total value
+        count:
+          type: integer
+          description: Number of items
+        avg_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Average value
+      required:
+      - count
+      - label
+      - total_value
+    AreaOfDelivery:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        contract_count:
+          type: integer
+          readOnly: true
+        total_contract_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - contract_count
+      - created_at
+      - id
+      - name
+      - total_contract_value
+      - updated_at
+    AreaOfDeliveryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - name
+    BusinessCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        contract_count:
+          type: integer
+          readOnly: true
+        total_contract_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+          readOnly: true
+        contractor_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - contract_count
+      - contractor_count
+      - created_at
+      - id
+      - name
+      - total_contract_value
+      - updated_at
+    BusinessCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - name
+    ChipSearchRequestRequest:
+      type: object
+      description: Serializer for chip-based search requests
+      properties:
+        contractors:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+          description: List of contractor names to filter by
+        areas:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+          description: List of delivery areas to filter by
+        organizations:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+          description: List of organization names to filter by
+        business_categories:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+          description: List of business categories to filter by
+        keywords:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+          description: List of keywords to search for
+        time_ranges:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeRangeRequest'
+          description: List of time range filters
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Page number for pagination
+        page_size:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          description: Number of results per page (max 100)
+        sortBy:
+          allOf:
+          - $ref: '#/components/schemas/SortByEnum'
+          default: award_date
+          description: |-
+            Field to sort by
+
+            * `award_date` - award_date
+            * `contract_amount` - contract_amount
+            * `reference_id` - reference_id
+            * `created_at` - created_at
+        sortDirection:
+          allOf:
+          - $ref: '#/components/schemas/SortDirectionEnum'
+          default: desc
+          description: |-
+            Sort direction
+
+            * `asc` - asc
+            * `desc` - desc
+        include_flood_control:
+          type: boolean
+          default: false
+          description: Include Sumbong sa Pangulo dataset (2022-2025)
+    ContractCreate:
+      type: object
+      description: Serializer for creating contracts
+      properties:
+        reference_id:
+          type: string
+          maxLength: 50
+        notice_title:
+          type: string
+        award_title:
+          type: string
+          nullable: true
+        publish_date:
+          type: string
+          format: date
+          nullable: true
+        award_date:
+          type: string
+          format: date
+          nullable: true
+        award_publish_date:
+          type: string
+          format: date
+          nullable: true
+        notice_to_proceed_date:
+          type: string
+          format: date
+          nullable: true
+        contract_effectivity_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        prebid_date:
+          type: string
+          format: date-time
+          nullable: true
+        closing_date:
+          type: string
+          format: date-time
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+          maxLength: 100
+        notice_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        total_contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        average_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        min_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        max_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        line_item_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        total_quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        notice_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        funding_source:
+          type: string
+          nullable: true
+          maxLength: 200
+        funding_instrument:
+          type: string
+          nullable: true
+          maxLength: 200
+        procurement_mode:
+          type: string
+          nullable: true
+          maxLength: 100
+        trade_agreement:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_duration:
+          type: string
+          nullable: true
+          maxLength: 100
+        calendar_type:
+          type: string
+          nullable: true
+          maxLength: 50
+        reason_for_award:
+          type: string
+          nullable: true
+      required:
+      - notice_title
+      - reference_id
+    ContractCreateRequest:
+      type: object
+      description: Serializer for creating contracts
+      properties:
+        reference_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        notice_title:
+          type: string
+          minLength: 1
+        award_title:
+          type: string
+          nullable: true
+        publish_date:
+          type: string
+          format: date
+          nullable: true
+        award_date:
+          type: string
+          format: date
+          nullable: true
+        award_publish_date:
+          type: string
+          format: date
+          nullable: true
+        notice_to_proceed_date:
+          type: string
+          format: date
+          nullable: true
+        contract_effectivity_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        prebid_date:
+          type: string
+          format: date-time
+          nullable: true
+        closing_date:
+          type: string
+          format: date-time
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+          maxLength: 100
+        notice_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        total_contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        average_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        min_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        max_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        line_item_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        total_quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        notice_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        funding_source:
+          type: string
+          nullable: true
+          maxLength: 200
+        funding_instrument:
+          type: string
+          nullable: true
+          maxLength: 200
+        procurement_mode:
+          type: string
+          nullable: true
+          maxLength: 100
+        trade_agreement:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_duration:
+          type: string
+          nullable: true
+          maxLength: 100
+        calendar_type:
+          type: string
+          nullable: true
+          maxLength: 50
+        reason_for_award:
+          type: string
+          nullable: true
+        organization_name:
+          type: string
+          writeOnly: true
+          minLength: 1
+        contractor_name:
+          type: string
+          writeOnly: true
+          minLength: 1
+        business_category_name:
+          type: string
+          writeOnly: true
+          minLength: 1
+        area_of_delivery_name:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - area_of_delivery_name
+      - business_category_name
+      - contractor_name
+      - notice_title
+      - organization_name
+      - reference_id
+    ContractDetail:
+      type: object
+      description: Serializer for detailed contract views
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        reference_id:
+          type: string
+          maxLength: 50
+        notice_title:
+          type: string
+        award_title:
+          type: string
+          nullable: true
+        publish_date:
+          type: string
+          format: date
+          nullable: true
+        award_date:
+          type: string
+          format: date
+          nullable: true
+        award_publish_date:
+          type: string
+          format: date
+          nullable: true
+        notice_to_proceed_date:
+          type: string
+          format: date
+          nullable: true
+        contract_effectivity_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        prebid_date:
+          type: string
+          format: date-time
+          nullable: true
+        closing_date:
+          type: string
+          format: date-time
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+          maxLength: 100
+        notice_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        total_contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        average_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        min_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        max_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        line_item_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        total_quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        notice_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        funding_source:
+          type: string
+          nullable: true
+          maxLength: 200
+        funding_instrument:
+          type: string
+          nullable: true
+          maxLength: 200
+        procurement_mode:
+          type: string
+          nullable: true
+          maxLength: 100
+        trade_agreement:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_duration:
+          type: string
+          nullable: true
+          maxLength: 100
+        calendar_type:
+          type: string
+          nullable: true
+          maxLength: 50
+        reason_for_award:
+          type: string
+          nullable: true
+        organization:
+          allOf:
+          - $ref: '#/components/schemas/Organization'
+          readOnly: true
+        contractor:
+          allOf:
+          - $ref: '#/components/schemas/Contractor'
+          readOnly: true
+        business_category:
+          allOf:
+          - $ref: '#/components/schemas/BusinessCategory'
+          readOnly: true
+        area_of_delivery:
+          allOf:
+          - $ref: '#/components/schemas/AreaOfDelivery'
+          readOnly: true
+        is_awarded:
+          type: boolean
+          readOnly: true
+        contract_value_formatted:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - area_of_delivery
+      - business_category
+      - contract_value_formatted
+      - contractor
+      - created_at
+      - id
+      - is_awarded
+      - notice_title
+      - organization
+      - reference_id
+      - updated_at
+    ContractDetailRequest:
+      type: object
+      description: Serializer for detailed contract views
+      properties:
+        reference_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        notice_title:
+          type: string
+          minLength: 1
+        award_title:
+          type: string
+          nullable: true
+        publish_date:
+          type: string
+          format: date
+          nullable: true
+        award_date:
+          type: string
+          format: date
+          nullable: true
+        award_publish_date:
+          type: string
+          format: date
+          nullable: true
+        notice_to_proceed_date:
+          type: string
+          format: date
+          nullable: true
+        contract_effectivity_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        prebid_date:
+          type: string
+          format: date-time
+          nullable: true
+        closing_date:
+          type: string
+          format: date-time
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+          maxLength: 100
+        notice_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        total_contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        average_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        min_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        max_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        line_item_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        total_quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        notice_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        funding_source:
+          type: string
+          nullable: true
+          maxLength: 200
+        funding_instrument:
+          type: string
+          nullable: true
+          maxLength: 200
+        procurement_mode:
+          type: string
+          nullable: true
+          maxLength: 100
+        trade_agreement:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_duration:
+          type: string
+          nullable: true
+          maxLength: 100
+        calendar_type:
+          type: string
+          nullable: true
+          maxLength: 50
+        reason_for_award:
+          type: string
+          nullable: true
+      required:
+      - notice_title
+      - reference_id
+    ContractList:
+      type: object
+      description: Serializer for contract list views (optimized for performance)
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        reference_id:
+          type: string
+          maxLength: 50
+        notice_title:
+          type: string
+        award_title:
+          type: string
+          nullable: true
+        organization_name:
+          type: string
+          readOnly: true
+        contractor_name:
+          type: string
+          readOnly: true
+        business_category_name:
+          type: string
+          readOnly: true
+        area_of_delivery_name:
+          type: string
+          readOnly: true
+        total_contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        award_date:
+          type: string
+          format: date
+          nullable: true
+        award_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - area_of_delivery_name
+      - business_category_name
+      - contractor_name
+      - created_at
+      - id
+      - notice_title
+      - organization_name
+      - reference_id
+    ContractSearchResponse:
+      type: object
+      description: Serializer for contract search responses
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParquetContract'
+          description: List of contracts
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/Pagination'
+          description: Pagination information
+      required:
+      - data
+      - pagination
+    Contractor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 500
+        contract_count:
+          type: integer
+          readOnly: true
+        total_contract_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+          readOnly: true
+        business_categories_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - business_categories_count
+      - contract_count
+      - created_at
+      - id
+      - name
+      - total_contract_value
+      - updated_at
+    ContractorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - name
+    DataImport:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        filename:
+          type: string
+          maxLength: 255
+        file_path:
+          type: string
+          maxLength: 500
+        import_type:
+          $ref: '#/components/schemas/ImportTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        total_records:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        processed_records:
+          type: integer
+          readOnly: true
+        failed_records:
+          type: integer
+          readOnly: true
+        progress_percentage:
+          type: number
+          format: double
+          readOnly: true
+        error_message:
+          type: string
+          readOnly: true
+          nullable: true
+        error_details:
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        duration:
+          type: string
+          readOnly: true
+        created_by:
+          type: integer
+          nullable: true
+      required:
+      - completed_at
+      - duration
+      - error_details
+      - error_message
+      - failed_records
+      - file_path
+      - filename
+      - id
+      - import_type
+      - processed_records
+      - progress_percentage
+      - started_at
+    DataImportRequest:
+      type: object
+      properties:
+        filename:
+          type: string
+          minLength: 1
+          maxLength: 255
+        file_path:
+          type: string
+          minLength: 1
+          maxLength: 500
+        import_type:
+          $ref: '#/components/schemas/ImportTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        total_records:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        created_by:
+          type: integer
+          nullable: true
+      required:
+      - file_path
+      - filename
+      - import_type
+    DimensionEnum:
+      enum:
+      - by_contractor
+      - by_organization
+      - by_area
+      - by_category
+      type: string
+      description: |-
+        * `by_contractor` - by_contractor
+        * `by_organization` - by_organization
+        * `by_area` - by_area
+        * `by_category` - by_category
+    Entity:
+      type: object
+      description: Serializer for entity responses (contractors, organizations, etc.)
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          description: Entity name
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+      required:
+      - created_at
+      - id
+      - name
+    EntityListResponse:
+      type: object
+      description: Serializer for entity list responses
+      properties:
+        count:
+          type: integer
+          description: Total number of entities
+        next:
+          type: string
+          format: uri
+          nullable: true
+          description: URL for next page
+        previous:
+          type: string
+          format: uri
+          nullable: true
+          description: URL for previous page
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+          description: List of entities
+      required:
+      - count
+      - next
+      - previous
+      - results
+    ErrorResponse:
+      type: object
+      description: Serializer for error responses
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Additional error details
+      required:
+      - error
+    ExportEstimateRequestRequest:
+      type: object
+      description: Serializer for export estimate requests
+      properties:
+        contractors:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+        areas:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+        organizations:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+        business_categories:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+        keywords:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+        time_ranges:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeRangeRequest'
+    ExportEstimateResponse:
+      type: object
+      description: Serializer for export estimate response
+      properties:
+        total_count:
+          type: integer
+          description: Total number of records to export
+        estimated_csv_bytes:
+          type: integer
+          description: Estimated CSV file size in bytes
+      required:
+      - estimated_csv_bytes
+      - total_count
+    FilterOptions:
+      type: object
+      description: Serializer for filter options response
+      properties:
+        contractors:
+          type: array
+          items:
+            type: string
+          description: Available contractor names
+        areas:
+          type: array
+          items:
+            type: string
+          description: Available delivery areas
+        organizations:
+          type: array
+          items:
+            type: string
+          description: Available organization names
+        business_categories:
+          type: array
+          items:
+            type: string
+          description: Available business categories
+        years:
+          type: array
+          items:
+            type: integer
+          description: Available years
+      required:
+      - areas
+      - business_categories
+      - contractors
+      - organizations
+      - years
+    ImportTypeEnum:
+      enum:
+      - xlsx
+      - parquet
+      - csv
+      type: string
+      description: |-
+        * `xlsx` - Excel File
+        * `parquet` - Parquet File
+        * `csv` - CSV File
+    MonthlyAggregation:
+      type: object
+      description: Serializer for monthly aggregations
+      properties:
+        month:
+          type: string
+          description: Month in YYYY-MM format
+        total_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Total value for the month
+        count:
+          type: integer
+          description: Number of contracts for the month
+      required:
+      - count
+      - month
+      - total_value
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 500
+        contract_count:
+          type: integer
+          readOnly: true
+        total_contract_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - contract_count
+      - created_at
+      - id
+      - name
+      - total_contract_value
+      - updated_at
+    OrganizationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - name
+    PaginatedAggregatesRequestRequest:
+      type: object
+      description: Serializer for paginated aggregates requests
+      properties:
+        contractors:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+          description: List of contractor names to filter by
+        areas:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+          description: List of delivery areas to filter by
+        organizations:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+          description: List of organization names to filter by
+        business_categories:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+          description: List of business categories to filter by
+        keywords:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+          description: List of keywords to search for
+        time_ranges:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeRangeRequest'
+          description: List of time range filters
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Page number for pagination
+        page_size:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          description: Number of results per page (max 100)
+        sortBy:
+          allOf:
+          - $ref: '#/components/schemas/SortByEnum'
+          default: award_date
+          description: |-
+            Field to sort by
+
+            * `award_date` - award_date
+            * `contract_amount` - contract_amount
+            * `reference_id` - reference_id
+            * `created_at` - created_at
+        sortDirection:
+          allOf:
+          - $ref: '#/components/schemas/SortDirectionEnum'
+          default: desc
+          description: |-
+            Sort direction
+
+            * `asc` - asc
+            * `desc` - desc
+        include_flood_control:
+          type: boolean
+          default: false
+          description: Include Sumbong sa Pangulo dataset (2022-2025)
+        dimension:
+          allOf:
+          - $ref: '#/components/schemas/DimensionEnum'
+          default: by_contractor
+          description: |-
+            Dimension to aggregate by
+
+            * `by_contractor` - by_contractor
+            * `by_organization` - by_organization
+            * `by_area` - by_area
+            * `by_category` - by_category
+        sort_by:
+          allOf:
+          - $ref: '#/components/schemas/SortByEnum'
+          default: total_value
+          description: |-
+            Field to sort by
+
+            * `total_value` - total_value
+            * `count` - count
+            * `avg_value` - avg_value
+            * `label` - label
+        sort_direction:
+          allOf:
+          - $ref: '#/components/schemas/SortDirectionEnum'
+          default: desc
+          description: |-
+            Sort direction
+
+            * `asc` - asc
+            * `desc` - desc
+    PaginatedAggregatesResponse:
+      type: object
+      description: Serializer for paginated aggregates response
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregationItem'
+          description: List of aggregated items
+        pagination:
+          allOf:
+          - $ref: '#/components/schemas/Pagination'
+          description: Pagination information
+      required:
+      - data
+      - pagination
+    Pagination:
+      type: object
+      description: Serializer for pagination metadata
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        page_size:
+          type: integer
+          description: Number of items per page
+        total_count:
+          type: integer
+          description: Total number of items
+        total_pages:
+          type: integer
+          description: Total number of pages
+        has_next:
+          type: boolean
+          description: Whether there is a next page
+        has_previous:
+          type: boolean
+          description: Whether there is a previous page
+      required:
+      - has_next
+      - has_previous
+      - page
+      - page_size
+      - total_count
+      - total_pages
+    ParquetContract:
+      type: object
+      description: Serializer for contract data from Parquet files
+      properties:
+        id:
+          type: integer
+          description: Unique contract identifier
+        reference_id:
+          type: string
+          description: Contract reference ID
+          maxLength: 50
+        notice_title:
+          type: string
+          description: Title of the notice
+        award_title:
+          type: string
+          description: Title of the award
+        organization_name:
+          type: string
+          description: Name of the awarding organization
+        awardee_name:
+          type: string
+          description: Name of the awardee/contractor
+        business_category:
+          type: string
+          description: Business category of the contract
+        area_of_delivery:
+          type: string
+          description: Area where the contract will be delivered
+        contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Total contract amount
+        award_date:
+          type: string
+          format: date
+          description: Date when the contract was awarded
+        award_status:
+          type: string
+          description: Status of the award
+        contract_no:
+          type: string
+          description: Contract number
+        created_at:
+          type: string
+          format: date-time
+          description: When the record was created
+      required:
+      - area_of_delivery
+      - award_date
+      - award_status
+      - award_title
+      - awardee_name
+      - business_category
+      - contract_amount
+      - contract_no
+      - created_at
+      - id
+      - notice_title
+      - organization_name
+      - reference_id
+    PatchedContractDetailRequest:
+      type: object
+      description: Serializer for detailed contract views
+      properties:
+        reference_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        notice_title:
+          type: string
+          minLength: 1
+        award_title:
+          type: string
+          nullable: true
+        publish_date:
+          type: string
+          format: date
+          nullable: true
+        award_date:
+          type: string
+          format: date
+          nullable: true
+        award_publish_date:
+          type: string
+          format: date
+          nullable: true
+        notice_to_proceed_date:
+          type: string
+          format: date
+          nullable: true
+        contract_effectivity_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        prebid_date:
+          type: string
+          format: date-time
+          nullable: true
+        closing_date:
+          type: string
+          format: date-time
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+          maxLength: 100
+        notice_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        total_contract_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        average_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        min_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        max_line_item_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        line_item_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        total_quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        notice_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_status:
+          type: string
+          nullable: true
+          maxLength: 100
+        award_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_no:
+          type: string
+          nullable: true
+          maxLength: 100
+        funding_source:
+          type: string
+          nullable: true
+          maxLength: 200
+        funding_instrument:
+          type: string
+          nullable: true
+          maxLength: 200
+        procurement_mode:
+          type: string
+          nullable: true
+          maxLength: 100
+        trade_agreement:
+          type: string
+          nullable: true
+          maxLength: 100
+        contract_duration:
+          type: string
+          nullable: true
+          maxLength: 100
+        calendar_type:
+          type: string
+          nullable: true
+          maxLength: 50
+        reason_for_award:
+          type: string
+          nullable: true
+    PatchedDataImportRequest:
+      type: object
+      properties:
+        filename:
+          type: string
+          minLength: 1
+          maxLength: 255
+        file_path:
+          type: string
+          minLength: 1
+          maxLength: 500
+        import_type:
+          $ref: '#/components/schemas/ImportTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        total_records:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        created_by:
+          type: integer
+          nullable: true
+    SortByEnum:
+      enum:
+      - award_date
+      - contract_amount
+      - reference_id
+      - created_at
+      type: string
+      description: |-
+        * `award_date` - award_date
+        * `contract_amount` - contract_amount
+        * `reference_id` - reference_id
+        * `created_at` - created_at
+    SortDirectionEnum:
+      enum:
+      - asc
+      - desc
+      type: string
+      description: |-
+        * `asc` - asc
+        * `desc` - desc
+    StatusEnum:
+      enum:
+      - pending
+      - processing
+      - completed
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `processing` - Processing
+        * `completed` - Completed
+        * `failed` - Failed
+    Summary:
+      type: object
+      description: Serializer for summary statistics
+      properties:
+        count:
+          type: integer
+          description: Total count
+        total_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Total value
+        avg_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Average value
+      required:
+      - avg_value
+      - count
+      - total_value
+    TimeRangeRequest:
+      type: object
+      description: Serializer for time range objects in search requests
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Type of time range filter
+
+            * `yearly` - yearly
+            * `quarterly` - quarterly
+            * `custom` - custom
+        year:
+          type: integer
+          maximum: 2025
+          minimum: 2013
+          description: Year for yearly or quarterly filters
+        quarter:
+          type: integer
+          maximum: 4
+          minimum: 1
+          description: Quarter number (1-4) for quarterly filters
+        startDate:
+          type: string
+          format: date
+          description: Start date for custom range (YYYY-MM-DD)
+        endDate:
+          type: string
+          format: date
+          description: End date for custom range (YYYY-MM-DD)
+      required:
+      - type
+    TypeEnum:
+      enum:
+      - yearly
+      - quarterly
+      - custom
+      type: string
+      description: |-
+        * `yearly` - yearly
+        * `quarterly` - quarterly
+        * `custom` - custom
+    YearlyAggregation:
+      type: object
+      description: Serializer for yearly aggregations
+      properties:
+        year:
+          type: integer
+          description: Year
+        total_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          description: Total value for the year
+        count:
+          type: integer
+          description: Number of contracts for the year
+      required:
+      - count
+      - total_value
+      - year
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+tags:
+- name: contracts
+  description: Contract search and analytics
+- name: entities
+  description: Entity search (contractors, organizations, etc.)
+- name: export
+  description: Data export functionality

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import models
+from drf_spectacular.utils import extend_schema_field
 from .models import Contract, Organization, Contractor, BusinessCategory, AreaOfDelivery, DataImport
 
 
@@ -14,14 +15,16 @@ class OrganizationSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
     
-    def get_contract_count(self, obj):
+    @extend_schema_field(serializers.IntegerField)
+    def get_contract_count(self, obj) -> int:
         return obj.contracts.count()
     
-    def get_total_contract_value(self, obj):
+    @extend_schema_field(serializers.DecimalField(max_digits=15, decimal_places=2))
+    def get_total_contract_value(self, obj) -> float:
         total = obj.contracts.aggregate(
             total=models.Sum('total_contract_amount')
         )['total']
-        return total or 0
+        return float(total or 0)
 
 
 class ContractorSerializer(serializers.ModelSerializer):
@@ -36,16 +39,19 @@ class ContractorSerializer(serializers.ModelSerializer):
             'business_categories_count', 'created_at', 'updated_at'
         ]
     
-    def get_contract_count(self, obj):
+    @extend_schema_field(serializers.IntegerField)
+    def get_contract_count(self, obj) -> int:
         return obj.contracts.count()
     
-    def get_total_contract_value(self, obj):
+    @extend_schema_field(serializers.DecimalField(max_digits=15, decimal_places=2))
+    def get_total_contract_value(self, obj) -> float:
         total = obj.contracts.aggregate(
             total=models.Sum('total_contract_amount')
         )['total']
-        return total or 0
+        return float(total or 0)
     
-    def get_business_categories_count(self, obj):
+    @extend_schema_field(serializers.IntegerField)
+    def get_business_categories_count(self, obj) -> int:
         return obj.contracts.values('business_category').distinct().count()
 
 
@@ -61,16 +67,19 @@ class BusinessCategorySerializer(serializers.ModelSerializer):
             'contractor_count', 'created_at', 'updated_at'
         ]
     
-    def get_contract_count(self, obj):
+    @extend_schema_field(serializers.IntegerField)
+    def get_contract_count(self, obj) -> int:
         return obj.contracts.count()
     
-    def get_total_contract_value(self, obj):
+    @extend_schema_field(serializers.DecimalField(max_digits=15, decimal_places=2))
+    def get_total_contract_value(self, obj) -> float:
         total = obj.contracts.aggregate(
             total=models.Sum('total_contract_amount')
         )['total']
-        return total or 0
+        return float(total or 0)
     
-    def get_contractor_count(self, obj):
+    @extend_schema_field(serializers.IntegerField)
+    def get_contractor_count(self, obj) -> int:
         return obj.contracts.values('contractor').distinct().count()
 
 
@@ -85,14 +94,16 @@ class AreaOfDeliverySerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
     
-    def get_contract_count(self, obj):
+    @extend_schema_field(serializers.IntegerField)
+    def get_contract_count(self, obj) -> int:
         return obj.contracts.count()
     
-    def get_total_contract_value(self, obj):
+    @extend_schema_field(serializers.DecimalField(max_digits=15, decimal_places=2))
+    def get_total_contract_value(self, obj) -> float:
         total = obj.contracts.aggregate(
             total=models.Sum('total_contract_amount')
         )['total']
-        return total or 0
+        return float(total or 0)
 
 
 class ContractListSerializer(serializers.ModelSerializer):
@@ -118,8 +129,8 @@ class ContractDetailSerializer(serializers.ModelSerializer):
     contractor = ContractorSerializer(read_only=True)
     business_category = BusinessCategorySerializer(read_only=True)
     area_of_delivery = AreaOfDeliverySerializer(read_only=True)
-    is_awarded = serializers.ReadOnlyField()
-    contract_value_formatted = serializers.ReadOnlyField()
+    is_awarded = serializers.SerializerMethodField()
+    contract_value_formatted = serializers.SerializerMethodField()
     
     class Meta:
         model = Contract
@@ -139,6 +150,14 @@ class ContractDetailSerializer(serializers.ModelSerializer):
             'business_category', 'area_of_delivery', 'is_awarded',
             'contract_value_formatted', 'created_at', 'updated_at'
         ]
+    
+    @extend_schema_field(serializers.BooleanField)
+    def get_is_awarded(self, obj) -> bool:
+        return obj.is_awarded()
+    
+    @extend_schema_field(serializers.CharField)
+    def get_contract_value_formatted(self, obj) -> str:
+        return obj.contract_value_formatted
 
 
 class ContractCreateSerializer(serializers.ModelSerializer):
@@ -192,8 +211,8 @@ class ContractCreateSerializer(serializers.ModelSerializer):
 
 
 class DataImportSerializer(serializers.ModelSerializer):
-    progress_percentage = serializers.ReadOnlyField()
-    duration = serializers.ReadOnlyField()
+    progress_percentage = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
     
     class Meta:
         model = DataImport
@@ -207,6 +226,15 @@ class DataImportSerializer(serializers.ModelSerializer):
             'processed_records', 'failed_records', 'progress_percentage',
             'error_message', 'error_details', 'completed_at', 'duration'
         ]
+    
+    @extend_schema_field(serializers.FloatField)
+    def get_progress_percentage(self, obj) -> float:
+        return obj.progress_percentage()
+    
+    @extend_schema_field(serializers.DurationField)
+    def get_duration(self, obj) -> str:
+        duration = obj.duration
+        return str(duration) if duration else None
 
 
 class ContractStatsSerializer(serializers.Serializer):
