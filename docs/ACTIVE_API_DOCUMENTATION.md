@@ -15,12 +15,39 @@ This documentation covers **ONLY** the API endpoints that are actively used by t
 4. [Data Models](#data-models)
 5. [Error Handling](#error-handling)
 6. [Examples](#examples)
+7. [API Status Codes](#api-status-codes)
 
 ---
 
 ## Contract Search & Analytics
 
-### 1. Search Contracts with Filter Chips
+### 1. Advanced Search (Legacy)
+**POST** `/contracts/advanced-search/`
+
+Legacy advanced search endpoint with single-value filters. Use `chip-search` for new implementations.
+
+**Request Body:**
+```json
+{
+  "contractor": "ABC Construction",
+  "area": "NCR - NATIONAL CAPITAL REGION",
+  "organization": "DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS",
+  "business_category": "CONSTRUCTION",
+  "keywords": "road bridge",
+  "time_range": {
+    "type": "yearly",
+    "year": 2023
+  },
+  "page": 1,
+  "page_size": 20,
+  "sortBy": "award_date",
+  "sortDirection": "desc"
+}
+```
+
+**Response:** Same format as chip-search
+
+### 2. Search Contracts with Filter Chips
 **POST** `/contracts/chip-search/`
 
 Main search endpoint used by the Advanced Search functionality. Supports multiple values per filter type with AND/OR logic.
@@ -84,7 +111,7 @@ Main search endpoint used by the Advanced Search functionality. Supports multipl
 }
 ```
 
-### 2. Get Analytics Aggregates
+### 3. Get Analytics Aggregates
 **POST** `/contracts/chip-aggregates/`
 
 Get aggregated data for charts and analytics using the same filter criteria as search.
@@ -149,7 +176,7 @@ Get aggregated data for charts and analytics using the same filter criteria as s
 }
 ```
 
-### 3. Get Paginated Analytics
+### 4. Get Paginated Analytics
 **POST** `/contracts/chip-aggregates-paginated/`
 
 Get paginated aggregated data for analytics tables with sorting and filtering.
@@ -200,7 +227,7 @@ Get paginated aggregated data for analytics tables with sorting and filtering.
 }
 ```
 
-### 4. Get Filter Options
+### 5. Get Filter Options
 **GET** `/contracts/filter-options/`
 
 Get all available filter options for dropdowns and autocomplete.
@@ -356,7 +383,47 @@ Stream full CSV export for current filters.
 
 ## Data Models
 
-### Contract Model
+### Request Schemas
+
+#### ChipSearchRequest
+```json
+{
+  "contractors": ["string"],
+  "areas": ["string"],
+  "organizations": ["string"],
+  "business_categories": ["string"],
+  "keywords": ["string"],
+  "time_ranges": [
+    {
+      "type": "yearly|quarterly|custom",
+      "year": "integer",
+      "quarter": "integer",
+      "startDate": "string (YYYY-MM-DD)",
+      "endDate": "string (YYYY-MM-DD)"
+    }
+  ],
+  "page": "integer (default: 1)",
+  "page_size": "integer (default: 20, max: 100)",
+  "sortBy": "string (default: award_date)",
+  "sortDirection": "string (asc|desc, default: desc)",
+  "include_flood_control": "boolean (default: false)"
+}
+```
+
+#### TimeRange Object
+```json
+{
+  "type": "yearly|quarterly|custom",
+  "year": "integer (required for yearly/quarterly)",
+  "quarter": "integer (required for quarterly, 1-4)",
+  "startDate": "string (required for custom, YYYY-MM-DD)",
+  "endDate": "string (required for custom, YYYY-MM-DD)"
+}
+```
+
+### Response Schemas
+
+#### Contract Model
 ```json
 {
   "id": "integer",
@@ -368,29 +435,52 @@ Stream full CSV export for current filters.
   "business_category": "string",
   "area_of_delivery": "string",
   "contract_amount": "decimal",
-  "award_date": "date",
+  "award_date": "date (YYYY-MM-DD)",
   "award_status": "string",
   "contract_no": "string",
-  "created_at": "datetime"
+  "created_at": "datetime (ISO 8601)"
 }
 ```
 
-### Entity Model
+#### Entity Model
 ```json
 {
   "id": "integer",
   "name": "string",
-  "created_at": "datetime"
+  "created_at": "datetime (ISO 8601)"
 }
 ```
 
-### Aggregation Model
+#### Aggregation Model
 ```json
 {
   "label": "string",
   "total_value": "decimal",
   "count": "integer",
   "avg_value": "decimal"
+}
+```
+
+#### Pagination Model
+```json
+{
+  "page": "integer",
+  "page_size": "integer",
+  "total_count": "integer",
+  "total_pages": "integer",
+  "has_next": "boolean",
+  "has_previous": "boolean"
+}
+```
+
+#### Standard Response Wrapper
+```json
+{
+  "success": "boolean",
+  "data": "object|array",
+  "pagination": "PaginationModel (optional)",
+  "error": "string (only when success: false)",
+  "message": "string (only when success: false)"
 }
 ```
 
@@ -407,11 +497,51 @@ Stream full CSV export for current filters.
 }
 ```
 
-### Common HTTP Status Codes
+### Common Error Examples
+
+#### Validation Error (400)
+```json
+{
+  "success": false,
+  "error": "Invalid request parameters",
+  "message": "Page size must be between 1 and 100"
+}
+```
+
+#### Search Error (500)
+```json
+{
+  "success": false,
+  "error": "Search failed",
+  "message": "An error occurred during search"
+}
+```
+
+#### Filter Options Error (500)
+```json
+{
+  "success": false,
+  "error": "Failed to load filter options",
+  "message": "Unable to retrieve filter data from parquet files"
+}
+```
+
+## API Status Codes
+
+### Success Responses
 - **200 OK**: Request successful
-- **400 Bad Request**: Invalid request parameters
+- **201 Created**: Resource created successfully
+
+### Client Error Responses
+- **400 Bad Request**: Invalid request parameters or malformed JSON
 - **404 Not Found**: Resource not found
-- **500 Internal Server Error**: Server error
+- **405 Method Not Allowed**: HTTP method not allowed for this endpoint
+- **415 Unsupported Media Type**: Content-Type not supported
+
+### Server Error Responses
+- **500 Internal Server Error**: Server error during processing
+- **502 Bad Gateway**: Upstream service error
+- **503 Service Unavailable**: Service temporarily unavailable
 
 ---
 
@@ -574,6 +704,25 @@ console.log(analyticsData.data);
 - **CSV Export**: Full dataset export with streaming
 - **Filtered Export**: Export only filtered results
 - **Progress Tracking**: Real-time export progress
+
+## Performance & Rate Limiting
+
+### Performance Considerations
+- **Search Performance**: All search operations use optimized Parquet files with DuckDB for fast querying
+- **Pagination**: Default page size is 20, maximum is 100
+- **Caching**: Filter options are cached for improved performance
+- **Streaming**: Large CSV exports use streaming to handle memory efficiently
+
+### Rate Limiting
+- **Search Endpoints**: No current rate limiting (may be added in future)
+- **Export Endpoints**: No current rate limiting (may be added in future)
+- **Filter Options**: Cached responses reduce server load
+
+### Data Sources
+- **Primary Data**: PHILGEPS contract data (2013-2025)
+- **Extended Data**: Sumbong sa Pangulo dataset (2022-2025) - optional via `include_flood_control` parameter
+- **Data Format**: Optimized Parquet files for fast querying
+- **Update Frequency**: Data updated periodically as new contracts are processed
 
 ---
 
