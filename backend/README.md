@@ -10,6 +10,7 @@ The backend is built with Django 4.2 and Django REST Framework, providing a robu
 
 - **Django 4.2** - Web framework with built-in admin and ORM
 - **Django REST Framework** - API framework with serialization and viewsets
+- **OpenAPI 3.0** - Complete API documentation with drf-spectacular
 - **DuckDB** - In-memory analytics database for fast data processing
 - **Pandas** - Data manipulation and analysis library
 - **Parquet** - Columnar storage format for optimal performance
@@ -71,17 +72,21 @@ python manage.py runserver 0.0.0.0:3200
 
 ## 🔧 Active API Endpoints
 
-### Core Endpoints (10 Active)
-- **`/api/v1/data-processing/chip-aggregates/`** - Analytics data aggregation
-- **`/api/v1/data-processing/chip-aggregates-paginated/`** - Paginated analytics
-- **`/api/v1/data-processing/contract-search/`** - Contract search
-- **`/api/v1/data-processing/entity-search/`** - Entity search
-- **`/api/v1/data-processing/export-csv/`** - CSV export
-- **`/api/v1/data-processing/filter-options/`** - Filter options
-- **`/api/v1/data-processing/health/`** - Health check
-- **`/api/v1/data-processing/stats/`** - Application statistics
+### Core Endpoints (14 Active)
+- **`/api/v1/contracts/chip-aggregates/`** - Analytics data aggregation
+- **`/api/v1/contracts/chip-aggregates-paginated/`** - Paginated analytics
+- **`/api/v1/contracts/chip-search/`** - Advanced contract search
+- **`/api/v1/contracts/chip-export/`** - Individual contracts CSV export
+- **`/api/v1/contracts/chip-export-aggregated/`** - Aggregated data CSV export
+- **`/api/v1/contracts/chip-export-estimate/`** - Export size estimation
+- **`/api/v1/contracts/chip-export-aggregated-estimate/`** - Aggregated export estimation
+- **`/api/v1/contracts/filter-options/`** - Filter options
+- **`/api/v1/contracts/health/`** - Health check
+- **`/api/v1/contracts/stats/`** - Application statistics
 - **`/api/v1/contracts/`** - Contract data endpoints
 - **`/api/v1/contracts/analytics/`** - Contract analytics
+- **`/api/docs/`** - Swagger UI documentation
+- **`/api/redoc/`** - ReDoc documentation
 
 ## 📝 Configuration
 
@@ -107,11 +112,14 @@ The backend includes sophisticated data processing capabilities:
 
 ## 📊 Data Sources
 
-### PhilGEPS Dataset (2013-2021)
-- Government procurement contracts
-- Contractor information
-- Organization data
-- Geographic information
+### PhilGEPS Dataset (2013-2025)
+- **5M+ Awarded Contracts** with financial values (₱14.8T+ total value)
+- **119K+ Contractors** and suppliers
+- **23K+ Organizations** (government agencies and contracting entities)
+- **542+ Areas** across the Philippines
+- Government procurement contracts and notices
+- Contractor information and business details
+- Organization data and geographic information
 
 ### Sumbong sa Pangulo Dataset (2022-2025)
 - Flood control projects
@@ -134,5 +142,5 @@ The backend includes sophisticated data processing capabilities:
 
 ---
 
-**Last Updated**: January 28, 2025  
-**Version**: v3.0.1 - Clean Backend Documentation
+**Last Updated**: October 7, 2025  
+**Version**: v3.1.0 - OpenAPI Migration Complete

@@ -106,12 +106,19 @@ python manage.py runserver 0.0.0.0:3200
 
 ### Contract Endpoints
 - **`/api/v1/contracts/`** - Contract data CRUD operations
-- **`/api/v1/contracts/search/`** - Advanced search functionality
-- **`/api/v1/contracts/analytics/`** - Contract analytics and aggregation
+- **`/api/v1/contracts/chip-search/`** - Advanced search functionality
+- **`/api/v1/contracts/chip-aggregates/`** - Analytics data aggregation
+- **`/api/v1/contracts/chip-aggregates-paginated/`** - Paginated analytics
+- **`/api/v1/contracts/chip-export/`** - Individual contracts CSV export
+- **`/api/v1/contracts/chip-export-aggregated/`** - Aggregated data CSV export
+- **`/api/v1/contracts/filter-options/`** - Filter options
+- **`/api/v1/contracts/health/`** - Health check endpoint
+- **`/api/v1/contracts/stats/`** - Application statistics
 
-### Data Processing Endpoints
-- **`/api/v1/data-processing/`** - Data processing services
-- **`/api/v1/data-processing/health/`** - Health check endpoint
+### API Documentation
+- **`/api/docs/`** - Swagger UI interactive documentation
+- **`/api/redoc/`** - ReDoc API documentation
+- **`/api/schema/`** - OpenAPI 3.0 schema
 
 ### Admin Interface
 - **`/admin/`** - Django admin interface for data management
@@ -126,9 +133,11 @@ python manage.py runserver 0.0.0.0:3200
 
 ### API Features
 - **RESTful API** - Standard REST API endpoints
+- **OpenAPI 3.0** - Complete API documentation with drf-spectacular
 - **Filtering & Search** - Advanced filtering and search capabilities
 - **Pagination** - Efficient pagination for large datasets
 - **Serialization** - JSON serialization with DRF
+- **Export APIs** - Individual contracts and aggregated data export
 - **CORS Support** - Cross-origin resource sharing configuration
 
 ### Admin Features

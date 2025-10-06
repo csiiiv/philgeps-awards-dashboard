@@ -192,5 +192,5 @@ Each script includes:
 
 ---
 
-**Last Updated**: January 28, 2025  
-**Version**: v3.0.1 - Clean Scripts Documentation
+**Last Updated**: October 7, 2025  
+**Version**: v3.1.0 - OpenAPI Migration Complete

@@ -13,6 +13,7 @@ The frontend is built with modern React patterns, TypeScript for type safety, an
 - **Vite** - Fast build tool and development server
 - **Styled Components** - CSS-in-JS styling with theme support
 - **REST API** - Server-side data processing with Django backend
+- **OpenAPI 3.0** - Complete API documentation integration
 
 ## 📁 Directory Structure
 
@@ -72,6 +73,7 @@ npm run preview
 - **Interactive Filters** - Dynamic filtering based on selected dimension
 - **Real-time Search** - Search and filter entities with autocomplete
 - **Summary Statistics** - Quick overview of total contracts, values, and averages
+- **Export Capabilities** - Export individual contracts or aggregated data as CSV
 - **Compact UI** - Optimized for space efficiency
 
 ### Advanced Search
@@ -81,11 +83,23 @@ npm run preview
 - **Export Capabilities** - CSV export with rank range selection
 - **Filter Presets** - Save, load, and manage custom filter configurations
 
+### Treemap Visualization
+- **Interactive Charts** - Hierarchical data visualization with drill-down capabilities
+- **Visual Representation** - Rectangles sized by contract value with color coding
+- **Multi-dimensional** - View data by contractors, organizations, areas, or categories
+- **Filtering Support** - Apply filters to focus on specific data subsets
+
 ### Analytics
 - **Contract Analysis** - Detailed breakdown by various dimensions
 - **Drill-down Capabilities** - Nested modals for granular data exploration
 - **Performance Metrics** - Contract value, count, and efficiency analysis
 - **Table Loading** - Optimized loading states for better UX
+
+### API Documentation
+- **OpenAPI 3.0** - Complete API specification with interactive testing
+- **Swagger UI** - Interactive API explorer for testing endpoints
+- **ReDoc** - Beautiful API documentation with examples
+- **Live Testing** - Test API endpoints directly from the documentation
 
 ### User Experience
 - **Dark/Light Mode** - Toggle between themes with persistent preference
@@ -147,11 +161,14 @@ The application uses a comprehensive design system with:
 
 ## 📈 Data Coverage
 
-### PhilGEPS Dataset (2013-2021)
-- Government procurement contracts
-- Contractor information
-- Organization data
-- Geographic information
+### PhilGEPS Dataset (2013-2025)
+- **5M+ Awarded Contracts** with financial values (₱14.8T+ total value)
+- **119K+ Contractors** and suppliers
+- **23K+ Organizations** (government agencies and contracting entities)
+- **542+ Areas** across the Philippines
+- Government procurement contracts and notices
+- Contractor information and business details
+- Organization data and geographic information
 
 ### Sumbong sa Pangulo Dataset (2022-2025)
 - Flood control projects
@@ -160,5 +177,5 @@ The application uses a comprehensive design system with:
 
 ---
 
-**Last Updated**: January 28, 2025  
-**Version**: v3.0.1 - Clean Frontend Documentation
+**Last Updated**: October 7, 2025  
+**Version**: v3.1.0 - OpenAPI Migration Complete
