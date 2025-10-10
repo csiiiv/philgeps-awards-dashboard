@@ -183,7 +183,8 @@ class ContractViewSet(viewsets.ModelViewSet):
                 page_size=validated_data.get('page_size', 20),
                 sort_by=validated_data.get('sortBy', 'award_date'),
                 sort_direction=validated_data.get('sortDirection', 'desc'),
-                include_flood_control=validated_data.get('include_flood_control', False)
+                include_flood_control=validated_data.get('include_flood_control', False),
+                value_range=validated_data.get('value_range', None)
             )
             
             if result['success']:
@@ -248,7 +249,8 @@ class ContractViewSet(viewsets.ModelViewSet):
                 keywords=validated_data.get('keywords', []),
                 time_ranges=validated_data.get('time_ranges', []),
                 topN=topN,
-                include_flood_control=validated_data.get('include_flood_control', False)
+                include_flood_control=validated_data.get('include_flood_control', False),
+                value_range=validated_data.get('value_range', None)
             )
             
             if result.get('success'):
@@ -312,7 +314,8 @@ class ContractViewSet(viewsets.ModelViewSet):
                 dimension=validated_data.get('dimension', 'by_contractor'),
                 sort_by=validated_data.get('sort_by', 'total_value'),
                 sort_direction=validated_data.get('sort_direction', 'desc'),
-                include_flood_control=validated_data.get('include_flood_control', False)
+                include_flood_control=validated_data.get('include_flood_control', False),
+                value_range=validated_data.get('value_range', None)
             )
             
             if result.get('success'):
@@ -376,7 +379,8 @@ class ContractViewSet(viewsets.ModelViewSet):
                 page_size=1,
                 sort_by='award_date',
                 sort_direction='desc',
-                include_flood_control=validated_data.get('include_flood_control', False)
+                include_flood_control=validated_data.get('include_flood_control', False),
+                value_range=validated_data.get('value_range', None)
             )
             
             # Get total count from pagination info
@@ -445,7 +449,8 @@ class ContractViewSet(viewsets.ModelViewSet):
                 page_size=1,
                 sort_by='total_value',
                 sort_direction='desc',
-                include_flood_control=validated_data.get('include_flood_control', False)
+                include_flood_control=validated_data.get('include_flood_control', False),
+                value_range=validated_data.get('value_range', None)
             )
             
             # Get total count from pagination info
@@ -536,7 +541,9 @@ class ContractViewSet(viewsets.ModelViewSet):
                         page=page,
                         page_size=page_size,
                         sort_by='award_date',
-                        sort_direction='desc'
+                        sort_direction='desc',
+                        include_flood_control=validated_data.get('include_flood_control', False),
+                        value_range=validated_data.get('value_range', None)
                     )
                     rows = result.get('data', [])
                     if not rows:
@@ -624,7 +631,8 @@ class ContractViewSet(viewsets.ModelViewSet):
                         page_size=page_size,
                         sort_by='total_value',
                         sort_direction='desc',
-                        include_flood_control=validated_data.get('include_flood_control', False)
+                        include_flood_control=validated_data.get('include_flood_control', False),
+                        value_range=validated_data.get('value_range', None)
                     )
                     rows = result.get('data', [])
                     if not rows:

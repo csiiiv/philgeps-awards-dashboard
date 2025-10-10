@@ -123,6 +123,11 @@ class ChipSearchRequestSerializer(serializers.Serializer):
         default=False,
         help_text="Include Sumbong sa Pangulo dataset (2022-2025)"
     )
+    value_range = serializers.DictField(
+        required=False,
+        default=None,
+        help_text="Contract value range filter with min and max values"
+    )
 
 
 class ParquetContractSerializer(serializers.Serializer):

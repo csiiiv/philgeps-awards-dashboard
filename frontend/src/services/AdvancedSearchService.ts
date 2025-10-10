@@ -41,6 +41,10 @@ export interface ChipSearchParams {
   sortDirection?: 'asc' | 'desc'
   includeFloodControl?: boolean
   dimension?: string
+  valueRange?: {
+    min?: number
+    max?: number
+  }
 }
 
 export interface SearchResult {
@@ -186,7 +190,8 @@ export class AdvancedSearchService {
         page_size: params.pageSize || 20,
         sortBy: params.sortBy,
         sortDirection: params.sortDirection,
-        include_flood_control: params.includeFloodControl || false
+        include_flood_control: params.includeFloodControl || false,
+        value_range: params.valueRange || null
       }
       
       // Debug logging
@@ -221,7 +226,8 @@ export class AdvancedSearchService {
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
       topN: params.topN || 20,
-      include_flood_control: params.includeFloodControl || false
+      include_flood_control: params.includeFloodControl || false,
+      value_range: params.valueRange || null
     }
 
     const response = await fetch(`${this.baseUrl}/contracts/chip-aggregates/`, {
@@ -248,7 +254,8 @@ export class AdvancedSearchService {
       dimension: params.dimension || 'by_contractor',
       sort_by: params.sortBy || 'total_value',
       sort_direction: params.sortDirection || 'desc',
-      include_flood_control: params.includeFloodControl || false
+      include_flood_control: params.includeFloodControl || false,
+      value_range: params.valueRange || null
     }
 
     const response = await fetch(`${this.baseUrl}/contracts/chip-aggregates-paginated/`, {
@@ -269,7 +276,8 @@ export class AdvancedSearchService {
       organizations: params.organizations || [],
       business_categories: params.businessCategories || [],
       keywords: params.keywords || [],
-      time_ranges: params.timeRanges || []
+      time_ranges: params.timeRanges || [],
+      value_range: params.valueRange || null
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-estimate/`, {
       method: 'POST',
@@ -287,7 +295,8 @@ export class AdvancedSearchService {
       organizations: params.organizations || [],
       business_categories: params.businessCategories || [],
       keywords: params.keywords || [],
-      time_ranges: params.timeRanges || []
+      time_ranges: params.timeRanges || [],
+      value_range: params.valueRange || null
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export/`, {
       method: 'POST',
@@ -307,7 +316,8 @@ export class AdvancedSearchService {
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
       dimension: params.dimension || 'by_contractor',
-      include_flood_control: params.includeFloodControl || false
+      include_flood_control: params.includeFloodControl || false,
+      value_range: params.valueRange || null
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated/`, {
       method: 'POST',
@@ -327,7 +337,8 @@ export class AdvancedSearchService {
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
       dimension: params.dimension || 'by_contractor',
-      include_flood_control: params.includeFloodControl || false
+      include_flood_control: params.includeFloodControl || false,
+      value_range: params.valueRange || null
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated-estimate/`, {
       method: 'POST',

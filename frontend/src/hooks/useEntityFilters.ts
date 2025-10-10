@@ -51,7 +51,8 @@ export const useEntityFilters = (): EntityFiltersState & EntityFiltersActions =>
         businessCategories: [],
         keywords: [],
         timeRanges: [],
-        includeFloodControl: false
+        includeFloodControl: false,
+        valueRange: undefined
       })
       
       if (response.data) {

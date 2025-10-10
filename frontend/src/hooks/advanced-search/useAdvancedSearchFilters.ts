@@ -210,14 +210,16 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
   // Utility functions
   const hasActiveFilters = useCallback(() => {
     return Object.values(filters).some(filterArray => filterArray.length > 0) || 
-           dateRange.type !== 'all_time'
-  }, [filters, dateRange.type])
+           dateRange.type !== 'all_time' ||
+           (valueRange && (valueRange.min !== undefined || valueRange.max !== undefined))
+  }, [filters, dateRange.type, valueRange])
 
   const getActiveFilterCount = useCallback(() => {
     const filterCount = Object.values(filters).reduce((total, filterArray) => total + filterArray.length, 0)
     const dateRangeCount = dateRange.type !== 'all_time' ? 1 : 0
-    return filterCount + dateRangeCount
-  }, [filters, dateRange.type])
+    const valueRangeCount = (valueRange && (valueRange.min !== undefined || valueRange.max !== undefined)) ? 1 : 0
+    return filterCount + dateRangeCount + valueRangeCount
+  }, [filters, dateRange.type, valueRange])
 
   const getFilterSummary = useCallback(() => {
     const parts = []
@@ -240,9 +242,14 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     if (dateRange.type !== 'all_time') {
       parts.push('date range')
     }
+    if (valueRange && (valueRange.min !== undefined || valueRange.max !== undefined)) {
+      const minStr = valueRange.min ? `₱${(valueRange.min / 1000000).toFixed(1)}M` : '₱0'
+      const maxStr = valueRange.max ? `₱${(valueRange.max / 1000000).toFixed(1)}M` : '∞'
+      parts.push(`value range (${minStr} - ${maxStr})`)
+    }
     
     return parts.length > 0 ? parts.join(', ') : 'No filters'
-  }, [filters, dateRange.type])
+  }, [filters, dateRange.type, valueRange])
 
   // Persistence functions
   const saveCurrentFilter = useCallback((name: string, description?: string): string => {
@@ -251,14 +258,14 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     const filterId = FilterPersistence.saveFilter({
       name,
       description,
-      filters,
+      filters: { ...filters, valueRange }, // Include valueRange in the filters object
       dateRange,
       includeFloodControl
     })
     
     console.log('✅ useAdvancedSearchFilters - filter saved with ID:', filterId)
     return filterId
-  }, [filters, dateRange, includeFloodControl])
+  }, [filters, valueRange, dateRange, includeFloodControl])
 
   const loadLastUsedFilter = useCallback(() => {
     console.log('📂 useAdvancedSearchFilters - loadLastUsedFilter called')
@@ -266,6 +273,7 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     const lastUsed = FilterPersistence.loadLastUsedFilter()
     if (lastUsed) {
       setFilters(lastUsed.filters)
+      setValueRange(lastUsed.filters.valueRange) // Add this line to restore valueRange
       setDateRange(lastUsed.dateRange)
       setIncludeFloodControl(lastUsed.includeFloodControl)
       console.log('✅ useAdvancedSearchFilters - last used filter loaded:', lastUsed)
@@ -284,11 +292,12 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
   useEffect(() => {
     // Only save if there are active filters
     const hasActive = Object.values(filters).some(filterArray => filterArray.length > 0) || 
-                     dateRange.type !== 'all_time'
+                     dateRange.type !== 'all_time' ||
+                     (valueRange && (valueRange.min !== undefined || valueRange.max !== undefined))
     if (hasActive) {
-      FilterPersistence.saveLastUsedFilter(filters, dateRange, includeFloodControl)
+      FilterPersistence.saveLastUsedFilter({ ...filters, valueRange }, dateRange, includeFloodControl)
     }
-  }, [filters, dateRange, includeFloodControl])
+  }, [filters, valueRange, dateRange, includeFloodControl])
 
   return {
     // Filter state

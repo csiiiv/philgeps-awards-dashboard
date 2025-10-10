@@ -372,7 +372,8 @@ class ParquetSearchService:
                                    page_size: int = 20,
                                    sort_by: str = "award_date",
                                    sort_direction: str = "desc",
-                                   include_flood_control: bool = False) -> Dict[str, Any]:
+                                   include_flood_control: bool = False,
+                                   value_range: Optional[Dict] = None) -> Dict[str, Any]:
         """
         Search contracts with chip-based filters (OR logic within each type)
         """
@@ -507,6 +508,25 @@ class ParquetSearchService:
             
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
+        
+        # Contract amount range filtering
+        if value_range:
+            amount_conditions = []
+            min_amount = value_range.get('min')
+            max_amount = value_range.get('max')
+            
+            if min_amount is not None and max_amount is not None:
+                # Both min and max specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount} AND CAST(contract_amount AS DOUBLE) <= {max_amount}")
+            elif min_amount is not None:
+                # Only min specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount}")
+            elif max_amount is not None:
+                # Only max specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) <= {max_amount}")
+            
+            if amount_conditions:
+                where_conditions.append(f"({' AND '.join(amount_conditions)})")
         
         # Build the main query
         select_fields = """
@@ -661,7 +681,8 @@ class ParquetSearchService:
                         keywords: List[str] = [],
                         time_ranges: List[Dict] = [],
                         topN: int = 20,
-                        include_flood_control: bool = False) -> Dict[str, Any]:
+                        include_flood_control: bool = False,
+                        value_range: Optional[Dict] = None) -> Dict[str, Any]:
         """Return grouped aggregates based on the same chip filters for charts."""
         # Reuse the filtering logic above to construct filtered UNION query without ORDER/LIMIT
         where_conditions = []
@@ -742,6 +763,25 @@ class ParquetSearchService:
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
 
+        # Contract amount range filtering
+        if value_range:
+            amount_conditions = []
+            min_amount = value_range.get('min')
+            max_amount = value_range.get('max')
+            
+            if min_amount is not None and max_amount is not None:
+                # Both min and max specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount} AND CAST(contract_amount AS DOUBLE) <= {max_amount}")
+            elif min_amount is not None:
+                # Only min specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount}")
+            elif max_amount is not None:
+                # Only max specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) <= {max_amount}")
+            
+            if amount_conditions:
+                where_conditions.append(f"({' AND '.join(amount_conditions)})")
+
         select_fields = """
             contract_number as reference_id,
             contract_number as contract_no,
@@ -820,7 +860,8 @@ class ParquetSearchService:
                                  dimension: str = 'by_contractor',
                                  sort_by: str = 'total_value',
                                  sort_direction: str = 'desc',
-                                 include_flood_control: bool = False) -> Dict[str, Any]:
+                                 include_flood_control: bool = False,
+                                 value_range: Optional[Dict] = None) -> Dict[str, Any]:
         """Return paginated aggregates for analytics table using chip filters."""
         # Reuse the filtering logic from chip_aggregates
         where_conditions = []
@@ -932,6 +973,25 @@ class ParquetSearchService:
                     time_conditions.append(f"TRY_CAST(award_date AS DATE) >= '{start_date}' AND TRY_CAST(award_date AS DATE) <= '{end_date}'")
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
+
+        # Contract amount range filtering
+        if value_range:
+            amount_conditions = []
+            min_amount = value_range.get('min')
+            max_amount = value_range.get('max')
+            
+            if min_amount is not None and max_amount is not None:
+                # Both min and max specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount} AND CAST(contract_amount AS DOUBLE) <= {max_amount}")
+            elif min_amount is not None:
+                # Only min specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount}")
+            elif max_amount is not None:
+                # Only max specified
+                amount_conditions.append(f"CAST(contract_amount AS DOUBLE) <= {max_amount}")
+            
+            if amount_conditions:
+                where_conditions.append(f"({' AND '.join(amount_conditions)})")
 
         # Flood control filter
         if not include_flood_control:

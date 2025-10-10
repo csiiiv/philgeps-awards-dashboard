@@ -103,21 +103,29 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
   // Handle input blur/enter - commit the value
   const commitMinValue = useCallback(() => {
     const parsed = parseValue(minInput)
-    if (parsed !== null && parsed >= minValue) {
-      onChange({ ...value, min: parsed })
+    console.log('🔍 commitMinValue:', { minInput, parsed, value })
+    if (parsed !== null && parsed >= 0) {
+      const newValue = { ...value, min: parsed }
+      console.log('✅ commitMinValue - calling onChange:', newValue)
+      onChange(newValue)
     } else {
+      console.log('❌ commitMinValue - reverting input')
       setMinInput(value.min ? formatValue(value.min, true) : '')
     }
-  }, [minInput, value, onChange, minValue])
+  }, [minInput, value, onChange])
   
   const commitMaxValue = useCallback(() => {
     const parsed = parseValue(maxInput)
-    if (parsed !== null && parsed <= maxValue) {
-      onChange({ ...value, max: parsed })
+    console.log('🔍 commitMaxValue:', { maxInput, parsed, value })
+    if (parsed !== null && parsed >= 0) {
+      const newValue = { ...value, max: parsed }
+      console.log('✅ commitMaxValue - calling onChange:', newValue)
+      onChange(newValue)
     } else {
+      console.log('❌ commitMaxValue - reverting input')
       setMaxInput(value.max ? formatValue(value.max, true) : '')
     }
-  }, [maxInput, value, onChange, maxValue])
+  }, [maxInput, value, onChange])
   
   // Styles
   const containerStyle = {
