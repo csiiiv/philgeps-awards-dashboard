@@ -133,6 +133,14 @@ export class AdvancedSearchService {
     this.baseUrl = baseUrl
   }
 
+  // Helper function to provide default value range when undefined or empty
+  private getDefaultValueRange(valueRange?: { min?: number; max?: number; } | null): { min?: number; max?: number; } | null {
+    if (!valueRange || (valueRange.min === undefined && valueRange.max === undefined)) {
+      return { min: 0, max: 1000000000000 } // Default to min 0 and max 1T
+    }
+    return valueRange
+  }
+
   /**
    * Perform advanced search for contracts
    */
@@ -191,7 +199,7 @@ export class AdvancedSearchService {
         sortBy: params.sortBy,
         sortDirection: params.sortDirection,
         include_flood_control: params.includeFloodControl || false,
-        value_range: params.valueRange || null
+        value_range: this.getDefaultValueRange(params.valueRange)
       }
       
       // Debug logging
@@ -227,7 +235,7 @@ export class AdvancedSearchService {
       time_ranges: params.timeRanges || [],
       topN: params.topN || 20,
       include_flood_control: params.includeFloodControl || false,
-      value_range: params.valueRange || null
+      value_range: this.getDefaultValueRange(params.valueRange)
     }
 
     const response = await fetch(`${this.baseUrl}/contracts/chip-aggregates/`, {
@@ -255,7 +263,7 @@ export class AdvancedSearchService {
       sort_by: params.sortBy || 'total_value',
       sort_direction: params.sortDirection || 'desc',
       include_flood_control: params.includeFloodControl || false,
-      value_range: params.valueRange || null
+      value_range: this.getDefaultValueRange(params.valueRange)
     }
 
     const response = await fetch(`${this.baseUrl}/contracts/chip-aggregates-paginated/`, {
@@ -277,7 +285,7 @@ export class AdvancedSearchService {
       business_categories: params.businessCategories || [],
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
-      value_range: params.valueRange || null
+      value_range: this.getDefaultValueRange(params.valueRange)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-estimate/`, {
       method: 'POST',
@@ -296,7 +304,7 @@ export class AdvancedSearchService {
       business_categories: params.businessCategories || [],
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
-      value_range: params.valueRange || null
+      value_range: this.getDefaultValueRange(params.valueRange)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export/`, {
       method: 'POST',
@@ -317,7 +325,7 @@ export class AdvancedSearchService {
       time_ranges: params.timeRanges || [],
       dimension: params.dimension || 'by_contractor',
       include_flood_control: params.includeFloodControl || false,
-      value_range: params.valueRange || null
+      value_range: this.getDefaultValueRange(params.valueRange)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated/`, {
       method: 'POST',
@@ -338,7 +346,7 @@ export class AdvancedSearchService {
       time_ranges: params.timeRanges || [],
       dimension: params.dimension || 'by_contractor',
       include_flood_control: params.includeFloodControl || false,
-      value_range: params.valueRange || null
+      value_range: this.getDefaultValueRange(params.valueRange)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated-estimate/`, {
       method: 'POST',
