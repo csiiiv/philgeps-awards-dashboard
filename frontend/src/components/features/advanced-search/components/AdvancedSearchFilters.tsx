@@ -4,6 +4,7 @@ import { getThemeColors } from '../../../../design-system/theme'
 import { typography, spacing } from '../../../../design-system'
 import { FilterChip } from '../FilterChip'
 import { FilterSection } from '../FilterSection'
+import { ValueRangeFilter } from '../../shared/ValueRangeFilter'
 import { PredefinedFilterSelector } from './PredefinedFilterSelector'
 import type { FilterState, DateRangeState } from '../../../../hooks/advanced-search/useAdvancedSearchFilters'
 
@@ -20,6 +21,7 @@ export interface AdvancedSearchFiltersProps {
   keywordInput: string
   includeFloodControl: boolean
   dateRange: DateRangeState
+  valueRange?: FilterState['valueRange']
   filterOptions: FilterOptions
   
   // Filter actions
@@ -42,6 +44,9 @@ export interface AdvancedSearchFiltersProps {
   // Flood control actions
   onIncludeFloodControlChange: (value: boolean) => void
   
+  // Value range actions
+  onValueRangeChange: (valueRange: FilterState['valueRange']) => void
+  
   // Persistence actions
   onSaveCurrentFilter: (name: string, description?: string) => void
   
@@ -55,6 +60,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
   keywordInput,
   includeFloodControl,
   dateRange,
+  valueRange,
   filterOptions,
   onAddFilter,
   onRemoveFilter,
@@ -68,6 +74,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
   onDateRangeStartDateChange,
   onDateRangeEndDateChange,
   onIncludeFloodControlChange,
+  onValueRangeChange,
   onSaveCurrentFilter,
   loading = false,
   loadingOptions = false
@@ -302,48 +309,41 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
         )}
       </div>
 
-      {/* Date Range Filter */}
+      {/* Date Range and Value Range - Horizontal Layout */}
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: spacing[2]
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: spacing[4],
+        alignItems: 'stretch' // Make both cards stretch to same height
       }}>
-        <label style={{
-          color: themeColors.text.primary,
-          fontSize: typography.fontSize.sm,
-          fontWeight: typography.fontWeight.medium
-        }}>
-          Time Range
-        </label>
+        {/* Date Range Filter */}
         <div style={{
           display: 'flex',
-          gap: spacing[3],
-          alignItems: 'center',
-          flexWrap: 'wrap'
+          flexDirection: 'column',
+          gap: spacing[2],
+          padding: spacing[3],
+          backgroundColor: themeColors.background.secondary,
+          borderRadius: spacing[2],
+          border: `1px solid ${themeColors.border.light}`,
+          minHeight: '120px' // Ensure consistent minimum height
         }}>
-          <select
-            value={dateRange.type}
-            onChange={(e) => onDateRangeTypeChange(e.target.value as DateRangeState['type'])}
-            style={{
-              padding: `${spacing[2]} ${spacing[3]}`,
-              border: `1px solid ${themeColors.border.medium}`,
-              borderRadius: spacing[1],
-              fontSize: typography.fontSize.sm,
-              backgroundColor: themeColors.background.primary,
-              color: themeColors.text.primary
-            }}
-            disabled={loading}
-          >
-            <option value="all_time">All Time</option>
-            <option value="yearly">Yearly</option>
-            <option value="quarterly">Quarterly</option>
-            <option value="custom">Custom Range</option>
-          </select>
-
-          {dateRange.type === 'yearly' && (
+          <label style={{
+            color: themeColors.text.primary,
+            fontSize: typography.fontSize.sm,
+            fontWeight: typography.fontWeight.medium,
+            textAlign: 'left'
+          }}>
+            📅 Time Range
+          </label>
+          <div style={{
+            display: 'flex',
+            gap: spacing[3],
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }}>
             <select
-              value={dateRange.year}
-              onChange={(e) => onDateRangeYearChange(Number(e.target.value))}
+              value={dateRange.type}
+              onChange={(e) => onDateRangeTypeChange(e.target.value as DateRangeState['type'])}
               style={{
                 padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${themeColors.border.medium}`,
@@ -354,14 +354,13 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
               }}
               disabled={loading}
             >
-              {yearOptions.map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
+              <option value="all_time">All Time</option>
+              <option value="yearly">Yearly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="custom">Custom Range</option>
             </select>
-          )}
 
-          {dateRange.type === 'quarterly' && (
-            <>
+            {dateRange.type === 'yearly' && (
               <select
                 value={dateRange.year}
                 onChange={(e) => onDateRangeYearChange(Number(e.target.value))}
@@ -379,60 +378,97 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
-              <select
-                value={dateRange.quarter}
-                onChange={(e) => onDateRangeQuarterChange(Number(e.target.value))}
-                style={{
-                  padding: `${spacing[2]} ${spacing[3]}`,
-                  border: `1px solid ${themeColors.border.medium}`,
-                  borderRadius: spacing[1],
-                  fontSize: typography.fontSize.sm,
-                  backgroundColor: themeColors.background.primary,
-                  color: themeColors.text.primary
-                }}
-                disabled={loading}
-              >
-                {quarterOptions.map(quarter => (
-                  <option key={quarter.value} value={quarter.value}>{quarter.label}</option>
-                ))}
-              </select>
-            </>
-          )}
+            )}
 
-          {dateRange.type === 'custom' && (
-            <>
-              <input
-                type="date"
-                value={dateRange.startDate}
-                onChange={(e) => onDateRangeStartDateChange(e.target.value)}
-                style={{
-                  padding: `${spacing[2]} ${spacing[3]}`,
-                  border: `1px solid ${themeColors.border.medium}`,
-                  borderRadius: spacing[1],
-                  fontSize: typography.fontSize.sm,
-                  backgroundColor: themeColors.background.primary,
-                  color: themeColors.text.primary
-                }}
-                disabled={loading}
-              />
-              <span style={{ color: themeColors.text.secondary }}>to</span>
-              <input
-                type="date"
-                value={dateRange.endDate}
-                onChange={(e) => onDateRangeEndDateChange(e.target.value)}
-                style={{
-                  padding: `${spacing[2]} ${spacing[3]}`,
-                  border: `1px solid ${themeColors.border.medium}`,
-                  borderRadius: spacing[1],
-                  fontSize: typography.fontSize.sm,
-                  backgroundColor: themeColors.background.primary,
-                  color: themeColors.text.primary
-                }}
-                disabled={loading}
-              />
-            </>
-          )}
+            {dateRange.type === 'quarterly' && (
+              <>
+                <select
+                  value={dateRange.year}
+                  onChange={(e) => onDateRangeYearChange(Number(e.target.value))}
+                  style={{
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${themeColors.border.medium}`,
+                    borderRadius: spacing[1],
+                    fontSize: typography.fontSize.sm,
+                    backgroundColor: themeColors.background.primary,
+                    color: themeColors.text.primary
+                  }}
+                  disabled={loading}
+                >
+                  {yearOptions.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+                <select
+                  value={dateRange.quarter}
+                  onChange={(e) => onDateRangeQuarterChange(Number(e.target.value))}
+                  style={{
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${themeColors.border.medium}`,
+                    borderRadius: spacing[1],
+                    fontSize: typography.fontSize.sm,
+                    backgroundColor: themeColors.background.primary,
+                    color: themeColors.text.primary
+                  }}
+                  disabled={loading}
+                >
+                  {quarterOptions.map(quarter => (
+                    <option key={quarter.value} value={quarter.value}>{quarter.label}</option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            {dateRange.type === 'custom' && (
+              <>
+                <input
+                  type="date"
+                  value={dateRange.startDate}
+                  onChange={(e) => onDateRangeStartDateChange(e.target.value)}
+                  style={{
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${themeColors.border.medium}`,
+                    borderRadius: spacing[1],
+                    fontSize: typography.fontSize.sm,
+                    backgroundColor: themeColors.background.primary,
+                    color: themeColors.text.primary
+                  }}
+                  disabled={loading}
+                />
+                <span style={{ color: themeColors.text.secondary }}>to</span>
+                <input
+                  type="date"
+                  value={dateRange.endDate}
+                  onChange={(e) => onDateRangeEndDateChange(e.target.value)}
+                  style={{
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${themeColors.border.medium}`,
+                    borderRadius: spacing[1],
+                    fontSize: typography.fontSize.sm,
+                    backgroundColor: themeColors.background.primary,
+                    color: themeColors.text.primary
+                  }}
+                  disabled={loading}
+                />
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Value Range Filter */}
+        <ValueRangeFilter
+          value={valueRange || {}}
+          onChange={onValueRangeChange}
+          isDark={isDark}
+          disabled={loading}
+          minValue={0}
+          maxValue={10000000000} // 10B max - more reasonable for government contracts
+          currency="₱"
+          showPresets={false} // Disable presets
+          showSlider={false} // Disable slider - keep it simple
+          showInputs={true}
+          minHeight="120px" // Match the Time Range card height
+        />
       </div>
 
       {/* Flood Control Toggle */}

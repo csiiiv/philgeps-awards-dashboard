@@ -87,7 +87,8 @@ const AdvancedSearch: React.FC = () => {
       organizations: filtersHook.filters.organizations,
       businessCategories: filtersHook.filters.business_categories,
       keywords: filtersHook.filters.keywords,
-        timeRanges: timeRanges,
+      timeRanges: timeRanges,
+      valueRange: filtersHook.valueRange,
       page: paginationHook.pagination.page,
       pageSize: paginationHook.pagination.pageSize,
       sortBy: paginationHook.sortConfig.key,
@@ -236,6 +237,7 @@ const AdvancedSearch: React.FC = () => {
         keywordInput={filtersHook.keywordInput}
         includeFloodControl={filtersHook.includeFloodControl}
         dateRange={filtersHook.dateRange}
+        valueRange={filtersHook.valueRange}
         filterOptions={filterOptions}
         onAddFilter={filtersHook.addFilter}
         onRemoveFilter={filtersHook.removeFilter}
@@ -249,6 +251,7 @@ const AdvancedSearch: React.FC = () => {
         onDateRangeStartDateChange={filtersHook.setDateRangeStartDate}
         onDateRangeEndDateChange={filtersHook.setDateRangeEndDate}
         onIncludeFloodControlChange={filtersHook.setIncludeFloodControl}
+        onValueRangeChange={filtersHook.setValueRange}
         onSaveCurrentFilter={filtersHook.saveCurrentFilter}
         loading={dataHook.loading}
         loadingOptions={loadingOptions}

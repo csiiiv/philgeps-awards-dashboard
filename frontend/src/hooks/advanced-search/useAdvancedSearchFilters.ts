@@ -8,6 +8,10 @@ export interface FilterState {
   business_categories: string[]
   keywords: string[]
   timeRanges: string[]
+  valueRange?: {
+    min?: number
+    max?: number
+  }
 }
 
 export interface DateRangeState {
@@ -47,6 +51,9 @@ export interface UseAdvancedSearchFiltersReturn {
   // Flood control actions
   setIncludeFloodControl: (value: boolean) => void
   
+  // Value range actions
+  setValueRange: (valueRange: FilterState['valueRange']) => void
+  
   // Utility functions
   hasActiveFilters: boolean
   getActiveFilterCount: () => number
@@ -75,6 +82,9 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
 
   // Flood control dataset toggle
   const [includeFloodControl, setIncludeFloodControl] = useState(true)
+
+  // Value range state
+  const [valueRange, setValueRange] = useState<FilterState['valueRange']>(undefined)
 
   // Date range state
   const [dateRange, setDateRange] = useState<DateRangeState>({
@@ -134,6 +144,7 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
       timeRanges: []
     })
     setKeywordInput('')
+    setValueRange(undefined)
     setDateRange({
       type: 'all_time',
       year: 2021,
@@ -285,6 +296,7 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     keywordInput,
     includeFloodControl,
     dateRange,
+    valueRange,
     
     // Filter actions
     addFilter,
@@ -307,6 +319,9 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     
     // Flood control actions
     setIncludeFloodControl,
+    
+    // Value range actions
+    setValueRange,
     
     // Utility functions
     hasActiveFilters: hasActiveFilters(),
