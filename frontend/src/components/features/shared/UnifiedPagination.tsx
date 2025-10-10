@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { getThemeColors } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
@@ -25,6 +25,7 @@ export interface UnifiedPaginationProps {
   isDark?: boolean
   showPageSizeSelector?: boolean
   pageSizeOptions?: number[]
+  enableCustomPageInput?: boolean
   
   // Styling options
   variant?: 'default' | 'analytics' | 'minimal'
@@ -46,6 +47,7 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
   isDark = false,
   showPageSizeSelector = true,
   pageSizeOptions = [10, 20, 50, 100],
+  enableCustomPageInput = true,
   variant = 'default',
   className
 }) => {
@@ -61,6 +63,53 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
   // Navigation state
   const isFirstPage = currentPage === 1
   const isLastPage = currentPage >= totalPages
+
+  // Custom page input state
+  const [pageInput, setPageInput] = useState(currentPage.toString())
+  const [isEditingPage, setIsEditingPage] = useState(false)
+
+  // Update input when currentPage changes externally
+  useEffect(() => {
+    setPageInput(currentPage.toString())
+  }, [currentPage])
+
+  // Custom page input handlers
+  const handlePageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPageInput(e.target.value)
+  }, [])
+
+  const handlePageInputSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault()
+    const page = parseInt(pageInput)
+    
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      onPageChange(page)
+    } else if (page < 1) {
+      onPageChange(1)
+    } else if (page > totalPages) {
+      onPageChange(totalPages)
+    }
+    
+    setIsEditingPage(false)
+  }, [pageInput, totalPages, currentPage, onPageChange])
+
+  const handlePageInputKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handlePageInputSubmit(e)
+    } else if (e.key === 'Escape') {
+      setPageInput(currentPage.toString())
+      setIsEditingPage(false)
+    }
+  }, [handlePageInputSubmit, currentPage])
+
+  const handlePageInputBlur = useCallback(() => {
+    setPageInput(currentPage.toString())
+    setIsEditingPage(false)
+  }, [currentPage])
+
+  const handlePageInputFocus = useCallback(() => {
+    setIsEditingPage(true)
+  }, [])
 
   // Generate page numbers
   const getPageNumbers = () => {
@@ -185,6 +234,20 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
     marginLeft: spacing[2]
   }
 
+  const inputStyle = {
+    padding: `${spacing[2]} ${spacing[2]}`,
+    border: `1px solid ${theme.primary[500]}`,
+    borderRadius: spacing[1],
+    backgroundColor: theme.background.primary,
+    color: theme.text.primary,
+    fontSize: typography.fontSize.sm,
+    margin: `0 ${spacing[1]}`,
+    width: '60px',
+    height: variant === 'minimal' ? '32px' : '36px',
+    textAlign: 'center' as const,
+    fontWeight: typography.fontWeight.semibold
+  }
+
   // Don't render if only one page
   if (totalPages <= 1) {
     return (
@@ -258,22 +321,81 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
         
         {/* Page numbers */}
         <div style={{ display: 'flex', gap: spacing[1] }}>
-          {pageNumbers.map((pageNum, index) => (
-            <button
-              key={index}
-              onClick={() => typeof pageNum === 'number' ? onPageChange(pageNum) : undefined}
-              disabled={pageNum === '...'}
-              style={{
-                ...buttonStyle(false, pageNum === currentPage),
-                cursor: pageNum === '...' ? 'default' : 'pointer',
-                minWidth: variant === 'minimal' ? '32px' : '40px',
-                padding: variant === 'minimal' ? `${spacing[1]} ${spacing[2]}` : `${spacing[2]} ${spacing[2]}`
-              }}
-            >
-              {pageNum}
-            </button>
-          ))}
+          {pageNumbers.map((pageNum, index) => {
+            // Handle ellipsis
+            if (pageNum === '...') {
+              return (
+                <span
+                  key={index}
+                  style={{
+                    color: theme.text.secondary,
+                    fontSize: typography.fontSize.sm,
+                    margin: `0 ${spacing[1]}`,
+                    padding: `${spacing[2]} ${spacing[1]}`,
+                    fontWeight: typography.fontWeight.normal,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: variant === 'minimal' ? '32px' : '40px'
+                  }}
+                >
+                  ...
+                </span>
+              )
+            }
+            
+            const page = pageNum as number
+            const isActive = page === currentPage
+            
+            // Regular page button
+            return (
+              <button
+                key={index}
+                onClick={() => onPageChange(page)}
+                style={{
+                  ...buttonStyle(false, isActive),
+                  minWidth: variant === 'minimal' ? '32px' : '40px',
+                  padding: variant === 'minimal' ? `${spacing[1]} ${spacing[2]}` : `${spacing[2]} ${spacing[2]}`
+                }}
+                title={`Go to page ${page}`}
+              >
+                {page}
+              </button>
+            )
+          })}
         </div>
+        
+        {/* Custom page input - always visible when enabled */}
+        {enableCustomPageInput && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1], marginLeft: spacing[2] }}>
+            <label style={{ 
+              fontSize: typography.fontSize.sm, 
+              color: theme.text.secondary,
+              whiteSpace: 'nowrap'
+            }}>
+              Go to:
+            </label>
+            <form onSubmit={handlePageInputSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="number"
+                value={pageInput}
+                onChange={handlePageInputChange}
+                onKeyDown={handlePageInputKeyDown}
+                onBlur={handlePageInputBlur}
+                style={{
+                  ...inputStyle,
+                  width: '50px',
+                  height: variant === 'minimal' ? '32px' : '36px',
+                  fontSize: typography.fontSize.sm
+                }}
+                min="1"
+                max={totalPages}
+                placeholder="Page"
+                title={`Enter page number (1-${totalPages})`}
+              />
+            </form>
+          </div>
+        )}
         
         {/* Next button for minimal variant */}
         {variant === 'minimal' && (

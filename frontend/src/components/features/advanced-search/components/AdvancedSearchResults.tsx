@@ -193,6 +193,7 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
           onPageChange={onPageChange}
           onPageSizeChange={onPageSizeChange}
           variant="default"
+          enableCustomPageInput={true}
         />
       )}
 

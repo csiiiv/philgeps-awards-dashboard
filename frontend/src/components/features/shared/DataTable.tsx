@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { getThemeColors } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
+import { UnifiedPagination } from './UnifiedPagination'
 
 export interface Column<T> {
   key: keyof T | string
@@ -71,8 +72,8 @@ export const DataTable = <T extends Record<string, any>>({
   }, [sortBy, sortDirection])
 
   const renderCell = useCallback((column: Column<T>, item: T, index: number) => {
-    const value = column.key.includes('.') 
-      ? column.key.split('.').reduce((obj, key) => obj?.[key], item)
+    const value = typeof column.key === 'string' && column.key.includes('.') 
+      ? column.key.split('.').reduce((obj: any, key: string) => obj?.[key], item)
       : item[column.key as keyof T]
 
     if (column.render) {
@@ -137,40 +138,6 @@ export const DataTable = <T extends Record<string, any>>({
     fontStyle: 'italic' as const
   }
 
-  const paginationStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: `${spacing[4]}`,
-    backgroundColor: theme.background.secondary,
-    borderTop: `1px solid ${theme.border.light}`
-  }
-
-  const buttonStyle = (disabled: boolean = false) => ({
-    padding: `${spacing[2]} ${spacing[3]}`,
-    border: `1px solid ${theme.border.medium}`,
-    borderRadius: spacing[1],
-    backgroundColor: disabled ? theme.background.tertiary : 'transparent',
-    color: disabled ? theme.text.secondary : theme.text.primary,
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    fontSize: typography.fontSize.sm,
-    margin: `0 ${spacing[1]}`,
-    transition: 'all 0.2s ease',
-    ':hover': disabled ? {} : {
-      backgroundColor: theme.background.tertiary,
-      borderColor: theme.border.dark
-    }
-  })
-
-  const selectStyle = {
-    padding: `${spacing[1]} ${spacing[2]}`,
-    border: `1px solid ${theme.border.medium}`,
-    borderRadius: spacing[1],
-    backgroundColor: theme.background.primary,
-    color: theme.text.primary,
-    fontSize: typography.fontSize.sm,
-    marginLeft: spacing[2]
-  }
 
   if (loading) {
     return (
@@ -265,52 +232,21 @@ export const DataTable = <T extends Record<string, any>>({
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Enhanced Pagination */}
       {showPagination && totalPages > 1 && (
-        <div style={paginationStyle}>
-          <div style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
-            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount.toLocaleString()} entries
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
-            {showPageSizeControl && onPageSizeChange && (
-              <>
-                <label style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
-                  Per page:
-                </label>
-                <select
-                  value={pageSize}
-                  onChange={(e) => onPageSizeChange(parseInt(e.target.value))}
-                  style={selectStyle}
-                >
-                  {pageSizeOptions.map(size => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
-                </select>
-              </>
-            )}
-            
-            <button
-              onClick={() => onPageChange?.(currentPage - 1)}
-              disabled={currentPage <= 1}
-              style={buttonStyle(currentPage <= 1)}
-            >
-              Previous
-            </button>
-            
-            <span style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
-              Page {currentPage} of {totalPages}
-            </span>
-            
-            <button
-              onClick={() => onPageChange?.(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              style={buttonStyle(currentPage >= totalPages)}
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        <UnifiedPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          pageSizeOptions={pageSizeOptions}
+          onPageChange={onPageChange || (() => {})}
+          onPageSizeChange={onPageSizeChange || (() => {})}
+          isDark={isDark}
+          showPageSizeSelector={showPageSizeControl}
+          enableCustomPageInput={true}
+          variant="default"
+        />
       )}
     </div>
   )
