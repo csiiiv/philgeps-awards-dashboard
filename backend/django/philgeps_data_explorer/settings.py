@@ -9,22 +9,25 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-temp-key-for-testing'
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Environment-based ALLOWED_HOSTS
+# Always include localhost for development and testing
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1',
+    '0.0.0.0',  # For Docker
+]
+
 if DEBUG:
-    # Development: localhost + any custom API domains
-    ALLOWED_HOSTS = [
-        'localhost', 
-        '127.0.0.1',
-        '0.0.0.0',  # For Docker
-    ]
-    
-    # Add custom API domains for development (tunnels, custom domains, etc.)
+    # Development: add custom API domains for development (tunnels, custom domains, etc.)
     api_domains = config('API_DOMAINS', default='')
     if api_domains:
         api_domain_list = [domain.strip() for domain in api_domains.split(',') if domain.strip()]
         ALLOWED_HOSTS.extend(api_domain_list)
 else:
-    # Production: API domains from environment variables
-    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    # Production: add production API domains from environment variables
+    prod_allowed_hosts = config('ALLOWED_HOSTS', default='')
+    if prod_allowed_hosts:
+        prod_host_list = [host.strip() for host in prod_allowed_hosts.split(',') if host.strip()]
+        ALLOWED_HOSTS.extend(prod_host_list)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -121,28 +124,30 @@ SPECTACULAR_SETTINGS = {
 }
 
 # CORS configuration
+# Always include localhost origins for development and testing
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3002",
+    "http://localhost:3200",
+    "http://127.0.0.1:3200",
+]
+
 if DEBUG:
-    # Development: local frontend origins + custom frontend domains
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        "http://localhost:3002",
-        "http://127.0.0.1:3002",
-        "http://localhost:3200",
-        "http://127.0.0.1:3200",
-    ]
-    
-    # Add custom frontend domains from environment (for tunnels, custom domains, etc.)
+    # Development: add custom frontend domains from environment (for tunnels, custom domains, etc.)
     frontend_domains = config('FRONTEND_DOMAINS', default='')
     if frontend_domains:
         frontend_domain_list = [domain.strip() for domain in frontend_domains.split(',') if domain.strip()]
         CORS_ALLOWED_ORIGINS.extend(frontend_domain_list)
 else:
-    # Production: frontend domains from environment
-    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
+    # Production: add production frontend domains from environment
+    prod_cors_origins = config('CORS_ALLOWED_ORIGINS', default='')
+    if prod_cors_origins:
+        prod_origin_list = [origin.strip() for origin in prod_cors_origins.split(',') if origin.strip()]
+        CORS_ALLOWED_ORIGINS.extend(prod_origin_list)
 
 # Additional CORS settings
 CORS_ALLOW_CREDENTIALS = True

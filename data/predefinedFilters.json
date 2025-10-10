@@ -60,7 +60,7 @@
         "contractors": [],
         "areas": [],
         "organizations": [],
-        "business_categories": [],
+        "business_categories": ["constr","flood"],
         "keywords": [
           "flood",
           "drainage",

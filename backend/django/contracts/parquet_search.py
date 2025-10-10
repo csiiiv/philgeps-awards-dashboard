@@ -296,55 +296,12 @@ class ParquetSearchService:
             parquet_files = self._get_parquet_files(include_flood_control=True)
             
             # Build union query for all parquet files
+            # All files now have the same column structure after rebuilding flood control
             union_queries = []
             for file_path in parquet_files:
                 filename = os.path.basename(file_path)
-                if 'all_time' in filename:
-                    # Include all_time file directly
-                    union_queries.append(f"SELECT * FROM read_parquet('{file_path}')")
-                elif 'flood_control' in filename:
-                    # For flood control file, select only the common columns
-                    union_queries.append(f"""
-                        SELECT 
-                            award_date,
-                            awardee_name,
-                            business_category,
-                            organization_name,
-                            area_of_delivery,
-                            contract_amount,
-                            award_title,
-                            notice_title,
-                            contract_number as reference_id,
-            contract_number as contract_no,
-                            search_text
-                        FROM read_parquet('{file_path}')
-                    """)
-                elif 'optimized' in filename or 'super' in filename:
-                    # For optimized files, select only the common columns in the right order
-                    union_queries.append(f"""
-                        SELECT 
-                            award_date,
-                            awardee_name,
-                            business_category,
-                            organization_name,
-                            area_of_delivery,
-                            contract_amount,
-                            award_title,
-                            notice_title,
-                            contract_number as reference_id,
-            contract_number as contract_no,
-                            search_text
-                        FROM read_parquet('{file_path}')
-                    """)
-                else:
-                    try:
-                        # Extract year from filename safely
-                        year_str = filename.split('_')[-1].split('.')[0]
-                        int(year_str)  # Validate it's a number
-                        union_queries.append(f"SELECT * FROM read_parquet('{file_path}')")
-                    except (ValueError, IndexError) as e:
-                        print(f"Skipping file {file_path} due to parsing error: {e}")
-                        continue
+                # All files now have the same column structure, so we can use SELECT * for all
+                union_queries.append(f"SELECT * FROM read_parquet('{file_path}')")
             
             if not union_queries:
                 return {

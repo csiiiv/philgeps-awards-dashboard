@@ -34,11 +34,13 @@ const AdvancedSearch: React.FC = () => {
     organizations: [],
     business_categories: []
   })
+  const [loadingOptions, setLoadingOptions] = useState(false)
   const [analyticsOpen, setAnalyticsOpen] = useState(false)
 
   // Load filter options on mount
   useEffect(() => {
     const loadFilterOptions = async () => {
+      setLoadingOptions(true)
       try {
         const options = await advancedSearchService.getFilterOptions()
         console.log('📋 AdvancedSearch - loaded filter options:', options)
@@ -46,6 +48,8 @@ const AdvancedSearch: React.FC = () => {
       } catch (error) {
         console.error('Error loading filter options:', error)
         dataHook.setError('Failed to load filter options')
+      } finally {
+        setLoadingOptions(false)
       }
     }
 
@@ -247,6 +251,7 @@ const AdvancedSearch: React.FC = () => {
         onIncludeFloodControlChange={filtersHook.setIncludeFloodControl}
         onSaveCurrentFilter={filtersHook.saveCurrentFilter}
         loading={dataHook.loading}
+        loadingOptions={loadingOptions}
       />
 
       {/* Actions Section */}

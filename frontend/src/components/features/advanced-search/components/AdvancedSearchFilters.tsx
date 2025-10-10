@@ -47,6 +47,7 @@ export interface AdvancedSearchFiltersProps {
   
   // Loading state
   loading?: boolean
+  loadingOptions?: boolean
 }
 
 export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
@@ -68,7 +69,8 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
   onDateRangeEndDateChange,
   onIncludeFloodControlChange,
   onSaveCurrentFilter,
-  loading = false
+  loading = false,
+  loadingOptions = false
 }) => {
   const { isDark } = useTheme()
   const themeColors = getThemeColors(isDark)
@@ -186,6 +188,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.contractors}
           onAdd={(value) => onAddFilter('contractors', value)}
           onRemove={(index) => onRemoveFilter('contractors', index)}
+          loading={loadingOptions}
         />
 
         {/* Areas Filter */}
@@ -197,6 +200,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.areas}
           onAdd={(value) => onAddFilter('areas', value)}
           onRemove={(index) => onRemoveFilter('areas', index)}
+          loading={loadingOptions}
         />
 
         {/* Organizations Filter */}
@@ -208,6 +212,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.organizations}
           onAdd={(value) => onAddFilter('organizations', value)}
           onRemove={(index) => onRemoveFilter('organizations', index)}
+          loading={loadingOptions}
         />
 
         {/* Business Categories Filter */}
@@ -219,6 +224,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.business_categories}
           onAdd={(value) => onAddFilter('business_categories', value)}
           onRemove={(index) => onRemoveFilter('business_categories', index)}
+          loading={loadingOptions}
         />
       </div>
 
@@ -473,7 +479,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           margin: `${spacing[2]} 0 0 0`,
           fontStyle: 'italic'
         }}>
-          This will include flood control projects from the Sumbong sa Pangulo dataset in your search results. Note: This may lead to duplicate data with PhilGEPS entries.
+          This will include flood control projects from the Sumbong sa Pangulo dataset in your search results. This data will all be categorized as "Flood Control". Note: This may lead to duplicate data with PhilGEPS entries.
         </p>
       </div>
 

@@ -129,12 +129,15 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
   // Load filter options on mount (same as Advanced Search)
   useEffect(() => {
     const loadFilterOptions = async () => {
+      setLoadingOptions(true)
       try {
         const options = await advancedSearchService.getFilterOptions()
         console.log('📋 DataExplorer - loaded filter options:', options)
         setFilterOptions(options)
       } catch (error) {
         console.error('Error loading filter options:', error)
+      } finally {
+        setLoadingOptions(false)
       }
     }
 
@@ -324,6 +327,9 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
             onIncludeFloodControlChange={filtersHook.setIncludeFloodControl}
             onSearch={handleSearch}
             onClearSearch={handleClearSearch}
+            
+            // Loading state
+            loadingOptions={loadingOptions}
             
             isDark={darkMode}
           />

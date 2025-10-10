@@ -15,6 +15,7 @@ export interface FilterSectionProps {
   isDark?: boolean
   disabled?: boolean
   supportAndLogic?: boolean
+  loading?: boolean
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({
@@ -27,7 +28,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   onRemove,
   isDark = false,
   disabled = false,
-  supportAndLogic = false
+  supportAndLogic = false,
+  loading = false
 }) => {
   const themeColors = getThemeColors(isDark)
   const [exactWord, setExactWord] = useState(false)
@@ -86,13 +88,24 @@ const FilterSection: React.FC<FilterSectionProps> = ({
       <div style={headerStyle}>
         <span style={{ marginRight: spacing[2] }}>{icon}</span>
         {title}
-        <span style={{ 
-          marginLeft: spacing[2], 
-          color: themeColors.text.secondary,
-          fontSize: typography.fontSize.xs
-        }}>
-          ({selectedValues.length} selected)
-        </span>
+        {loading && (
+          <span style={{ 
+            marginLeft: spacing[2], 
+            color: themeColors.text.secondary,
+            fontSize: typography.fontSize.xs
+          }}>
+            (Loading...)
+          </span>
+        )}
+        {!loading && (
+          <span style={{ 
+            marginLeft: spacing[2], 
+            color: themeColors.text.secondary,
+            fontSize: typography.fontSize.xs
+          }}>
+            ({selectedValues.length} selected)
+          </span>
+        )}
       </div>
 
       {/* Selected chips */}
@@ -118,10 +131,10 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             value=""
             onChange={handleAdd}
             options={options}
-            placeholder={`Select ${title.toLowerCase()}...`}
+            placeholder={loading ? `Loading ${title.toLowerCase()}...` : `Select ${title.toLowerCase()}...`}
             icon={icon}
             isDark={isDark}
-            disabled={disabled}
+            disabled={disabled || loading}
             typeKey={type === 'contractor' || type === 'area' || type === 'organization' || type === 'category' ? type : undefined}
             exactWord={exactWord}
             supportAndLogic={supportAndLogic}

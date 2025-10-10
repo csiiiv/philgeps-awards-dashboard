@@ -32,6 +32,9 @@ interface DataExplorerFiltersProps {
   onSearch: () => void
   onClearSearch: () => void
   
+  // Loading state
+  loadingOptions: boolean
+  
   isDark: boolean
 }
 
@@ -54,6 +57,9 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
   onIncludeFloodControlChange,
   onSearch,
   onClearSearch,
+  
+  // Loading state
+  loadingOptions,
   
   isDark
 }) => {
@@ -121,6 +127,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
             onAdd={(value) => onAddFilter('contractors', value)}
             onRemove={(index) => onRemoveFilter('contractors', index)}
             isDark={isDark}
+            loading={loadingOptions}
           />
         )}
         
@@ -134,6 +141,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
             onAdd={(value) => onAddFilter('organizations', value)}
             onRemove={(index) => onRemoveFilter('organizations', index)}
             isDark={isDark}
+            loading={loadingOptions}
           />
         )}
         
@@ -147,6 +155,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
             onAdd={(value) => onAddFilter('areas', value)}
             onRemove={(index) => onRemoveFilter('areas', index)}
             isDark={isDark}
+            loading={loadingOptions}
           />
         )}
         
@@ -160,6 +169,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
             onAdd={(value) => onAddFilter('business_categories', value)}
             onRemove={(index) => onRemoveFilter('business_categories', index)}
             isDark={isDark}
+            loading={loadingOptions}
           />
         )}
       </div>
