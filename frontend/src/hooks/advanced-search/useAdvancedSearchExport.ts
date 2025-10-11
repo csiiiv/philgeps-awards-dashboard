@@ -70,19 +70,20 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       return
     }
 
-    try {
-      console.log('📥 useAdvancedSearchExport - downloadExport called with params:', exportParams)
-      setExportDownloading(true)
-      setExportProgress(0)
-      
-      const controller = new AbortController()
-      setExportAbort(controller)
+    console.log('📥 useAdvancedSearchExport - downloadExport called with params:', exportParams)
+    setExportDownloading(true)
+    setExportProgress(0)
+    
+    const controller = new AbortController()
+    setExportAbort(controller)
 
-      // Set a timeout to prevent hanging exports (5 minutes)
-      const timeoutId = setTimeout(() => {
-        console.warn('⚠️ useAdvancedSearchExport - export timeout, aborting')
-        controller.abort()
-      }, 300000)
+    // Set a timeout to prevent hanging exports (5 minutes)
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ useAdvancedSearchExport - export timeout, aborting')
+      controller.abort()
+    }, 300000)
+
+    try {
 
       // Use the stored parameters from exportAllWithEstimate
       const params = exportParams
@@ -98,7 +99,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
         include_flood_control: params.includeFloodControl
       }
 
-      const response = await fetch(`${advancedSearchService.baseUrl}/contracts/chip-export/`, {
+      const response = await fetch('https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -112,6 +113,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       const reader = response.body.getReader()
       const chunks: Uint8Array[] = []
       let received = 0
+      let chunk_count = 0
       const headerLength = Number(response.headers.get('Content-Length') || 0)
       const total = headerLength || exportEstimate.bytes || 0
 
@@ -127,6 +129,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
           if (value) {
             chunks.push(value)
             received += value.length
+            chunk_count += 1
             if (total > 0) {
               const pct = Math.min(95, Math.round((received / total) * 100))
               setExportProgress(pct)
@@ -153,7 +156,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
         throw err
       }
 
-      const blob = new Blob(chunks, { type: 'text/csv;charset=utf-8;' })
+      const blob = new Blob(chunks as BlobPart[], { type: 'text/csv;charset=utf-8;' })
       setExportProgress(100)
       
       // Create download link
