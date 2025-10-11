@@ -83,7 +83,7 @@ const AppContent: React.FC = () => {
           </Title>
           <HeaderRight>
             <Version $isDark={isDark}>
-              v3.0.1 - Metrics Dashboard
+              v3.2.0 - Metrics Dashboard
             </Version>
             <ThemeToggle />
             {isUpdateAvailable && (

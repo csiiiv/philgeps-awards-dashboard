@@ -103,7 +103,7 @@ export const About: React.FC = () => {
             color: themeColors.primary[500],
             marginBottom: spacing[4]
           }}>
-            v3.1.0 - OpenAPI Migration Complete
+            v3.2.0 - Value Range Filter & Enhanced UX
           </p>
         <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.lg, lineHeight: 1.6 }}>
           A comprehensive transparency dashboard providing access to Philippine government procurement data 
@@ -314,7 +314,7 @@ export const About: React.FC = () => {
     <div>
       <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
         <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[4] }}>
-          🆕 Latest Updates - v3.1.0
+          🆕 Latest Updates - v3.2.0
         </SectionTitle>
         
         <div style={{
@@ -325,10 +325,10 @@ export const About: React.FC = () => {
           border: `1px solid ${themeColors.success[600]}`
         }}>
           <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
-            ✅ OpenAPI 3.0 Migration Complete
+            ✅ Value Range Filter & Enhanced UX
           </h3>
           <BodyText $isDark={isDark} style={{ color: themeColors.success[600] }}>
-            Full OpenAPI 3.0 compliance with interactive documentation, Swagger UI, and ReDoc integration
+            New contract value range filtering with KMBT format support, enhanced pagination, and improved filter layout
           </BodyText>
         </div>
 

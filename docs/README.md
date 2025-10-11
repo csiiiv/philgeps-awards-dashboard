@@ -82,4 +82,4 @@ Comprehensive production deployment guide including:
 ---
 
 **Last Updated**: October 7, 2025  
-**Version**: v3.1.0 - OpenAPI Migration Complete
+**Version**: v3.2.0 - Value Range Filter & Enhanced UX

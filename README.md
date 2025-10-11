@@ -1,6 +1,6 @@
 # PhilGEPS Dashboard
 
-[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
+[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Data](https://img.shields.io/badge/data-5M%20contracts-orange.svg)](data/)
 [![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
@@ -22,6 +22,15 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **📊 Analytics**: Real-time aggregations and trend analysis
 
 ## ✨ Recent Updates
+
+### **v3.2.0 - Value Range Filter & Enhanced UX (October 2025)**
+- **💰 Value Range Filter**: New contract amount filtering with KMBT format support (1K, 1M, 1B, 1T)
+- **🔍 Enhanced Search**: Min/Max value inputs with real-time range display and smart validation
+- **📄 Improved Pagination**: Custom page input field for direct navigation to any page
+- **🎨 Better Layout**: Redesigned filter interface with horizontal Time Range and Value Range layout
+- **🔧 Backend Integration**: Complete API support for value range filtering across all endpoints
+- **💾 Filter Persistence**: Value range settings now saved and restored with other filters
+- **⚡ Performance**: Optimized database queries with proper type casting for contract amounts
 
 ### **v3.1.0 - OpenAPI Migration Complete (October 2025)**
 - **📚 OpenAPI 3.0 Compliance**: Complete API documentation with Swagger UI and ReDoc

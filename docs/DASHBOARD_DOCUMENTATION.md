@@ -4,7 +4,7 @@
 
 The PHILGEPS Awards Data Explorer is a comprehensive transparency dashboard that provides access to Philippine government procurement data from 2013-2025. The dashboard is built as a single-page application with a tabbed interface, featuring advanced search, analytics, and export capabilities with complete OpenAPI 3.0 compliance.
 
-**Version**: v3.1.0 - OpenAPI Migration Complete  
+**Version**: v3.2.0 - Value Range Filter & Enhanced UX  
 **Last Updated**: January 6, 2025
 
 ## 🏗️ Current Dashboard Architecture
@@ -31,22 +31,29 @@ The dashboard consists of five main tabs:
 
 ---
 
-## 🆕 Latest Updates - v3.1.0
+## 🆕 Latest Updates - v3.2.0
 
-### OpenAPI 3.0 Migration Complete
+### Value Range Filter & Enhanced UX
 
-The dashboard has been fully migrated to OpenAPI 3.0 compliance with the following enhancements:
+The dashboard now includes advanced value range filtering and improved user experience features:
 
-#### Enhanced API Documentation
-- **Complete OpenAPI 3.0 Schema** - Full compliance with OpenAPI 3.0.3 specification
-- **Interactive Swagger UI** - Live API testing and exploration interface
-- **ReDoc Documentation** - Clean, readable API documentation
-- **Code Examples** - JavaScript and cURL examples for all endpoints
-- **Live Testing** - Test API endpoints directly from the documentation
+#### New Value Range Filter
+- **Contract Amount Filtering** - Filter contracts by minimum and maximum values
+- **KMBT Format Support** - Input values in K (thousands), M (millions), B (billions), T (trillions)
+- **Smart Input Validation** - Real-time validation and formatting
+- **Default Range** - Automatic fallback to 0-1T range when no range is specified
+- **Horizontal Layout** - Time Range and Value Range filters share a row for better space utilization
 
-#### Improved Export Functionality
-- **Accurate File Size Estimation** - Dynamic calculation based on data type and filters
-- **Individual Contract Export** - Export specific search results as CSV
+#### Enhanced Pagination
+- **Custom Page Input** - Direct page number entry for faster navigation
+- **Always-Visible Input** - Page input field always available in pagination component
+- **Improved UX** - Better navigation experience for large datasets
+
+#### Backend Integration
+- **Complete API Support** - All endpoints now support value range filtering
+- **Type-Safe Queries** - Proper contract amount type casting in database queries
+- **Performance Optimization** - Enhanced query performance for value range filters
+- **Filter Persistence** - Value range settings saved and restored with other filters
 - **Aggregated Data Export** - Export analytics data from Data Explorer
 - **Progress Tracking** - Real-time progress for large export operations
 - **Filtered Results Export** - Export only filtered search results, not all contracts

@@ -5,6 +5,58 @@ All notable changes to the PHILGEPS Awards Data Explorer will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-10-10
+
+### Added
+- **Value Range Filter**: New contract value range filtering capability in Advanced Search
+  - Min/Max value input fields with KMBT format support (1K, 1M, 1B, 1T)
+  - Horizontal layout with real-time range display
+  - Smart input parsing and validation
+  - Default value range (0 to 1T) when no range is specified
+- **Enhanced Pagination**: Custom page input field for direct page navigation
+  - Always-visible page input field in pagination component
+  - Direct page number entry for faster navigation
+  - Improved user experience for large datasets
+- **Backend Value Range Support**: Complete API integration for value range filtering
+  - Added `value_range` parameter to all search, aggregates, and export endpoints
+  - Contract amount filtering with proper type casting in DuckDB queries
+  - Support for min/max value constraints in database queries
+
+### Changed
+- **Advanced Search Interface**: Redesigned filter layout for better space utilization
+  - Time Range and Value Range filters now share a horizontal row
+  - Consistent card styling for filter sections
+  - Improved visual hierarchy and spacing
+- **API Service Layer**: Enhanced with default value range handling
+  - Automatic fallback to min 0, max 1T when value range is undefined
+  - Consistent API calls across all endpoints
+  - Better error prevention and data consistency
+- **Filter Persistence**: Value range now included in saved filters
+  - Value range settings persist across page reloads
+  - Saved filters include value range configuration
+  - Active filter count includes value range status
+
+### Fixed
+- **Data Explorer Compatibility**: Fixed 400 Bad Request errors
+  - Added value range parameter to Data Explorer API calls
+  - Default value range initialization for consistent behavior
+  - Resolved paginated aggregates failure issues
+- **Filter State Management**: Improved value range state handling
+  - Fixed value range not persisting in frontend state
+  - Corrected max value input validation constraints
+  - Enhanced filter summary display with value range information
+- **Backend Query Optimization**: Improved contract amount filtering
+  - Fixed VARCHAR vs INTEGER comparison errors in DuckDB
+  - Proper type casting for contract amount comparisons
+  - Enhanced query performance for value range filters
+
+### Technical Improvements
+- **Type Safety**: Enhanced TypeScript interfaces for value range filtering
+- **Component Architecture**: New reusable ValueRangeFilter component
+- **API Consistency**: Standardized value range parameter across all endpoints
+- **Error Handling**: Improved error messages and validation for value inputs
+- **Performance**: Optimized database queries with proper type casting
+
 ## [3.1.0] - 2025-10-07
 
 ### Added
@@ -106,11 +158,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Major Changes |
 |---------|------|---------------|
+| 3.2.0 | 2025-10-10 | Value Range Filter, Enhanced Pagination, Backend API Integration |
 | 3.1.0 | 2025-10-07 | OpenAPI 3.0 migration, enhanced exports, production readiness |
 | 3.0.1 | 2025-10-02 | Data Explorer, Advanced Search, Analytics Dashboard |
 | 3.0.0 | 2025-10-01 | Initial release with core functionality |
 
 ## Migration Guide
+
+### From v3.1.0 to v3.2.0
+
+#### New Features
+- **Value Range Filter**: Available in Advanced Search for filtering contracts by amount
+- **Enhanced Pagination**: Custom page input field for direct navigation
+- **Improved Filter Layout**: Time Range and Value Range filters share horizontal space
+
+#### API Changes
+- **New Parameter**: All endpoints now support `value_range` parameter
+- **Default Behavior**: Empty value ranges default to min 0, max 1T
+- **Enhanced Filtering**: Contract amount filtering with proper type casting
+
+#### Frontend Changes
+- **New Component**: `ValueRangeFilter` component for value range input
+- **Updated Services**: `AdvancedSearchService` includes default value range handling
+- **Enhanced Hooks**: Value range persistence in `useAdvancedSearchFilters`
 
 ### From v3.0.1 to v3.1.0
 
