@@ -1,0 +1,2 @@
+data/parquet/facts_awards_title_optimized.parquet filter=lfs diff=lfs merge=lfs -text
+data/parquet/facts_awards_all_time.parquet filter=lfs diff=lfs merge=lfs -text

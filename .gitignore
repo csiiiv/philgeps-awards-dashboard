@@ -154,7 +154,8 @@ config.local.py
 settings.local.py
 
 # Data files (if they're large)
-*.parquet
+# Large parquet files are tracked by Git LFS
+# Small parquet files are allowed in the repo
 *.csv
 *.xlsx
 *.xls
@@ -262,11 +263,13 @@ $RECYCLE.BIN/
 
 
 # Data files (too large for GitHub)
-data/parquet/
+# Large parquet files are tracked by Git LFS
+# Small parquet files are allowed in the repo
 data/processed/
 data/raw/
-data/
 !data/predefinedFilters.json
+!data/parquet/agg_*.parquet
+!data/parquet/facts_awards_flood_control.parquet
 
 # Database files
 *.sqlite3
