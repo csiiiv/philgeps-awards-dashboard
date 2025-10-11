@@ -199,7 +199,10 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
 
   const setDateRangeStartDate = useCallback((startDate: string) => {
     // Let the HTML5 date input handle validation - just store the value
-    setDateRange(prev => ({ ...prev, startDate }))
+    setDateRange(prev => {
+      console.log('📅 useAdvancedSearchFilters - updating startDate from', prev.startDate, 'to', startDate)
+      return { ...prev, startDate }
+    })
     console.log('📅 useAdvancedSearchFilters - date range start date changed:', startDate)
   }, [])
 

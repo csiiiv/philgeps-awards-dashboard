@@ -425,7 +425,10 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                   <input
                     type="date"
                     value={dateRange.startDate}
-                    onChange={(e) => onDateRangeStartDateChange(e.target.value)}
+                    onChange={(e) => {
+                      console.log('📅 Date input onChange - startDate:', e.target.value)
+                      onDateRangeStartDateChange(e.target.value)
+                    }}
                     onBlur={(e) => {
                       // Additional validation on blur
                       if (e.target.value && new Date(e.target.value).toString() === 'Invalid Date') {
