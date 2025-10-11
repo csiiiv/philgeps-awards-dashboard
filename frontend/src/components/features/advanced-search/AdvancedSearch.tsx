@@ -104,9 +104,22 @@ const AdvancedSearch: React.FC = () => {
     // Validate custom date range
     if (filtersHook.dateRange.type === 'custom') {
       if (!filtersHook.dateRange.startDate || !filtersHook.dateRange.endDate) {
-        console.warn('❌ Custom date range validation failed: missing dates')
+        console.warn('❌ Custom date range validation failed: missing dates', {
+          startDate: filtersHook.dateRange.startDate,
+          endDate: filtersHook.dateRange.endDate
+        })
         return
       }
+      
+      // Check if dates are valid
+      const startDate = new Date(filtersHook.dateRange.startDate)
+      const endDate = new Date(filtersHook.dateRange.endDate)
+      
+      if (startDate.toString() === 'Invalid Date' || endDate.toString() === 'Invalid Date') {
+        console.warn('❌ Custom date range validation failed: invalid date format')
+        return
+      }
+      
       if (filtersHook.dateRange.startDate > filtersHook.dateRange.endDate) {
         console.warn('❌ Custom date range validation failed: start date after end date')
         return

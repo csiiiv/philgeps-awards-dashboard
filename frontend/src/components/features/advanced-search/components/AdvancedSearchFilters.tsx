@@ -426,24 +426,31 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                     type="date"
                     value={dateRange.startDate}
                     onChange={(e) => onDateRangeStartDateChange(e.target.value)}
+                    onBlur={(e) => {
+                      // Additional validation on blur
+                      if (e.target.value && new Date(e.target.value).toString() === 'Invalid Date') {
+                        console.warn('Invalid start date entered:', e.target.value)
+                      }
+                    }}
                     min="2013-01-01"
                     max="2025-12-31"
                     style={{
                       padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${themeColors.border.medium}`,
+                      border: `1px solid ${!dateRange.startDate && dateRange.type === 'custom' ? (themeColors.text.error || '#ef4444') : themeColors.border.medium}`,
                       borderRadius: spacing[1],
                       fontSize: typography.fontSize.sm,
                       backgroundColor: themeColors.background.primary,
                       color: themeColors.text.primary
                     }}
                     disabled={loading}
+                    placeholder="Start date"
                   />
-                  {!dateRange.startDate && (
+                  {!dateRange.startDate && dateRange.type === 'custom' && (
                     <span style={{ 
                       color: themeColors.text.error || '#ef4444', 
                       fontSize: typography.fontSize.xs 
                     }}>
-                      Start date is required
+                      Please select a start date
                     </span>
                   )}
                 </div>
@@ -453,24 +460,31 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                     type="date"
                     value={dateRange.endDate}
                     onChange={(e) => onDateRangeEndDateChange(e.target.value)}
+                    onBlur={(e) => {
+                      // Additional validation on blur
+                      if (e.target.value && new Date(e.target.value).toString() === 'Invalid Date') {
+                        console.warn('Invalid end date entered:', e.target.value)
+                      }
+                    }}
                     min="2013-01-01"
                     max="2025-12-31"
                     style={{
                       padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${themeColors.border.medium}`,
+                      border: `1px solid ${!dateRange.endDate && dateRange.type === 'custom' ? (themeColors.text.error || '#ef4444') : themeColors.border.medium}`,
                       borderRadius: spacing[1],
                       fontSize: typography.fontSize.sm,
                       backgroundColor: themeColors.background.primary,
                       color: themeColors.text.primary
                     }}
                     disabled={loading}
+                    placeholder="End date"
                   />
-                  {!dateRange.endDate && (
+                  {!dateRange.endDate && dateRange.type === 'custom' && (
                     <span style={{ 
                       color: themeColors.text.error || '#ef4444', 
                       fontSize: typography.fontSize.xs 
                     }}>
-                      End date is required
+                      Please select an end date
                     </span>
                   )}
                 </div>
