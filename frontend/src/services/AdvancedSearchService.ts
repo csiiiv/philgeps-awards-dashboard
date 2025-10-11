@@ -238,12 +238,16 @@ export class AdvancedSearchService {
       value_range: this.getDefaultValueRange(params.valueRange)
     }
 
+    console.log('🔍 chipAggregates request payload:', JSON.stringify(payload, null, 2))
+
     const response = await fetch(`${this.baseUrl}/contracts/chip-aggregates/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error('❌ chipAggregates error response:', response.status, errorText)
       throw new Error(`Aggregates failed: ${response.statusText}`)
     }
     return response.json()
