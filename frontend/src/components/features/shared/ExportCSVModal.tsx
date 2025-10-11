@@ -280,9 +280,8 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
             onClick={onCancel || onClose}
             announceOnClick
             announceText="Cancel export"
-            disabled={isExporting}
           >
-            Cancel
+            {isExporting ? 'Cancel Export' : 'Cancel'}
           </AccessibleButton>
           <AccessibleButton
             variant="primary"
