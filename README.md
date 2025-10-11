@@ -39,24 +39,6 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **📚 Documentation**: New Docker Deployment Guide with cloud best practices and environment setup
 - **🧹 Workflow Cleanup**: Migrated from script-based to Docker-first development approach
 
-## ✨ Recent Updates
-
-### **v3.3.1 - Unified Export System & Performance (October 2025)**
-- **🚀 Export Performance**: 3-5x faster export speeds with optimized streaming and batch processing
-- **💾 Memory Efficiency**: Streaming exports eliminate 1.7GB+ memory issues for large datasets
-- **🔄 Unified System**: Consistent export interface across Data Explorer, Analytics, and Entity Drill-down
-- **📊 Real-time Progress**: Accurate progress tracking with Content-Length header support
-- **⚡ Stream Processing**: Memory-efficient streaming with 50,000 record batches
-- **🛠️ Export Tools**: New testing utilities and comprehensive export configuration system
-
-### **v3.3.0 - Docker Support & Production Ready (October 2025)**
-- **🐳 Complete Docker Support**: Docker Compose setup with backend (Django + Gunicorn) and frontend (React + Nginx)
-- **📦 Container Optimization**: Multi-stage builds, health checks, and production deployment guides
-- **🗄️ Data Handling**: Flexible Parquet data management with baking and mounting strategies
-- **☁️ Cloud Deployment**: Comprehensive guides for Azure Container Apps, AWS ECS, and production best practices
-- **🔧 Environment Config**: Streamlined setup with PARQUET_DIR and standardized environment variables
-- **📚 Documentation**: Complete Docker deployment guide and container security best practices
-
 ### **v3.2.0 - Value Range Filter & Enhanced UX (October 2025)**
 - **💰 Value Range Filter**: New contract amount filtering with KMBT format support (1K, 1M, 1B, 1T)
 - **🔍 Enhanced Search**: Min/Max value inputs with real-time range display and smart validation
