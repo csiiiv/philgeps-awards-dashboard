@@ -738,7 +738,7 @@ class ParquetSearchService:
                 if time_range.get('type') == 'yearly' and time_range.get('year'):
                     try:
                         year = int(time_range['year'])
-                        time_conditions.append(f"date_part('year', award_date::DATE) = {year}")
+                        time_conditions.append(f"date_part('year', TRY_CAST(award_date AS DATE)) = {year}")
                     except (ValueError, TypeError):
                         continue
                 elif time_range.get('type') == 'quarterly' and time_range.get('year') and time_range.get('quarter'):
@@ -746,20 +746,37 @@ class ParquetSearchService:
                         quarter = int(time_range['quarter'])
                         year = int(time_range['year'])
                         if quarter == 1:
-                            time_conditions.append(f"date_part('year', award_date::DATE) = {year} AND date_part('month', award_date::DATE) BETWEEN 1 AND 3")
+                            time_conditions.append(f"date_part('year', TRY_CAST(award_date AS DATE)) = {year} AND date_part('month', TRY_CAST(award_date AS DATE)) BETWEEN 1 AND 3")
                         elif quarter == 2:
-                            time_conditions.append(f"date_part('year', award_date::DATE) = {year} AND date_part('month', award_date::DATE) BETWEEN 4 AND 6")
+                            time_conditions.append(f"date_part('year', TRY_CAST(award_date AS DATE)) = {year} AND date_part('month', TRY_CAST(award_date AS DATE)) BETWEEN 4 AND 6")
                         elif quarter == 3:
-                            time_conditions.append(f"date_part('year', award_date::DATE) = {year} AND date_part('month', award_date::DATE) BETWEEN 7 AND 9")
+                            time_conditions.append(f"date_part('year', TRY_CAST(award_date AS DATE)) = {year} AND date_part('month', TRY_CAST(award_date AS DATE)) BETWEEN 7 AND 9")
                         elif quarter == 4:
-                            time_conditions.append(f"date_part('year', award_date::DATE) = {year} AND date_part('month', award_date::DATE) BETWEEN 10 AND 12")
+                            time_conditions.append(f"date_part('year', TRY_CAST(award_date AS DATE)) = {year} AND date_part('month', TRY_CAST(award_date AS DATE)) BETWEEN 10 AND 12")
                     except (ValueError, TypeError):
                         continue
                 elif time_range.get('type') == 'custom' and time_range.get('startDate') and time_range.get('endDate'):
                     start_date = time_range['startDate']
                     end_date = time_range['endDate']
+                    
+                    # Handle both string and date object inputs
+                    if hasattr(start_date, 'strftime'):
+                        # It's a date object, convert to string
+                        start_date = start_date.strftime('%Y-%m-%d')
+                    if hasattr(end_date, 'strftime'):
+                        # It's a date object, convert to string
+                        end_date = end_date.strftime('%Y-%m-%d')
+                    
                     if len(start_date) == 10 and len(end_date) == 10:
-                        time_conditions.append(f"award_date::DATE BETWEEN '{start_date}' AND '{end_date}'")
+                        try:
+                            # Validate date format by attempting to parse
+                            from datetime import datetime
+                            datetime.strptime(start_date, '%Y-%m-%d')
+                            datetime.strptime(end_date, '%Y-%m-%d')
+                            time_conditions.append(f"TRY_CAST(award_date AS DATE) >= '{start_date}' AND TRY_CAST(award_date AS DATE) <= '{end_date}'")
+                        except ValueError:
+                            # Skip invalid date formats
+                            continue
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
 
