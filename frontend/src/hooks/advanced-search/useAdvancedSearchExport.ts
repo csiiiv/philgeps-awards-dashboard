@@ -77,12 +77,6 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
     const controller = new AbortController()
     setExportAbort(controller)
 
-    // Set a timeout to prevent hanging exports (5 minutes)
-    const timeoutId = setTimeout(() => {
-      console.warn('⚠️ useAdvancedSearchExport - export timeout, aborting')
-      controller.abort()
-    }, 300000)
-
     try {
 
       // Use the stored parameters from exportAllWithEstimate
@@ -177,7 +171,6 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       console.error('🚨 useAdvancedSearchExport - download error:', error)
       throw error
     } finally {
-      clearTimeout(timeoutId)
       setExportAbort(null)
       setExportDownloading(false)
     }
