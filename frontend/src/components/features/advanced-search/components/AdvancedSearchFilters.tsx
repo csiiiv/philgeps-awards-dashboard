@@ -450,7 +450,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                       color: themeColors.text.error || '#ef4444', 
                       fontSize: typography.fontSize.xs 
                     }}>
-                      Please select a start date
+                      Please input a valid date
                     </span>
                   )}
                 </div>
@@ -484,7 +484,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                       color: themeColors.text.error || '#ef4444', 
                       fontSize: typography.fontSize.xs 
                     }}>
-                      Please select an end date
+                      Please input a valid date
                     </span>
                   )}
                 </div>
