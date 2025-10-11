@@ -497,14 +497,27 @@ class ParquetSearchService:
                     except (ValueError, TypeError):
                         continue
                 elif time_range.get('type') == 'custom' and time_range.get('startDate') and time_range.get('endDate'):
-                    try:
-                        start_date = time_range['startDate']
-                        end_date = time_range['endDate']
-                        # Basic validation for date format (YYYY-MM-DD)
-                        if len(start_date) == 10 and len(end_date) == 10:
-                            time_conditions.append(f"award_date::DATE BETWEEN '{start_date}' AND '{end_date}'")
-                    except (ValueError, TypeError):
-                        continue
+                    start_date = time_range['startDate']
+                    end_date = time_range['endDate']
+                    
+                    # Handle both string and date object inputs
+                    if hasattr(start_date, 'strftime'):
+                        # It's a date object, convert to string
+                        start_date = start_date.strftime('%Y-%m-%d')
+                    if hasattr(end_date, 'strftime'):
+                        # It's a date object, convert to string
+                        end_date = end_date.strftime('%Y-%m-%d')
+                    
+                    if len(start_date) == 10 and len(end_date) == 10:
+                        try:
+                            # Validate date format by attempting to parse
+                            from datetime import datetime
+                            datetime.strptime(start_date, '%Y-%m-%d')
+                            datetime.strptime(end_date, '%Y-%m-%d')
+                            time_conditions.append(f"TRY_CAST(award_date AS DATE) >= '{start_date}' AND TRY_CAST(award_date AS DATE) <= '{end_date}'")
+                        except ValueError:
+                            # Skip invalid date formats
+                            continue
             
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
