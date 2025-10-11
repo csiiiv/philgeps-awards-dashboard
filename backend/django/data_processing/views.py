@@ -11,6 +11,12 @@ import json
 
 from .parquet_service import parquet_service
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health(request):
+    """Lightweight health endpoint for container probes"""
+    return Response({"status": "ok"})
+
 @extend_schema(
     operation_id='data_processing_home',
     summary='Data Processing Home',

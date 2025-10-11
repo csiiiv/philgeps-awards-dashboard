@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/django/Dockerfile
+    image: philgeps-backend:latest
+    container_name: philgeps-backend
+    env_file:
+      - ./backend/django/.env
+    ports:
+      - "3200:8000"
+    # volumes:
+    #   - ./data:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:3200
+    image: philgeps-frontend:latest
+    container_name: philgeps-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

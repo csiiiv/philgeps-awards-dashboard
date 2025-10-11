@@ -1,3 +1,0 @@
-@echo off
-echo Running PHILGEPS Environment Setup...
-powershell -ExecutionPolicy Bypass -File "%~dp0setup_env.ps1" %*

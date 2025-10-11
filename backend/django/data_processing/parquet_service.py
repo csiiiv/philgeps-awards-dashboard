@@ -15,12 +15,17 @@ class ParquetDataService:
     """Service for querying Parquet files server-side"""
     
     def __init__(self):
-        try:
-            # Sprint 24: Use unified parquet directory structure
-            self.parquet_dir = os.path.join(settings.BASE_DIR, '..', '..', 'data', 'parquet')
-        except:
-            # Fallback when Django settings not configured
-            self.parquet_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'data', 'parquet')
+        # Allow override via environment variable for flexibility in Docker/runtime
+        env_dir = os.environ.get('PARQUET_DIR')
+        if env_dir:
+            self.parquet_dir = env_dir
+        else:
+            try:
+                # Default: resolve to repo-root/data/parquet => in Docker becomes /data/parquet
+                self.parquet_dir = os.path.join(settings.BASE_DIR, '..', '..', 'data', 'parquet')
+            except Exception:
+                # Fallback when Django settings not configured
+                self.parquet_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'data', 'parquet')
         self.conn = None
     
     def get_connection(self):

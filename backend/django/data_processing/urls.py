@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     # Data processing endpoints
     path('', views.data_processing_home, name='data_processing_home'),
+    path('health/', views.health, name='health'),
     path('query-entities/', views.query_entities, name='query_entities'),
     path('query-related-entities/', views.query_related_entities, name='query_related_entities'),
     path('query-contracts-by-entity/', views.query_contracts_by_entity, name='query_contracts_by_entity'),

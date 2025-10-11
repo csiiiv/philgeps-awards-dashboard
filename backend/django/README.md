@@ -65,6 +65,11 @@ Main Django project settings and configuration.
 #### `/data/` - Data Storage
 - **`/parquet/`** - Parquet data files for fast analytics
 
+Data path configuration:
+- Default: repo-root `data/parquet` during local dev.
+- Docker: set `PARQUET_DIR=/data/parquet` and either bake data into the image (Dockerfile copies `data/parquet/`) or mount at runtime with a volume `./data:/data`.
+- Never place Parquet files under `static/` — they would be publicly served by WhiteNoise and bloat the static manifest.
+
 #### `/staticfiles/` - Static Files
 - **`/admin/`** - Django admin static files
 - **`/rest_framework/`** - Django REST Framework static files

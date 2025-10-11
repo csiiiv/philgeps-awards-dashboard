@@ -90,152 +90,22 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **Responsive Design**: Works on desktop and mobile devices
 - **Performance Optimized**: Lazy loading and efficient rendering
 
-## 🏗️ Architecture
 
-### Backend (Django)
-- **Django REST Framework**: RESTful API endpoints
-- **OpenAPI 3.0**: Complete API documentation with drf-spectacular
-- **DuckDB Integration**: High-performance analytics queries
-- **Parquet Data Processing**: Efficient data storage and retrieval
-- **CORS Support**: Cross-origin resource sharing for frontend
-- **Export APIs**: Individual contracts and aggregated data export endpoints
+## 🔧 Configuration
 
-### Frontend (React + Vite)
-- **React 18**: Modern React with hooks and concurrent features
-- **TypeScript**: Type-safe development
-- **Styled Components**: CSS-in-JS styling
-- **Vite**: Fast build tool and development server
+### Environment Variables
 
-## 📁 Project Structure
+All configuration is now managed via Docker and `.env` files. See `backend/django/env.example` and `frontend/env.example` for required variables. For local development, copy these to `.env` files as needed.
 
-```
-production1/
-├── backend/                 # Django backend
-│   ├── django/             # Django application
-│   │   ├── contracts/      # Contract models and API
-│   │   ├── data_processing/ # Data processing utilities
-│   │   └── philgeps_data_explorer/ # Django settings
-│   └── requirements.txt    # Python dependencies
-├── frontend/               # React frontend
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── services/       # API services
-│   │   └── utils/          # Utility functions
-│   └── package.json        # Node.js dependencies
-├── data/                   # Data files and documentation
-│   ├── parquet/           # Parquet data files (225+ files)
-│   ├── processed/         # Processed data (consolidated files)
-│   └── raw/               # Raw data sources (XLSX/CSV)
-├── docs/                   # Project documentation
-│   ├── DASHBOARD_DOCUMENTATION.md
-│   ├── ACTIVE_API_DOCUMENTATION.md
-│   ├── OPENAPI_MIGRATION_GUIDE.md
-│   └── PRODUCTION_DEPLOYMENT_GUIDE.md
-├── scripts/                # Data processing scripts
-│   ├── core/              # Core processing utilities
-│   ├── archive/           # Legacy scripts (archived)
-│   ├── DATA_PIPELINE.md   # Complete pipeline documentation
-│   └── README.md          # Scripts guide
-├── setup_env.sh           # Environment configuration script
-├── run_local.sh           # Unified run script (Linux)
-├── run_local.ps1          # Unified run script (PowerShell)
-├── setup_env.ps1          # Environment setup script (PowerShell)
-├── setup_simple.ps1       # Simplified setup script (PowerShell)
-└── logs/                   # Application logs
-```
+#### 3. Environment Variables
+- See `backend/django/env.example` and `frontend/env.example` for required variables.
+- For local dev, copy these to `.env` files as needed.
 
-## 📥 Data Download
+#### 4. Legacy Scripts
+- Old setup and run scripts are now archived in `scripts/archive/` and are not maintained.
 
-The dataset is too large for GitHub and is stored in a Google Drive archive:
-
-**[📁 Download Data Archive](https://drive.google.com/drive/u/0/folders/1kBxTNTOKLqjabYJz00qOz4tacha8Ot4P)**
-
-### Setup Instructions
-1. Download the data archive from Google Drive
-2. Extract the contents to the `data/` directory
-3. Follow the setup instructions below
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- Git
-- Data files (see [Data Download](#-data-download) above)
-
-### Automated Setup (Recommended)
-
-#### 1. Environment Configuration
-First, configure your environment using the setup script:
-
-```bash
-# For development (default)
-./setup_env.sh
-
-# For production
-./setup_env.sh production
-
-# Show help
-./setup_env.sh help
-```
-
-This script will:
-- Create backend `.env` file with Django configuration
-- Create frontend `.env` file with React configuration
-- Configure API sources, domains, and security settings
-- Set up CORS and allowed hosts properly
-
-#### 2. Start the Application
-Use the unified run script for easy deployment:
-
-```bash
-# Start both frontend and backend (recommended)
-./run_local.sh
-
-# Start only backend
-./run_local.sh start-backend
-
-# Start only frontend
-./run_local.sh start-frontend
-
-# Show help
-./run_local.sh help
-```
-
-#### 3. Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3200
-- **Admin Panel**: http://localhost:3200/admin (user: admin, pass: admin)
-
-### Manual Setup (Alternative)
-
-#### Backend Setup
-```bash
-# Create virtual environment
-python -m venv venv-linux
-source venv-linux/bin/activate
-
-# Install dependencies
-pip install -r backend/requirements.txt
-
-# Run migrations
-cd backend
-python manage.py migrate
-
-# Start development server
-python manage.py runserver
-```
-
-#### Frontend Setup
-```bash
-# Install dependencies
-cd frontend
-npm install
-
-# Start development server
-npm run dev
-```
+#### 5. Cloud Deployment
+- See `docs/DOCKER_DEPLOYMENT_GUIDE.md` and `docs/PRODUCTION_DEPLOYMENT_GUIDE.md` for cloud deployment instructions.
 
 ## 🔧 Configuration
 
@@ -346,51 +216,23 @@ Raw Data (XLSX/CSV) → Processing Scripts → Consolidated Data → Aggregation
 - **Aggregations**: `data/parquet/` with yearly/quarterly breakdowns
 - **Documentation**: Complete pipeline documentation in `scripts/DATA_PIPELINE.md`
 
+
 ## 🛠️ Development
 
-### Available Scripts
+### Docker Workflow
 
-#### Unified Run Script (`run_local.sh`)
+All development and deployment should use Docker Compose.
 
-**Main Commands**
-- `./run_local.sh` - Start both frontend and backend (default)
-- `./run_local.sh start-backend` - Start only Django backend
-- `./run_local.sh start-frontend` - Start only React frontend
-- `./run_local.sh stop` - Stop all running services
-- `./run_local.sh restart` - Stop and restart all services
-- `./run_local.sh status` - Show service status and health
-- `./run_local.sh logs` - Tail the service logs
-- `./run_local.sh config` - Show loaded configuration
-- `./run_local.sh help` - Show detailed help
+Data handling in Docker:
+- Recommended: mount host `./data` into the backend container at `/data` and set `PARQUET_DIR=/data/parquet` (no image rebuild to refresh data).
+- Alternative: bake `data/parquet/` into the backend image (larger image; simpler runtime). Dockerfile already copies `data/parquet/` and sets `PARQUET_DIR=/data/parquet` when building from repo root.
+- Avoid: copying Parquet files into Django `static/` — they’ll be publicly exposed and slow collectstatic.
 
-**Options**
-- `--skip-build` - Skip frontend build
-- `--skip-migrate` - Skip Django migrations
-- `--run-only` - Shortcut for --skip-build and --skip-migrate
-- `--force` - Kill any process using ports before start
-- `--debug` - Enable verbose debug output
+Verification:
+- Backend health: GET `http://localhost:3200/api/v1/data-processing/health/`
+- Data presence: GET `http://localhost:3200/api/v1/data-processing/available-time-ranges/` should return `{"all_time": true, ...}` when `/data/parquet` is present.
 
-#### Environment Setup Script (`setup_env.sh`)
-
-**Commands**
-- `./setup_env.sh` - Set up development environment (default)
-- `./setup_env.sh production` - Set up production environment
-- `./setup_env.sh help` - Show help and configuration options
-
-#### Individual Service Scripts
-
-**Frontend**
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-**Backend**
-- `python manage.py runserver` - Start development server
-- `python manage.py migrate` - Run database migrations
-- `python manage.py collectstatic` - Collect static files
-
-### Code Style
+For code style, follow:
 - **Python**: PEP 8 compliance
 - **TypeScript**: ESLint + Prettier
 - **React**: Functional components with hooks
@@ -449,14 +291,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **React Team**: For the powerful frontend library
 - **Open Source Contributors**: For the amazing tools and libraries
 
+
 ## 📞 Support
 
 For support and questions:
 - Create an issue in the GitHub repository
 - Contact the development team
 - Check the documentation in the `docs/` folder
-- Run `./run_local.sh help` for runtime assistance
-- Run `./setup_env.sh help` for configuration help
+- For setup and deployment help, see the Docker deployment guide and Quickstart above.
 
 ---
 

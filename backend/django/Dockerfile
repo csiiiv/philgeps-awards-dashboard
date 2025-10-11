@@ -16,12 +16,20 @@ RUN apt-get update \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies (copy from repo-root context)
+COPY backend/django/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy project
-COPY . /app/
+# Copy backend project code
+COPY backend/django/ /app/
+
+# Copy Parquet data into the image (if present in repo under data/parquet)
+# This keeps data out of STATIC and avoids exposing it via WhiteNoise.
+RUN mkdir -p /data/parquet
+COPY data/parquet/ /data/parquet/
+
+# Make Parquet directory discoverable by the app
+ENV PARQUET_DIR=/data/parquet
 
 # Create directories for logs and media
 RUN mkdir -p /app/logs /app/media
@@ -32,5 +40,5 @@ RUN python manage.py collectstatic --noinput
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "flood_control.wsgi:application"]
+# Run the application (ensure correct Django project module)
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "philgeps_data_explorer.wsgi:application"]

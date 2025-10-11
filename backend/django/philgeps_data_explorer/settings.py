@@ -16,18 +16,10 @@ ALLOWED_HOSTS = [
     '0.0.0.0',  # For Docker
 ]
 
-if DEBUG:
-    # Development: add custom API domains for development (tunnels, custom domains, etc.)
-    api_domains = config('API_DOMAINS', default='')
-    if api_domains:
-        api_domain_list = [domain.strip() for domain in api_domains.split(',') if domain.strip()]
-        ALLOWED_HOSTS.extend(api_domain_list)
-else:
-    # Production: add production API domains from environment variables
-    prod_allowed_hosts = config('ALLOWED_HOSTS', default='')
-    if prod_allowed_hosts:
-        prod_host_list = [host.strip() for host in prod_allowed_hosts.split(',') if host.strip()]
-        ALLOWED_HOSTS.extend(prod_host_list)
+allowed_hosts_env = config('ALLOWED_HOSTS', default='')
+if allowed_hosts_env:
+    host_list = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+    ALLOWED_HOSTS.extend(host_list)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -136,18 +128,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3200",
 ]
 
-if DEBUG:
-    # Development: add custom frontend domains from environment (for tunnels, custom domains, etc.)
-    frontend_domains = config('FRONTEND_DOMAINS', default='')
-    if frontend_domains:
-        frontend_domain_list = [domain.strip() for domain in frontend_domains.split(',') if domain.strip()]
-        CORS_ALLOWED_ORIGINS.extend(frontend_domain_list)
-else:
-    # Production: add production frontend domains from environment
-    prod_cors_origins = config('CORS_ALLOWED_ORIGINS', default='')
-    if prod_cors_origins:
-        prod_origin_list = [origin.strip() for origin in prod_cors_origins.split(',') if origin.strip()]
-        CORS_ALLOWED_ORIGINS.extend(prod_origin_list)
+cors_env = config('CORS_ALLOWED_ORIGINS', default='')
+if cors_env:
+    cors_list = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
+    CORS_ALLOWED_ORIGINS.extend(cors_list)
 
 # Additional CORS settings
 CORS_ALLOW_CREDENTIALS = True
