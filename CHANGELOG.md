@@ -5,6 +5,209 @@ All notable changes to the PHILGEPS Awards Data Explorer will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2025-10-12
+
+### Added
+- **Complete Docker Support**: Full containerization with Docker Compose
+  - Multi-service setup with backend (Django + Gunicorn) and frontend (React + Nginx)
+  - Docker Compose configuration with proper port mapping (3200:8000, 3000:80)
+  - Multi-stage frontend build (Node build → Nginx serve) with SPA fallback
+  - Backend containerization with Gunicorn WSGI server and health endpoints
+- **Data Handling Strategy**: Flexible Parquet data management in containers
+  - Support for baking Parquet data into backend image at `/data/parquet`
+  - Configurable `PARQUET_DIR` environment variable for flexible data paths
+  - Health endpoints for container probes (`/api/v1/data-processing/health/`)
+  - Data verification endpoint (`/api/v1/data-processing/available-time-ranges/`)
+- **Comprehensive Documentation**: Production-ready deployment guidance
+  - New Docker Deployment Guide with cloud deployment best practices
+  - Azure/AWS deployment guidance and networking setup
+  - Environment variable documentation and security configuration
+  - Data handling strategies (bake vs mount, security considerations)
+
+### Changed
+- **Development Workflow**: Migrated from scripts to Docker-first approach
+  - Archived legacy setup scripts (`setup_env.*`, `run_local.*`) to `scripts/archive/`
+  - Updated README with Docker-first quickstart and verification steps
+  - Enforced Docker-only workflow for consistency across environments
+- **Django Configuration**: Standardized environment variable handling
+  - Removed custom `API_DOMAINS`/`FRONTEND_DOMAINS` logic from settings
+  - Standardized to use `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` only
+  - Added proper security headers and HTTPS redirect configuration
+- **Build Optimization**: Improved Docker build context and efficiency
+  - Added comprehensive `.dockerignore` files to reduce build context
+  - Set build context to repo root for `data/parquet` access
+  - Optimized Nginx configuration for SPA routing and static file serving
+
+### Security
+- **Data Protection**: Secure Parquet data handling
+  - Keep Parquet data out of Django static folder (avoid WhiteNoise exposure)
+  - Configure proper CORS origins and allowed hosts
+  - Implement proper container health checks and logging
+- **Production Readiness**: Security headers and HTTPS configuration
+  - Added security headers and HTTPS redirect configuration
+  - Proper proxy SSL header handling for cloud deployment
+  - Container-based secrets management guidance
+
+## [3.2.1] - 2025-10-11 to 2025-10-12
+
+### Added
+- **Unified CSV Export System**: Comprehensive export system with streaming support
+  - New `useUnifiedExport` hook with real-time progress tracking and cancellation
+  - Pre-configured export setups via `useUnifiedExportConfigs` for different components
+  - Memory-efficient streaming for large datasets (fixes 1.7GB+ memory issues)
+  - Consistent export interface across all components (Data Explorer, Analytics, Entity Drilldown)
+- **Export Performance Optimization**: Significantly improved export speeds
+  - Increased backend aggregated export page size to 50,000 records per batch
+  - Batch-yield CSV processing for larger chunks and fewer database calls
+  - Added `X-Accel-Buffering: no` header hint to reduce proxy buffering
+- **Export Testing Utilities**: 
+  - `UnifiedExportTester` component for testing export functionality
+  - Comprehensive export analysis documentation (`COMPONENT_EXPORT_ANALYSIS.md`)
+  - Component-specific export requirements and configuration examples
+
+### Changed
+- **Data Explorer Export**: Migrated from blob-based to streaming export
+  - Now respects selected dimension and applied filters properly
+  - Real-time progress tracking with Content-Length header support
+  - Memory usage reduced from 1.7GB+ to streaming chunks
+- **Analytics Explorer Export**: Unified with streaming export system
+  - Consistent progress tracking and cancellation support
+  - Improved performance for large analytics datasets
+- **Entity Drill-down Export**: Enhanced with streaming capabilities
+  - Better handling of filtered entity data exports
+  - Consistent user experience across all export scenarios
+- **Export Modal Interface**: Enhanced `ExportCSVModal` component
+  - Support for estimated size display and progress tracking
+  - Unified props interface (`estimatedSize`, `showProgress`, `showFileSize`)
+  - Simplified UI by removing actual size calculation (estimated size only)
+
+### Fixed
+- **Export Progress Accuracy**: Fixed progress percentage calculations
+  - Real-time progress updates during streaming export
+  - Proper Content-Length header handling for accurate percentages
+- **Memory Issues**: Resolved high memory usage during large exports
+  - Streaming approach eliminates need to load entire dataset in memory
+  - Prevents browser crashes with large datasets (1.7GB+)
+- **Filter Handling**: Fixed export filter parameter passing
+  - Data Explorer exports now properly apply selected dimension filters
+  - Consistent filter handling across all export types
+- **Export Cancellation**: Improved cancellation functionality
+  - Proper AbortController implementation across all export types
+  - Clean cleanup when exports are cancelled mid-stream
+
+### Performance
+- **Export Speed**: 3-5x faster export times for large datasets
+  - Larger batch sizes (50,000 records vs previous smaller batches)
+  - Reduced database query overhead with batch processing
+  - Optimized CSV generation and streaming
+- **Memory Efficiency**: Dramatic reduction in memory usage
+  - Streaming approach uses constant memory regardless of dataset size
+  - Eliminated memory spikes that previously caused browser issues
+- **Backend Optimization**: Enhanced server-side export processing
+  - Batch processing with larger page sizes
+  - Reduced I/O operations with efficient data pagination
+
+### Technical Improvements
+- **Hook Architecture**: Reusable export hooks with configuration system
+- **Error Handling**: Comprehensive error handling for network and processing issues
+- **Type Safety**: Enhanced TypeScript interfaces for export configurations
+- **Documentation**: Detailed component export analysis and usage guides
+- **Testing**: Export testing utilities for development and debugging
+
+## [3.3.0] - 2025-10-12
+
+### Added
+- **Docker Support**: Complete containerization with Docker Compose for local development
+  - Multi-service setup with backend (Django + Gunicorn) and frontend (React + Nginx)
+  - Docker Compose configuration with proper port mapping (backend: 3200:8000, frontend: 3000:80)
+  - Multi-stage frontend build with Node.js build stage and Nginx serving stage
+  - Backend containerization with Python 3.11, Gunicorn WSGI server, and health endpoints
+- **Data Handling Strategy**: Flexible Parquet data management in containers
+  - Support for baking Parquet data into backend image at `/data/parquet`
+  - Configurable `PARQUET_DIR` environment variable for flexible data paths
+  - Alternative volume mounting support for runtime data updates
+  - Proper separation from Django static files (avoid WhiteNoise exposure)
+- **Health Monitoring**: Container health check endpoints
+  - `/api/v1/data-processing/health/` for container health probes
+  - `/api/v1/data-processing/available-time-ranges/` for data presence verification
+  - Built-in health checks for both backend and frontend services
+- **Production Deployment Guide**: Comprehensive cloud deployment documentation
+  - Azure Container Apps, Web App for Containers, and AKS deployment guidance
+  - AWS ECS, Elastic Beanstalk, and S3+CloudFront deployment options
+  - Environment variable configuration and secrets management
+  - TLS termination, CORS configuration, and security best practices
+
+### Changed
+- **Development Workflow**: Migrated from script-based setup to Docker-first approach
+  - Replaced manual environment setup with Docker Compose
+  - Standardized development environment across all platforms
+  - Simplified onboarding with single `docker compose up` command
+- **Environment Configuration**: Streamlined Django settings and environment variables
+  - Removed custom `API_DOMAINS` and `FRONTEND_DOMAINS` logic
+  - Standardized to use `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`
+  - Added comprehensive environment variable documentation
+- **Build Process**: Optimized Docker build context and image sizes
+  - Added comprehensive `.dockerignore` files for reduced build context
+  - Set build context to repository root for data access
+  - Implemented multi-stage builds for frontend optimization
+- **Frontend Serving**: Updated from development server to production Nginx setup
+  - Custom `nginx.conf` with SPA routing support and security headers
+  - Updated Vite base path from `/static/` to `/` for proper asset serving
+  - Optimized static file caching and compression
+
+### Removed
+- **Legacy Setup Scripts**: Archived manual setup and run scripts
+  - Moved `setup_env.ps1`, `setup_env.sh`, `run_local.ps1`, `run_local.sh` to `scripts/archive/`
+  - Removed `setup_env_clean.ps1`, `setup_simple.ps1`, and `run_setup.bat`
+  - Deleted `GITHUB_SETUP.md` (replaced with Docker documentation)
+- **Manual Environment Setup**: Eliminated need for manual `.env` file creation
+  - Docker Compose handles environment configuration
+  - Simplified development setup process
+  - Reduced configuration complexity and potential errors
+
+### Fixed
+- **Asset Loading**: Resolved frontend static file 404 errors in containerized environment
+  - Fixed Vite base path configuration for Nginx serving
+  - Proper asset path resolution in production builds
+- **CORS Configuration**: Improved cross-origin request handling
+  - Standardized CORS origins configuration
+  - Better support for both local development and production domains
+- **Django Settings**: Cleaned up settings.py for better maintainability
+  - Removed redundant environment variable handling
+  - Simplified CORS and allowed hosts configuration
+  - Better separation of development and production settings
+
+### Security
+- **Data Protection**: Enhanced security for Parquet data files
+  - Prevented accidental exposure of data files through Django static serving
+  - Proper isolation of application data from web-accessible static files
+- **Container Security**: Implemented security best practices
+  - Minimal base images and reduced attack surface
+  - Proper file permissions and non-root user considerations
+  - Security headers configuration in Nginx
+
+### Documentation
+- **Docker Deployment Guide**: New comprehensive deployment documentation
+  - Local development with Docker Compose
+  - Cloud deployment strategies for Azure and AWS
+  - Environment variable configuration guide
+  - Security and networking best practices
+- **Updated README**: Docker-first development approach
+  - Simplified quickstart instructions
+  - Data handling verification steps
+  - Environment configuration guidance
+- **Backend Documentation**: Enhanced Django app documentation
+  - Parquet data path configuration
+  - Container-specific setup instructions
+  - Health check endpoint documentation
+
+### Technical Improvements
+- **Infrastructure as Code**: Docker Compose configuration for reproducible environments
+- **Build Optimization**: Efficient Docker builds with proper layering and caching
+- **Health Monitoring**: Built-in health checks for container orchestration
+- **Development Experience**: Streamlined setup with single command deployment
+- **Production Readiness**: Complete containerization with deployment guides
+
 ## [3.2.0] - 2025-10-10
 
 ### Added
@@ -158,6 +361,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Major Changes |
 |---------|------|---------------|
+| 3.3.1 | 2025-10-12 | Unified CSV Export System, Performance Optimization, Memory Efficiency |
+| 3.3.0 | 2025-10-12 | Docker Support, Container Health Checks, Production Deployment Guide |
 | 3.2.0 | 2025-10-10 | Value Range Filter, Enhanced Pagination, Backend API Integration |
 | 3.1.0 | 2025-10-07 | OpenAPI 3.0 migration, enhanced exports, production readiness |
 | 3.0.1 | 2025-10-02 | Data Explorer, Advanced Search, Analytics Dashboard |

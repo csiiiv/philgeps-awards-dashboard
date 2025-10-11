@@ -1,6 +1,6 @@
 # PhilGEPS Dashboard
 
-[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Data](https://img.shields.io/badge/data-5M%20contracts-orange.svg)](data/)
 [![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
@@ -23,6 +23,40 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 
 ## ✨ Recent Updates
 
+### **v3.3.0 - Docker Support & Production Readiness (October 2025)**
+- **🐳 Docker Containerization**: Complete Docker Compose setup for local development with backend + frontend services
+- **🏗️ Multi-Stage Builds**: Optimized frontend build (Node.js → Nginx) with production-ready static serving
+- **📊 Data Handling**: Flexible Parquet data management - bake into image or mount at runtime with configurable `PARQUET_DIR`
+- **🏥 Health Monitoring**: Container health endpoints for orchestration and monitoring
+- **☁️ Cloud Deployment**: Comprehensive guides for Azure (Container Apps, AKS) and AWS (ECS, S3+CloudFront)
+
+### **v3.2.1 - Enhanced CSV Export System (October 2025)**
+- **📤 Unified Export System**: Memory-efficient streaming export with real-time progress tracking and cancellation
+- **⚡ Performance Optimization**: 50,000 records per batch with reduced memory usage (fixes 1.7GB+ issues)
+- **🔄 Consistent Interface**: Unified export across Data Explorer, Analytics, and Entity Drill-down components
+- **🎯 Filter Accuracy**: Proper filter and dimension parameter handling in all export scenarios
+- **🔒 Security**: Enhanced data protection, security headers, and production-ready configuration
+- **📚 Documentation**: New Docker Deployment Guide with cloud best practices and environment setup
+- **🧹 Workflow Cleanup**: Migrated from script-based to Docker-first development approach
+
+## ✨ Recent Updates
+
+### **v3.3.1 - Unified Export System & Performance (October 2025)**
+- **🚀 Export Performance**: 3-5x faster export speeds with optimized streaming and batch processing
+- **💾 Memory Efficiency**: Streaming exports eliminate 1.7GB+ memory issues for large datasets
+- **🔄 Unified System**: Consistent export interface across Data Explorer, Analytics, and Entity Drill-down
+- **📊 Real-time Progress**: Accurate progress tracking with Content-Length header support
+- **⚡ Stream Processing**: Memory-efficient streaming with 50,000 record batches
+- **🛠️ Export Tools**: New testing utilities and comprehensive export configuration system
+
+### **v3.3.0 - Docker Support & Production Ready (October 2025)**
+- **🐳 Complete Docker Support**: Docker Compose setup with backend (Django + Gunicorn) and frontend (React + Nginx)
+- **📦 Container Optimization**: Multi-stage builds, health checks, and production deployment guides
+- **🗄️ Data Handling**: Flexible Parquet data management with baking and mounting strategies
+- **☁️ Cloud Deployment**: Comprehensive guides for Azure Container Apps, AWS ECS, and production best practices
+- **🔧 Environment Config**: Streamlined setup with PARQUET_DIR and standardized environment variables
+- **📚 Documentation**: Complete Docker deployment guide and container security best practices
+
 ### **v3.2.0 - Value Range Filter & Enhanced UX (October 2025)**
 - **💰 Value Range Filter**: New contract amount filtering with KMBT format support (1K, 1M, 1B, 1T)
 - **🔍 Enhanced Search**: Min/Max value inputs with real-time range display and smart validation
@@ -42,13 +76,14 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 - **🛠️ Developer Experience**: Comprehensive API documentation and testing tools
 
 ### **Key Improvements**
+- **Export Performance**: 3-5x faster exports with unified streaming system and memory efficiency
+- **Docker Support**: Complete containerization with Docker Compose and production deployment guides
+- **Container Health**: Built-in health checks and monitoring for container orchestration
 - **API Documentation**: Complete OpenAPI 3.0 specification with interactive testing
-- **Export Functionality**: Enhanced CSV export with individual and aggregated data options
-- **Visualization**: Added treemap charts for hierarchical data exploration
-- **Mobile Support**: Fixed mobile data loading issues and improved responsiveness
-- **Production Deployment**: Ready for production with proper configuration
-- **Data Accuracy**: All statistics now reflect actual API pagination totals
-- **Developer Tools**: Swagger UI and ReDoc for API exploration and testing
+- **Export Functionality**: Enhanced CSV export with streaming, progress tracking, and unified interface
+- **Production Ready**: Docker-first deployment with Azure/AWS guidance and security best practices
+- **Data Handling**: Flexible Parquet data strategies (bake vs mount) with proper container integration
+- **Developer Experience**: Streamlined setup with single-command deployment and comprehensive documentation
 
 ## 🚀 Features
 
