@@ -528,31 +528,31 @@ class ContractViewSet(viewsets.ModelViewSet):
 
             def generate():
                 yield ','.join(headers) + '\n'
-                page = 1
-                page_size = 1000
-                while True:
-                    result = parquet_service.search_contracts_with_chips(
-                        contractors=validated_data.get('contractors', []),
-                        areas=validated_data.get('areas', []),
-                        organizations=validated_data.get('organizations', []),
-                        business_categories=validated_data.get('business_categories', []),
-                        keywords=validated_data.get('keywords', []),
-                        time_ranges=validated_data.get('time_ranges', []),
-                        page=page,
-                        page_size=page_size,
-                        sort_by='award_date',
-                        sort_direction='desc',
-                        include_flood_control=validated_data.get('include_flood_control', False),
-                        value_range=validated_data.get('value_range', None)
-                    )
-                    rows = result.get('data', [])
-                    if not rows:
-                        break
-                    for r in rows:
-                        yield row_to_csv(r) + '\n'
-                    if len(rows) < page_size:
-                        break
-                    page += 1
+                
+                # Get all data at once without pagination for better performance
+                result = parquet_service.search_contracts_with_chips(
+                    contractors=validated_data.get('contractors', []),
+                    areas=validated_data.get('areas', []),
+                    organizations=validated_data.get('organizations', []),
+                    business_categories=validated_data.get('business_categories', []),
+                    keywords=validated_data.get('keywords', []),
+                    time_ranges=validated_data.get('time_ranges', []),
+                    page=1,
+                    page_size=1000000,  # Very large page size to get all data
+                    sort_by='award_date',
+                    sort_direction='desc',
+                    include_flood_control=validated_data.get('include_flood_control', False),
+                    value_range=validated_data.get('value_range', None)
+                )
+                
+                rows = result.get('data', [])
+                if rows:
+                    # Process rows in large chunks for better streaming
+                    chunk_size = 1000
+                    for i in range(0, len(rows), chunk_size):
+                        chunk = rows[i:i + chunk_size]
+                        csv_chunk = '\n'.join(row_to_csv(r) for r in chunk) + '\n'
+                        yield csv_chunk
 
             response = StreamingHttpResponse(generate(), content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="contracts_export.csv"'
