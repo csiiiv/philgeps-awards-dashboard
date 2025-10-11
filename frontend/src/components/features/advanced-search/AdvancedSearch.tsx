@@ -337,6 +337,7 @@ const AdvancedSearch: React.FC = () => {
         dataType="Search Results"
         isDark={isDark}
         loading={exportHook.exportDownloading}
+        progress={exportHook.exportProgress}
       />
     </div>
   )

@@ -13,6 +13,7 @@ interface ExportCSVModalProps {
   dataType: string // e.g., "Analytics", "Contract Details", "Search Results"
   isDark?: boolean
   loading?: boolean
+  progress?: number
 }
 
 export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
@@ -22,7 +23,8 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   totalCount,
   dataType,
   isDark = false,
-  loading = false
+  loading = false,
+  progress: realProgress
 }) => {
   const { isDark: themeIsDark } = useTheme()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
@@ -31,8 +33,11 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   const [startRank, setStartRank] = useState(1)
   const [endRank, setEndRank] = useState(totalCount)
   const [error, setError] = useState<string | null>(null)
-  const [progress, setProgress] = useState(0)
+  const [simulatedProgress, setSimulatedProgress] = useState(0)
   const [isExporting, setIsExporting] = useState(false)
+  
+  // Use real progress if available, otherwise use simulated progress
+  const progress = realProgress !== undefined ? realProgress : simulatedProgress
 
   // Reset form when modal opens
   useEffect(() => {
@@ -40,7 +45,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
       setStartRank(1)
       setEndRank(totalCount)
       setError(null)
-      setProgress(0)
+      setSimulatedProgress(0)
       setIsExporting(false)
     }
   }, [open, totalCount])
@@ -78,25 +83,30 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
     if (!validateInputs()) return
 
     setIsExporting(true)
-    setProgress(0)
+    setSimulatedProgress(0)
 
     try {
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 85) {
-            clearInterval(progressInterval)
-            return prev
-          }
-          return prev + Math.random() * 8
-        })
-      }, 300)
+      // Only simulate progress if real progress is not available
+      let progressInterval: NodeJS.Timeout | null = null
+      if (realProgress === undefined) {
+        progressInterval = setInterval(() => {
+          setSimulatedProgress(prev => {
+            if (prev >= 85) {
+              if (progressInterval) clearInterval(progressInterval)
+              return prev
+            }
+            return prev + Math.random() * 8
+          })
+        }, 300)
+      }
 
       await onExport(startRank, endRank)
       
-      // Complete progress
-      setProgress(100)
-      clearInterval(progressInterval)
+      // Complete progress (only if using simulated progress)
+      if (realProgress === undefined) {
+        setSimulatedProgress(100)
+        if (progressInterval) clearInterval(progressInterval)
+      }
       
       // Close modal after a brief delay
       setTimeout(() => {
@@ -106,11 +116,11 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
     } catch (error) {
       console.error('Export failed:', error)
       setError('Export failed. Please try again.')
-      setProgress(0)
+      setSimulatedProgress(0)
     } finally {
       setIsExporting(false)
     }
-  }, [startRank, endRank, onExport, onClose, validateInputs])
+  }, [startRank, endRank, onExport, onClose, validateInputs, realProgress])
 
   const entriesToExport = Math.max(0, endRank - startRank + 1)
   // More accurate estimate based on data type
