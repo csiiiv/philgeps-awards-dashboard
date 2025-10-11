@@ -289,6 +289,7 @@ export class AdvancedSearchService {
       business_categories: params.businessCategories || [],
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
+      include_flood_control: params.includeFloodControl || false,
       value_range: this.getDefaultValueRange(params.valueRange)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-estimate/`, {

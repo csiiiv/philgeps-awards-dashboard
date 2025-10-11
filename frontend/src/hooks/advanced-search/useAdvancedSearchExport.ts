@@ -96,7 +96,8 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
         business_categories: params.businessCategories,
         keywords: params.keywords,
         time_ranges: params.timeRanges,
-        include_flood_control: params.includeFloodControl
+        include_flood_control: params.includeFloodControl || false,
+        value_range: params.valueRange
       }
 
       const response = await fetch('https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export/', {
