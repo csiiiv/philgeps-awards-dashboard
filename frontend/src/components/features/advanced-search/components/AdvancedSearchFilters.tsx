@@ -425,6 +425,8 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                   type="date"
                   value={dateRange.startDate}
                   onChange={(e) => onDateRangeStartDateChange(e.target.value)}
+                  min="2013-01-01"
+                  max="2025-12-31"
                   style={{
                     padding: `${spacing[2]} ${spacing[3]}`,
                     border: `1px solid ${themeColors.border.medium}`,
@@ -440,6 +442,8 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                   type="date"
                   value={dateRange.endDate}
                   onChange={(e) => onDateRangeEndDateChange(e.target.value)}
+                  min="2013-01-01"
+                  max="2025-12-31"
                   style={{
                     padding: `${spacing[2]} ${spacing[3]}`,
                     border: `1px solid ${themeColors.border.medium}`,

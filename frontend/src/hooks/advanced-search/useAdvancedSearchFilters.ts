@@ -198,11 +198,21 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
   }, [])
 
   const setDateRangeStartDate = useCallback((startDate: string) => {
+    // Simple validation: check if the date string creates a valid Date object
+    if (startDate && new Date(startDate).toString() === 'Invalid Date') {
+      console.warn('📅 Invalid start date:', startDate)
+      return
+    }
     setDateRange(prev => ({ ...prev, startDate }))
     console.log('📅 useAdvancedSearchFilters - date range start date changed:', startDate)
   }, [])
 
   const setDateRangeEndDate = useCallback((endDate: string) => {
+    // Simple validation: check if the date string creates a valid Date object
+    if (endDate && new Date(endDate).toString() === 'Invalid Date') {
+      console.warn('📅 Invalid end date:', endDate)
+      return
+    }
     setDateRange(prev => ({ ...prev, endDate }))
     console.log('📅 useAdvancedSearchFilters - date range end date changed:', endDate)
   }, [])
