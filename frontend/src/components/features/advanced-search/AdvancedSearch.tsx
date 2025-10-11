@@ -100,11 +100,24 @@ const AdvancedSearch: React.FC = () => {
   // Handle search
   const handleSearch = useCallback(async () => {
     console.log('🔍 AdvancedSearch - handleSearch called')
+    
+    // Validate custom date range
+    if (filtersHook.dateRange.type === 'custom') {
+      if (!filtersHook.dateRange.startDate || !filtersHook.dateRange.endDate) {
+        console.warn('❌ Custom date range validation failed: missing dates')
+        return
+      }
+      if (filtersHook.dateRange.startDate > filtersHook.dateRange.endDate) {
+        console.warn('❌ Custom date range validation failed: start date after end date')
+        return
+      }
+    }
+    
     paginationHook.setPagination(prev => ({ ...prev, page: 1 }))
     
     const searchParams = buildSearchParams()
     await dataHook.performSearch(searchParams, paginationHook.setPagination)
-  }, [buildSearchParams, dataHook, paginationHook])
+  }, [buildSearchParams, dataHook, paginationHook, filtersHook.dateRange])
 
   // Handle sorting
   const handleSort = useCallback((key: string) => {

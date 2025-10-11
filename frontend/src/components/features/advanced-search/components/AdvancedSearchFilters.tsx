@@ -421,39 +421,59 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 
             {dateRange.type === 'custom' && (
               <>
-                <input
-                  type="date"
-                  value={dateRange.startDate}
-                  onChange={(e) => onDateRangeStartDateChange(e.target.value)}
-                  min="2013-01-01"
-                  max="2025-12-31"
-                  style={{
-                    padding: `${spacing[2]} ${spacing[3]}`,
-                    border: `1px solid ${themeColors.border.medium}`,
-                    borderRadius: spacing[1],
-                    fontSize: typography.fontSize.sm,
-                    backgroundColor: themeColors.background.primary,
-                    color: themeColors.text.primary
-                  }}
-                  disabled={loading}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[1] }}>
+                  <input
+                    type="date"
+                    value={dateRange.startDate}
+                    onChange={(e) => onDateRangeStartDateChange(e.target.value)}
+                    min="2013-01-01"
+                    max="2025-12-31"
+                    style={{
+                      padding: `${spacing[2]} ${spacing[3]}`,
+                      border: `1px solid ${themeColors.border.medium}`,
+                      borderRadius: spacing[1],
+                      fontSize: typography.fontSize.sm,
+                      backgroundColor: themeColors.background.primary,
+                      color: themeColors.text.primary
+                    }}
+                    disabled={loading}
+                  />
+                  {!dateRange.startDate && (
+                    <span style={{ 
+                      color: themeColors.text.error || '#ef4444', 
+                      fontSize: typography.fontSize.xs 
+                    }}>
+                      Start date is required
+                    </span>
+                  )}
+                </div>
                 <span style={{ color: themeColors.text.secondary }}>to</span>
-                <input
-                  type="date"
-                  value={dateRange.endDate}
-                  onChange={(e) => onDateRangeEndDateChange(e.target.value)}
-                  min="2013-01-01"
-                  max="2025-12-31"
-                  style={{
-                    padding: `${spacing[2]} ${spacing[3]}`,
-                    border: `1px solid ${themeColors.border.medium}`,
-                    borderRadius: spacing[1],
-                    fontSize: typography.fontSize.sm,
-                    backgroundColor: themeColors.background.primary,
-                    color: themeColors.text.primary
-                  }}
-                  disabled={loading}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[1] }}>
+                  <input
+                    type="date"
+                    value={dateRange.endDate}
+                    onChange={(e) => onDateRangeEndDateChange(e.target.value)}
+                    min="2013-01-01"
+                    max="2025-12-31"
+                    style={{
+                      padding: `${spacing[2]} ${spacing[3]}`,
+                      border: `1px solid ${themeColors.border.medium}`,
+                      borderRadius: spacing[1],
+                      fontSize: typography.fontSize.sm,
+                      backgroundColor: themeColors.background.primary,
+                      color: themeColors.text.primary
+                    }}
+                    disabled={loading}
+                  />
+                  {!dateRange.endDate && (
+                    <span style={{ 
+                      color: themeColors.text.error || '#ef4444', 
+                      fontSize: typography.fontSize.xs 
+                    }}>
+                      End date is required
+                    </span>
+                  )}
+                </div>
               </>
             )}
           </div>
