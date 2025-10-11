@@ -130,10 +130,18 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
             if (total > 0) {
               const pct = Math.min(95, Math.round((received / total) * 100))
               setExportProgress(pct)
+              if (chunk_count % 1000 === 0) { // Log every 1000 chunks
+                console.log(`📊 Export progress: ${pct}% (${received.toLocaleString()} / ${total.toLocaleString()} bytes)`)
+              }
             } else {
-              // If we don't have total size, estimate progress based on chunks
-              const estimatedProgress = Math.min(95, chunks.length * 2)
+              // If we don't have total size, estimate progress based on data received
+              // Assume average chunk size of 8KB and estimate based on received bytes
+              const estimatedTotal = exportEstimate?.bytes || (received * 1.5) // Conservative estimate
+              const estimatedProgress = Math.min(95, Math.round((received / estimatedTotal) * 100))
               setExportProgress(estimatedProgress)
+              if (chunk_count % 1000 === 0) { // Log every 1000 chunks
+                console.log(`📊 Export progress (estimated): ${estimatedProgress}% (${received.toLocaleString()} bytes, ~${estimatedTotal.toLocaleString()} estimated)`)
+              }
             }
           }
         }
