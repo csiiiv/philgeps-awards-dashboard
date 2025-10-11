@@ -197,6 +197,7 @@ export const UnifiedExportTester: React.FC = () => {
         loading={unifiedExport.isExporting}
         progress={unifiedExport.exportProgress}
         estimatedSize={unifiedExport.exportEstimate?.bytes}
+        actualSize={unifiedExport.actualSize || undefined}
         showProgress={true}
         showFileSize={true}
       />
@@ -208,6 +209,13 @@ export const UnifiedExportTester: React.FC = () => {
         <p><strong>Progress:</strong> {unifiedExport.exportProgress}%</p>
         <p><strong>Estimated Count:</strong> {unifiedExport.exportEstimate?.count || 'N/A'}</p>
         <p><strong>Estimated Size:</strong> {unifiedExport.exportEstimate?.bytes ? `${(unifiedExport.exportEstimate.bytes / 1024).toFixed(1)} KB` : 'N/A'}</p>
+        {unifiedExport.actualSize && (
+          <p><strong>Actual Size:</strong> {`${(unifiedExport.actualSize / 1024).toFixed(1)} KB`} 
+            <span style={{ color: '#666', marginLeft: '8px' }}>
+              ({((unifiedExport.actualSize / (unifiedExport.exportEstimate?.bytes || 1)) * 100).toFixed(0)}% of estimate)
+            </span>
+          </p>
+        )}
         {unifiedExport.exportError && (
           <p style={{ color: 'red' }}><strong>Error:</strong> {unifiedExport.exportError}</p>
         )}

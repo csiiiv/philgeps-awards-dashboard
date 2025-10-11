@@ -6,6 +6,8 @@ import { ContractsTable } from '../shared/ContractsTable'
 import { EntitiesTable } from '../shared/EntitiesTable'
 import { ExportCSVModal } from '../shared/ExportCSVModal'
 import { AccessibleButton } from '../shared/AccessibleButton'
+import { useUnifiedExport } from '../../../hooks/useUnifiedExport'
+import { createEntityDrillDownContractsConfig, createEntityDrillDownAggregatesConfig } from '../../../hooks/useUnifiedExportConfigs'
 import { QuarterlyTrendsChart } from '../../charts/QuarterlyTrendsChart'
 
 export interface SearchResult {
@@ -430,10 +432,9 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
   const [nestedModal, setNestedModal] = useState<{ open: boolean, entityName: string, entityType: 'contractor' | 'organization' | 'area' | 'category' } | null>(null)
   
   // Export modal state
-  const [exportModal, setExportModal] = useState<{ open: boolean; loading: boolean }>({
-    open: false,
-    loading: false
-  })
+  // Unified export
+  const unifiedExport = useUnifiedExport()
+  const [currentExportConfig, setCurrentExportConfig] = useState<any>(null)
 
   const activeTabEntityType: 'contractor' | 'organization' | 'area' | 'category' | null = useMemo(() => {
     if (activeTab === 'contractors') return 'contractor'
@@ -483,76 +484,71 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     fetchContracts(page)
   }
 
-  // Export CSV functionality
-  const handleExport = async (startRank: number, endRank: number) => {
-    setExportModal(prev => ({ ...prev, loading: true }))
+  // Handle export initialization
+  const handleExportClick = async () => {
+    console.log('📊 EntityDrillDownModal - export clicked for:', entityName, activeTab)
     
-    try {
-      // Get the data to export based on active tab
-      let dataToExport: any[] = []
-      let headers: string[] = []
+    let exportConfig: any
+    
+    if (activeTab === 'contracts') {
+      // Use streaming export for contracts
+      exportConfig = createEntityDrillDownContractsConfig(entityName, entityType)
       
-      if (activeTab === 'contracts') {
-        // Export contracts data
-        dataToExport = results.slice(startRank - 1, endRank)
-        headers = [
-          'Reference ID', 'Notice Title', 'Award Title', 'Organization', 
-          'Awardee', 'Category', 'Area', 'Contract Amount', 'Award Amount', 
-          'Status', 'Contract No', 'Award Date'
-        ]
-      } else {
-        // Export entity data based on active tab
-        const entityData = relatedAggregates?.[`by_${activeTab.slice(0, -1)}` as keyof typeof relatedAggregates] || []
-        dataToExport = entityData.slice(startRank - 1, endRank)
-        headers = ['Entity', 'Total Value', 'Contract Count', 'Average Value']
+      // Add entity-specific filters to get contracts for this entity
+      const entityFilter = {
+        contractors: entityType === 'contractor' ? [entityName] : [],
+        areas: entityType === 'area' ? [entityName] : [],
+        organizations: entityType === 'organization' ? [entityName] : [],
+        business_categories: entityType === 'category' ? [entityName] : [],
+        keywords: [],
+        time_ranges: currentFilters.time_ranges || [],
+        include_flood_control: currentFilters.includeFloodControl || false
       }
       
-      // Create CSV content
-      const csvContent = [
-        headers.join(','),
-        ...dataToExport.map((item, index) => {
-          if (activeTab === 'contracts') {
-            return [
-              `"${item.reference_id || ''}"`,
-              `"${item.notice_title || ''}"`,
-              `"${item.award_title || ''}"`,
-              `"${item.organization_name || ''}"`,
-              `"${item.awardee_name || ''}"`,
-              `"${item.business_category || ''}"`,
-              `"${item.area_of_delivery || ''}"`,
-              item.contract_amount || 0,
-              item.award_amount || 0,
-              `"${item.award_status || ''}"`,
-              `"${item.contract_no || ''}"`,
-              `"${item.created_at || ''}"`
-            ].join(',')
-          } else {
-            return [
-              `"${item.label || ''}"`,
-              item.total_value || 0,
-              item.count || 0,
-              ((item.total_value || 0) / Math.max(1, item.count || 0)).toFixed(2)
-            ].join(',')
-          }
-        })
-      ].join('\n')
+      exportConfig = {
+        ...exportConfig,
+        filters: entityFilter
+      }
+    } else {
+      // Use streaming export for aggregates (by dimension)
+      const dimensionMap: Record<string, string> = {
+        'contractors': 'by_contractor',
+        'organizations': 'by_organization', 
+        'areas': 'by_area',
+        'categories': 'by_category'
+      }
       
-      // Download CSV
-      const blob = new Blob([csvContent], { type: 'text/csv' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${entityName}_${activeTab}_export_ranks_${startRank}_to_${endRank}.csv`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const dimension = dimensionMap[activeTab] || 'by_contractor'
+      exportConfig = createEntityDrillDownAggregatesConfig(entityName, dimension)
       
-      setExportModal(prev => ({ ...prev, open: false, loading: false }))
-    } catch (error) {
-      console.error('Export failed:', error)
-      alert('Export failed. Please try again.')
-      setExportModal(prev => ({ ...prev, loading: false }))
+      // Add filters for this specific drill-down context
+      const aggregateFilter = {
+        contractors: currentFilters.contractors || [],
+        areas: currentFilters.areas || [],
+        organizations: currentFilters.organizations || [],
+        business_categories: currentFilters.businessCategories || [],
+        keywords: currentFilters.keywords || [],
+        time_ranges: currentFilters.time_ranges || [],
+        dimension: dimension,
+        include_flood_control: currentFilters.includeFloodControl || false
+      }
+      
+      exportConfig = {
+        ...exportConfig,
+        filters: aggregateFilter
+      }
+    }
+    
+    console.log('📤 EntityDrillDownModal - streaming export config:', exportConfig)
+    setCurrentExportConfig(exportConfig)
+    await unifiedExport.initiateExport(exportConfig)
+  }
+  
+  // Handle export download
+  const handleExportDownload = async (startRank: number, endRank: number) => {
+    console.log('📥 EntityDrillDownModal - export download requested for ranks', startRank, 'to', endRank)
+    if (currentExportConfig) {
+      await unifiedExport.downloadExport(currentExportConfig)
     }
   }
 
@@ -858,7 +854,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
             <AccessibleButton
               variant="secondary"
-              onClick={() => setExportModal(prev => ({ ...prev, open: true }))}
+              onClick={handleExportClick}
               announceOnClick
               announceText="Open export dialog"
               style={{
@@ -993,13 +989,18 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
 
       {/* Export Modal */}
       <ExportCSVModal
-        open={exportModal.open}
-        onClose={() => setExportModal(prev => ({ ...prev, open: false }))}
-        onExport={handleExport}
+        open={unifiedExport.showExportModal}
+        onClose={unifiedExport.closeExportModal}
+        onExport={handleExportDownload}
+        onCancel={unifiedExport.cancelExport}
         totalCount={getTabCount(activeTab)}
         dataType={`${entityName} ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
         isDark={isDark}
-        loading={exportModal.loading}
+        loading={unifiedExport.isExporting}
+        progress={unifiedExport.exportProgress}
+        estimatedSize={unifiedExport.exportEstimate?.bytes}
+        showProgress={true}
+        showFileSize={true}
       />
 
       {/* Nested modal renders another contracts table with combined filters */}

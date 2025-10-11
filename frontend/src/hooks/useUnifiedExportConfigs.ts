@@ -15,14 +15,55 @@ export const createAdvancedSearchConfig = (): ExportConfig => ({
   useStreamSaver: true
 })
 
-export const createDataExplorerConfig = (dimension: string): ExportConfig => ({
+export const createDataExplorerConfig = (dimension: string): ExportConfig => {
+  const baseEstimate = getEstimatedBytesPerRow('aggregated', dimension)
+  return {
+    type: 'streaming',
+    dataSource: 'aggregated',
+    apiEndpoint: '/api/v1/contracts/chip-export-aggregated/',
+    filename: `analytics_${dimension.replace('by_', '')}_${createTimestamp()}.csv`,
+    useStreamSaver: true,
+    estimateBytesPerRow: baseEstimate
+  }
+}
+
+// New streaming config for Analytics Explorer  
+export const createAnalyticsExplorerConfig = (dimension: string): ExportConfig => {
+  const baseEstimate = getEstimatedBytesPerRow('aggregated', dimension)
+  return {
+    type: 'streaming',
+    dataSource: 'aggregated', 
+    apiEndpoint: '/api/v1/contracts/chip-export-aggregated/',
+    filename: `analytics_${dimension.replace('by_', '')}_${createTimestamp()}.csv`,
+    useStreamSaver: true,
+    estimateBytesPerRow: baseEstimate
+  }
+}
+
+// New streaming config for Entity Drill Down (contracts)
+export const createEntityDrillDownContractsConfig = (entityName: string, _entityType: string): ExportConfig => ({
   type: 'streaming',
-  dataSource: 'aggregated',
-  apiEndpoint: '/api/v1/contracts/chip-export-aggregated/',
-  filename: `analytics_${dimension.replace('by_', '')}_${createTimestamp()}.csv`,
-  useStreamSaver: true
+  dataSource: 'contracts',
+  apiEndpoint: '/api/v1/contracts/chip-export/',
+  filename: `entity_${entityName.replace(/[^a-zA-Z0-9]/g, '_')}_contracts_${createTimestamp()}.csv`,
+  useStreamSaver: true,
+  estimateBytesPerRow: getEstimatedBytesPerRow('contracts')
 })
 
+// New streaming config for Entity Drill Down (aggregates) 
+export const createEntityDrillDownAggregatesConfig = (entityName: string, dimension: string): ExportConfig => {
+  const baseEstimate = getEstimatedBytesPerRow('aggregated', dimension)
+  return {
+    type: 'streaming',
+    dataSource: 'aggregated',
+    apiEndpoint: '/api/v1/contracts/chip-export-aggregated/', 
+    filename: `entity_${entityName.replace(/[^a-zA-Z0-9]/g, '_')}_${dimension}_${createTimestamp()}.csv`,
+    useStreamSaver: true,
+    estimateBytesPerRow: baseEstimate
+  }
+}
+
+// Legacy client-side config (kept for backwards compatibility)
 export const createEntityDrillDownConfig = (entityName: string, activeTab: string): ExportConfig => ({
   type: 'client-side',
   dataSource: 'custom',
@@ -135,13 +176,25 @@ export const validateExportConfig = (config: ExportConfig): string[] => {
   return errors
 }
 
-// Export size estimation helpers
-export const getEstimatedBytesPerRow = (dataSource: string): number => {
+// Export size estimation helpers with improved accuracy
+export const getEstimatedBytesPerRow = (dataSource: string, dimension?: string): number => {
   switch (dataSource) {
     case 'contracts':
       return 350 // Individual contract records are larger
     case 'aggregated':
-      return 60 // Aggregated data is more compact
+      // More accurate estimates based on dimension
+      switch (dimension) {
+        case 'by_contractor':
+          return 65 // Contractor names tend to be longer
+        case 'by_organization':
+          return 75 // Organization names are typically longer
+        case 'by_area':
+          return 45 // Area names are shorter
+        case 'by_category':
+          return 55 // Category names are medium length
+        default:
+          return 60 // Default aggregated data
+      }
     case 'analytics':
       return 80 // Analytics data with calculations
     case 'custom':
@@ -149,6 +202,30 @@ export const getEstimatedBytesPerRow = (dataSource: string): number => {
     default:
       return 100
   }
+}
+
+// Historical accuracy tracking for estimates
+let estimateAccuracyData: { estimated: number; actual: number; dataSource: string }[] = []
+
+export const recordEstimateAccuracy = (estimated: number, actual: number, dataSource: string) => {
+  estimateAccuracyData.push({ estimated, actual, dataSource })
+  // Keep only last 50 records to prevent memory growth
+  if (estimateAccuracyData.length > 50) {
+    estimateAccuracyData = estimateAccuracyData.slice(-50)
+  }
+  console.log(`📊 Estimate accuracy: ${estimated} → ${actual} bytes (${((actual/estimated)*100).toFixed(1)}% of estimate)`)
+}
+
+export const getImprovedEstimate = (baseEstimate: number, dataSource: string): number => {
+  const relevantData = estimateAccuracyData.filter(d => d.dataSource === dataSource)
+  if (relevantData.length === 0) return baseEstimate
+  
+  // Calculate average accuracy ratio
+  const accuracyRatio = relevantData.reduce((sum, d) => sum + (d.actual / d.estimated), 0) / relevantData.length
+  const improvedEstimate = Math.round(baseEstimate * accuracyRatio)
+  
+  console.log(`🎯 Improved estimate for ${dataSource}: ${baseEstimate} → ${improvedEstimate} (${accuracyRatio.toFixed(2)}x factor)`)
+  return improvedEstimate
 }
 
 // Memory threshold for StreamSaver usage

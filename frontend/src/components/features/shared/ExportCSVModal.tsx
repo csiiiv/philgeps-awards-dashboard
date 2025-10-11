@@ -143,6 +143,9 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
     return Math.round(entriesToExport * bytesPerEntry)
   })()
 
+  // Debug logging for modal props
+
+
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
@@ -231,13 +234,19 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
             </span>
           </div>
           {showFileSize && (
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
-                Estimated file size:
-              </span>
-              <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: theme.text.primary }}>
-                {formatFileSize(estimatedSize)}
-              </span>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+                  Estimated file size:
+                </span>
+                <span style={{ 
+                  fontSize: typography.fontSize.sm, 
+                  fontWeight: typography.fontWeight.semibold, 
+                  color: theme.text.primary
+                }}>
+                  {formatFileSize(estimatedSize)}
+                </span>
+              </div>
             </div>
           )}
         </div>

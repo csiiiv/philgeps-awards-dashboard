@@ -8,7 +8,8 @@ import { advancedSearchService, type FilterOptions } from '../../../services/Adv
 import { useAdvancedSearchFilters } from '../../../hooks/advanced-search/useAdvancedSearchFilters'
 import { useAdvancedSearchData } from '../../../hooks/advanced-search/useAdvancedSearchData'
 import { useAdvancedSearchPagination } from '../../../hooks/advanced-search/useAdvancedSearchPagination'
-import { useAdvancedSearchExport } from '../../../hooks/advanced-search/useAdvancedSearchExport'
+import { useUnifiedExport } from '../../../hooks/useUnifiedExport'
+import { createAdvancedSearchConfig } from '../../../hooks/useUnifiedExportConfigs'
 
 // Import extracted components
 import { AdvancedSearchFilters } from './components/AdvancedSearchFilters'
@@ -25,7 +26,8 @@ const AdvancedSearch: React.FC = () => {
   const filtersHook = useAdvancedSearchFilters()
   const dataHook = useAdvancedSearchData()
   const paginationHook = useAdvancedSearchPagination()
-  const exportHook = useAdvancedSearchExport()
+  const unifiedExport = useUnifiedExport()
+  const [currentExportConfig, setCurrentExportConfig] = useState<any>(null)
 
   // Local state for filter options and analytics modal
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -182,8 +184,27 @@ const AdvancedSearch: React.FC = () => {
   const handleExport = useCallback(async () => {
     console.log('📊 AdvancedSearch - handleExport called')
     const searchParams = buildSearchParams()
-    await exportHook.exportAllWithEstimate(searchParams)
-  }, [exportHook, buildSearchParams])
+    
+    // Create unified export config with search parameters
+    const exportConfig = {
+      ...createAdvancedSearchConfig(),
+      filters: searchParams,
+      filename: `advanced_search_results_${new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-')}.csv`
+    }
+    
+    // Store config for download handler
+    setCurrentExportConfig(exportConfig)
+    
+    await unifiedExport.initiateExport(exportConfig)
+  }, [unifiedExport, buildSearchParams])
+
+  // Handle export download
+  const handleExportDownload = useCallback(async (startRank: number, endRank: number) => {
+    console.log('📥 AdvancedSearch - export download requested for ranks', startRank, 'to', endRank)
+    if (currentExportConfig) {
+      await unifiedExport.downloadExport(currentExportConfig)
+    }
+  }, [unifiedExport, currentExportConfig])
 
   // Handle analytics
   const handleShowAnalytics = useCallback(() => {
@@ -330,15 +351,18 @@ const AdvancedSearch: React.FC = () => {
 
       {/* Export Modal */}
       <ExportCSVModal
-        open={exportHook.exportModalOpen}
-        onClose={() => exportHook.setExportModalOpen(false)}
-        onExport={exportHook.downloadExport}
-        onCancel={exportHook.cancelExport}
-        totalCount={exportHook.exportEstimate?.count || 0}
+        open={unifiedExport.showExportModal}
+        onClose={unifiedExport.closeExportModal}
+        onExport={handleExportDownload}
+        onCancel={unifiedExport.cancelExport}
+        totalCount={unifiedExport.exportEstimate?.count || 0}
         dataType="Search Results"
         isDark={isDark}
-        loading={exportHook.exportDownloading}
-        progress={exportHook.exportProgress}
+        loading={unifiedExport.isExporting}
+        progress={unifiedExport.exportProgress}
+        estimatedSize={unifiedExport.exportEstimate?.bytes}
+        showProgress={true}
+        showFileSize={true}
       />
     </div>
   )

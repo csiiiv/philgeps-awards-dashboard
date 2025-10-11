@@ -17,6 +17,7 @@ export interface ExportConfig {
   groupBy?: string[]
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  estimateBytesPerRow?: number
 }
 
 export interface ExportEstimate {
@@ -46,6 +47,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(0)
   const [exportEstimate, setExportEstimate] = useState<ExportEstimate | null>(null)
+
   const [showExportModal, setShowExportModal] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
   
@@ -147,6 +149,16 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
       
       console.log('📊 Content-Length:', total)
       
+      // Update actual size from Content-Length for real-time display
+      if (total > 0) {
+
+        console.log('✅ Updated actual size from Content-Length:', total)
+        if (exportEstimate) {
+          const accuracyPercent = ((total / exportEstimate.bytes) * 100).toFixed(1)
+          console.log(`🎯 Estimate vs Actual: ${exportEstimate.bytes.toLocaleString()} → ${total.toLocaleString()} bytes (${accuracyPercent}% accuracy)`)
+        }
+      }
+      
       // Stream data and track progress
       while (true) {
         const { done, value } = await reader.read()
@@ -166,12 +178,18 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
           if (progressTotal > 0) {
             const progress = Math.round((received / progressTotal) * 100)
             setExportProgress(progress)
-            console.log(`📈 Progress: ${progress}% (${received}/${progressTotal} bytes)`)
+            console.log(`📈 Progress: ${progress}% (${received.toLocaleString()}/${progressTotal.toLocaleString()} bytes)`)
+            
+            // Show accuracy improvement when we have both estimate and actual
+            if (exportEstimate && total > 0 && exportEstimate.bytes !== total) {
+              const accuracyPercent = ((total / exportEstimate.bytes) * 100).toFixed(1)
+              console.log(`🎯 Estimate accuracy: ${exportEstimate.bytes.toLocaleString()} → ${total.toLocaleString()} bytes (${accuracyPercent}% of estimate)`)
+            }
           } else {
             // Fallback progress estimation
             const estimatedProgress = Math.min(95, Math.round((received / 1000000) * 100))
             setExportProgress(estimatedProgress)
-            console.log(`📈 Progress (estimated): ${estimatedProgress}% (${received} bytes)`)
+            console.log(`📈 Progress (estimated): ${estimatedProgress}% (${received.toLocaleString()} bytes)`)
           }
         }
       }
@@ -188,6 +206,12 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
+      
+      // Record accuracy for future estimates
+      if (exportEstimate && total > 0) {
+        const { recordEstimateAccuracy } = await import('./useUnifiedExportConfigs')
+        recordEstimateAccuracy(exportEstimate.bytes, total, 'streaming')
+      }
       
       console.log('✅ Download completed')
       

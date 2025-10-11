@@ -628,7 +628,9 @@ class ContractViewSet(viewsets.ModelViewSet):
             def generate():
                 yield ','.join(headers) + '\n'
                 page = 1
-                page_size = 1000
+                # Use a large page size to minimize parquet service calls and increase chunk size
+                # This mirrors the contracts export which uses 50,000 rows per page
+                page_size = 50000
                 while True:
                     result = parquet_service.chip_aggregates_paginated(
                         contractors=validated_data.get('contractors', []),
@@ -648,14 +650,19 @@ class ContractViewSet(viewsets.ModelViewSet):
                     rows = result.get('data', [])
                     if not rows:
                         break
+                    # Yield all rows for this page at once to reduce Python->WSGI writes
+                    csv_rows = []
                     for r in rows:
-                        yield row_to_csv(r) + '\n'
+                        csv_rows.append(row_to_csv(r))
+                    yield '\n'.join(csv_rows) + '\n'
                     if len(rows) < page_size:
                         break
                     page += 1
 
             response = StreamingHttpResponse(generate(), content_type='text/csv')
             response['Content-Disposition'] = f'attachment; filename="{dimension.replace("by_", "")}_export.csv"'
+            # Optional: hint to proxies/servers not to buffer (may be ignored depending on infra)
+            response['X-Accel-Buffering'] = 'no'
             return response
         except ValidationError:
             raise

@@ -27,6 +27,8 @@ import { EntityDrillDownModal } from '../advanced-search/EntityDrillDownModal'
 import { Modal } from './Modal'
 import { ExportCSVModal } from './ExportCSVModal'
 import { AccessibleButton } from './AccessibleButton'
+import { useUnifiedExport } from '../../../hooks/useUnifiedExport'
+import { createAnalyticsExplorerConfig } from '../../../hooks/useUnifiedExportConfigs'
 
 // Types (re-exported or imported from other files)
 export type DatasetType = 'contractors' | 'organizations' | 'areas' | 'categories'
@@ -98,11 +100,9 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
     entityType: 'contractor'
   })
 
-  // Export modal state
-  const [exportModal, setExportModal] = useState({
-    open: false,
-    loading: false
-  })
+  // Unified export
+  const unifiedExport = useUnifiedExport()
+  const [currentExportConfig, setCurrentExportConfig] = useState<any>(null)
 
   // Handle entity click for drilldown
   const handleEntityClick = useCallback((entityName: string) => {
@@ -120,46 +120,42 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
     announce(`Selected entity ${entityName} for drilldown`, 'polite')
   }, [announce, analyticsControls.dimension])
 
-  // Handle export
-  const handleExport = useCallback(async (startRank: number, endRank: number) => {
-    setExportModal(prev => ({ ...prev, loading: true }))
+  // Handle export initialization
+  const handleExportClick = useCallback(async () => {
+    console.log('📊 AnalyticsExplorer - export clicked for dimension:', analyticsControls.dimension)
     
-    try {
-      // For now, we'll export the current page data as CSV
-      // In the future, this could call a dedicated API endpoint
-      const dataToExport = processedData.slice(startRank - 1, endRank)
-      
-      // Create CSV content
-      const headers = ['Rank', 'Entity', 'Total Value', 'Count', 'Average Value']
-      const csvContent = [
-        headers.join(','),
-        ...dataToExport.map((item, index) => [
-          startRank + index,
-          `"${item.label}"`,
-          item.total_value || 0,
-          item.count || 0,
-          item.avg_value || 0
-        ].join(','))
-      ].join('\n')
-      
-      // Download CSV
-      const blob = new Blob([csvContent], { type: 'text/csv' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `analytics_export_${analyticsControls.dimension}_ranks_${startRank}_to_${endRank}.csv`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      
-      setExportModal(prev => ({ ...prev, open: false, loading: false }))
-    } catch (error) {
-      console.error('Export failed:', error)
-      alert('Export failed. Please try again.')
-      setExportModal(prev => ({ ...prev, loading: false }))
+    // Create unified streaming export config for analytics
+    const exportConfig = createAnalyticsExplorerConfig(analyticsControls.dimension)
+    
+    // Add current filters to the config if available
+    const configWithFilters = {
+      ...exportConfig,
+      filters: mode === 'analytics' && currentFilters ? {
+        contractors: currentFilters.contractors || [],
+        areas: currentFilters.areas || [],
+        organizations: currentFilters.organizations || [],
+        business_categories: currentFilters.business_categories || [],
+        keywords: currentFilters.keywords || [],
+        time_ranges: currentFilters.time_ranges || [],
+        dimension: analyticsControls.dimension,
+        include_flood_control: currentFilters.includeFloodControl || false
+      } : {
+        dimension: analyticsControls.dimension,
+        include_flood_control: false
+      }
     }
-  }, [processedData, analyticsControls.dimension])
+    
+    setCurrentExportConfig(configWithFilters)
+    await unifiedExport.initiateExport(configWithFilters)
+  }, [analyticsControls.dimension, currentFilters, mode, unifiedExport])
+  
+  // Handle export download
+  const handleExportDownload = useCallback(async (startRank: number, endRank: number) => {
+    console.log('📥 AnalyticsExplorer - export download requested for ranks', startRank, 'to', endRank)
+    if (currentExportConfig) {
+      await unifiedExport.downloadExport(currentExportConfig)
+    }
+  }, [unifiedExport, currentExportConfig])
 
   // Get current filters for drilldown (memoized)
   const getCurrentFilters = useMemo(() => {
@@ -204,7 +200,7 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
           headerActions={
             <AccessibleButton
               variant="secondary"
-              onClick={() => setExportModal(prev => ({ ...prev, open: true }))}
+              onClick={handleExportClick}
               announceOnClick
               announceText="Open export dialog"
               style={{
@@ -379,13 +375,18 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
 
             {/* Export Modal */}
             <ExportCSVModal
-              open={exportModal.open}
-              onClose={() => setExportModal(prev => ({ ...prev, open: false }))}
-              onExport={handleExport}
+              open={unifiedExport.showExportModal}
+              onClose={unifiedExport.closeExportModal}
+              onExport={handleExportDownload}
+              onCancel={unifiedExport.cancelExport}
               totalCount={pagination.totalCount}
               dataType="Analytics"
               isDark={darkMode}
-              loading={exportModal.loading}
+              loading={unifiedExport.isExporting}
+              progress={unifiedExport.exportProgress}
+              estimatedSize={unifiedExport.exportEstimate?.bytes}
+              showProgress={true}
+              showFileSize={true}
             />
 
             {/* Drilldown Modal */}
