@@ -333,6 +333,7 @@ const AdvancedSearch: React.FC = () => {
         open={exportHook.exportModalOpen}
         onClose={() => exportHook.setExportModalOpen(false)}
         onExport={exportHook.downloadExport}
+        onCancel={exportHook.cancelExport}
         totalCount={exportHook.exportEstimate?.count || 0}
         dataType="Search Results"
         isDark={isDark}

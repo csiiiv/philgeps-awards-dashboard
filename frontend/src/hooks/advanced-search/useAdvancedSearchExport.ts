@@ -185,6 +185,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
     }
     setExportDownloading(false)
     setExportProgress(0)
+    setExportModalOpen(false)
   }, [exportAbort])
 
   // Clear export state function

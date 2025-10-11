@@ -9,6 +9,7 @@ interface ExportCSVModalProps {
   open: boolean
   onClose: () => void
   onExport: (startRank: number, endRank: number) => Promise<void>
+  onCancel?: () => void
   totalCount: number
   dataType: string // e.g., "Analytics", "Contract Details", "Search Results"
   isDark?: boolean
@@ -20,6 +21,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   open,
   onClose,
   onExport,
+  onCancel,
   totalCount,
   dataType,
   isDark = false,
@@ -275,7 +277,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: spacing[2] }}>
           <AccessibleButton
             variant="secondary"
-            onClick={onClose}
+            onClick={onCancel || onClose}
             announceOnClick
             announceText="Cancel export"
             disabled={isExporting}
