@@ -78,6 +78,12 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       const controller = new AbortController()
       setExportAbort(controller)
 
+      // Set a timeout to prevent hanging exports (5 minutes)
+      const timeoutId = setTimeout(() => {
+        console.warn('⚠️ useAdvancedSearchExport - export timeout, aborting')
+        controller.abort()
+      }, 300000)
+
       // Use the stored parameters from exportAllWithEstimate
       const params = exportParams
 
@@ -112,14 +118,22 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       try {
         while (true) {
           const { done, value } = await reader.read()
-          if (done) break
+          if (done) {
+            // Stream completed, set progress to 100%
+            setExportProgress(100)
+            break
+          }
           
           if (value) {
             chunks.push(value)
             received += value.length
             if (total > 0) {
-              const pct = Math.min(99, Math.round((received / total) * 100))
+              const pct = Math.min(95, Math.round((received / total) * 100))
               setExportProgress(pct)
+            } else {
+              // If we don't have total size, estimate progress based on chunks
+              const estimatedProgress = Math.min(95, chunks.length * 2)
+              setExportProgress(estimatedProgress)
             }
           }
         }
@@ -151,6 +165,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       console.error('🚨 useAdvancedSearchExport - download error:', error)
       throw error
     } finally {
+      clearTimeout(timeoutId)
       setExportAbort(null)
       setExportDownloading(false)
     }

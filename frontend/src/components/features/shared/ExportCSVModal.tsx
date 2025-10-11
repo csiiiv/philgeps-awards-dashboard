@@ -84,13 +84,13 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
       // Simulate progress updates
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 90) {
+          if (prev >= 85) {
             clearInterval(progressInterval)
             return prev
           }
-          return prev + Math.random() * 10
+          return prev + Math.random() * 8
         })
-      }, 200)
+      }, 300)
 
       await onExport(startRank, endRank)
       
