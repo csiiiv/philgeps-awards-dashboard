@@ -15,6 +15,10 @@ interface ExportCSVModalProps {
   isDark?: boolean
   loading?: boolean
   progress?: number
+  // New unified export props
+  estimatedSize?: number
+  showProgress?: boolean
+  showFileSize?: boolean
 }
 
 export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
@@ -25,8 +29,11 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   totalCount,
   dataType,
   isDark = false,
-  loading = false,
-  progress: realProgress
+  loading: _loading = false,
+  progress: realProgress,
+  estimatedSize: propEstimatedSize,
+  showProgress = true,
+  showFileSize = true
 }) => {
   const { isDark: themeIsDark } = useTheme()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
@@ -125,12 +132,16 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
   }, [startRank, endRank, onExport, onClose, validateInputs, realProgress])
 
   const entriesToExport = Math.max(0, endRank - startRank + 1)
-  // More accurate estimate based on data type
-  // Aggregated data (contractors, organizations, etc.): ~60 bytes per row
-  // Individual contracts (Search Results): ~350 bytes per row
-  // DataExplorer exports aggregated data, Advanced Search exports individual contracts
-  const bytesPerEntry = dataType.toLowerCase().includes('search') ? 350 : 60
-  const estimatedSize = Math.round(entriesToExport * bytesPerEntry)
+  
+  // Use provided estimated size or calculate based on data type
+  const estimatedSize = propEstimatedSize || (() => {
+    // More accurate estimate based on data type
+    // Aggregated data (contractors, organizations, etc.): ~60 bytes per row
+    // Individual contracts (Search Results): ~350 bytes per row
+    // DataExplorer exports aggregated data, Advanced Search exports individual contracts
+    const bytesPerEntry = dataType.toLowerCase().includes('search') ? 350 : 60
+    return Math.round(entriesToExport * bytesPerEntry)
+  })()
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -219,14 +230,16 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
               {entriesToExport.toLocaleString()}
             </span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
-              Estimated file size:
-            </span>
-            <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: theme.text.primary }}>
-              {formatFileSize(estimatedSize)}
-            </span>
-          </div>
+          {showFileSize && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+                Estimated file size:
+              </span>
+              <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: theme.text.primary }}>
+                {formatFileSize(estimatedSize)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Error Message */}
@@ -245,7 +258,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
         )}
 
         {/* Progress Bar */}
-        {isExporting && (
+        {isExporting && showProgress && (
           <div style={{ marginBottom: spacing[4] }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: spacing[1] }}>
               <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>

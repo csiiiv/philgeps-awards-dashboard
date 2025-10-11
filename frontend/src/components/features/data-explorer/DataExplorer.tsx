@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { usePerformanceMonitoring } from '../../../hooks/usePerformanceMonitoring'
 import { useAccessibility } from '../../../hooks/useAccessibility'
@@ -6,15 +6,13 @@ import { ErrorBoundary } from '../shared/ErrorBoundary'
 import { LoadingSpinner } from '../shared/LoadingSpinner'
 import { ErrorDisplay } from '../shared/ErrorDisplay'
 import { getThemeColors } from '../../../design-system/theme'
-import { spacing, typography } from '../../../design-system'
+import { spacing } from '../../../design-system'
 import {
   PageContainer,
   ContentContainer,
   Card,
   SectionTitle,
-  BodyText,
-  Grid,
-  GridItem
+  BodyText
 } from '../../styled/Common.styled'
 
 import { 
@@ -28,6 +26,8 @@ import { useAdvancedSearchFilters } from '../../../hooks/advanced-search/useAdva
 import { EntityDrillDownModal } from '../advanced-search/EntityDrillDownModal'
 import { ExportCSVModal } from '../shared/ExportCSVModal'
 import { AccessibleButton } from '../shared/AccessibleButton'
+import { useUnifiedExport } from '../../../hooks/useUnifiedExport'
+import { createDataExplorerConfig } from '../../../hooks/useUnifiedExportConfigs'
 
 // Types
 export type DatasetType = 'contractors' | 'organizations' | 'areas' | 'categories'
@@ -164,11 +164,9 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
     entityType: 'contractor'
   })
 
-  // Export modal state
-  const [exportModal, setExportModal] = useState({
-    open: false,
-    loading: false
-  })
+  // Unified export system
+  const unifiedExport = useUnifiedExport()
+  const [currentExportConfig, setCurrentExportConfig] = useState<any>(null)
 
   // Handle entity click for drilldown
   const handleEntityClick = useCallback((entityName: string) => {
@@ -187,24 +185,19 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
     announce(`Selected entity ${entityName} for drilldown`, 'polite')
   }, [announce, analyticsControls.dimension])
 
-  // Handle export
-  const handleExport = useCallback(() => {
-    setExportModal({ open: true, loading: false })
-  }, [])
-
-  // Handle export close
-  const handleExportClose = useCallback(() => {
-    setExportModal({ open: false, loading: false })
-  }, [])
-
-  // Handle actual export
-  const handleExportConfirm = useCallback(async (startRank: number, endRank: number) => {
-    setExportModal(prev => ({ ...prev, loading: true }))
+  // Handle export with unified streaming system
+  const handleExport = useCallback(async () => {
+    console.log('🔘 Export button clicked!')
+    console.log('📊 Analytics controls:', analyticsControls)
+    console.log('🔍 Filters:', filtersHook.filters)
     
     try {
-      // Use the same export logic as Advanced Search
-      const { advancedSearchService } = await import('../../../services/AdvancedSearchService')
+      console.log('📝 Creating export config...')
+      // Create streaming config for aggregated data
+      const config = createDataExplorerConfig(analyticsControls.dimension)
+      console.log('✅ Config created:', config)
       
+      // Prepare export parameters
       const exportParams = {
         contractors: filtersHook.filters.contractors,
         areas: filtersHook.filters.areas,
@@ -212,36 +205,33 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
         businessCategories: filtersHook.filters.business_categories,
         keywords: filtersHook.filters.keywords,
         timeRanges: yearFilter !== 'all' ? [{ type: 'yearly', year: yearFilter }] : [],
+        dimension: analyticsControls.dimension,
         includeFloodControl: filtersHook.includeFloodControl,
-        startRank,
-        endRank
+        valueRange: { min: 0, max: 1000000000000 }
       }
+      console.log('📋 Export params:', exportParams)
+
+      console.log('🚀 Initiating export...')
+      // Update config with export parameters
+      const configWithParams = {
+        ...config,
+        filters: exportParams
+      }
+      console.log('📋 Config with params:', configWithParams)
       
-      // Use aggregated export for data explorer (exports the aggregated data being displayed)
-      const response = await advancedSearchService.chipExportAggregated({
-        ...exportParams,
-        dimension: analyticsControls.dimension
-      })
+      // Store config for download use
+      setCurrentExportConfig(configWithParams)
       
-      // Create download link
-      const url = window.URL.createObjectURL(response)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `philgeps-data-explorer-${analyticsControls.dimension.replace('by_', '')}-${Date.now()}.csv`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      
-      announce('Data exported successfully', 'polite')
+      // Initiate export with streaming
+      await unifiedExport.initiateExport(configWithParams)
+      console.log('✅ Export initiated successfully')
+      announce('Export initiated', 'polite')
     } catch (error) {
-      console.error('Export error:', error)
+      console.error('❌ Export initiation failed:', error)
+      console.error('Error details:', error)
       announce('Export failed', 'polite')
-    } finally {
-      setExportModal(prev => ({ ...prev, loading: false }))
-      handleExportClose()
     }
-  }, [filtersHook, announce, handleExportClose])
+  }, [filtersHook, analyticsControls.dimension, yearFilter, unifiedExport, announce])
 
   // Dataset options
   const datasetOptions = [
@@ -380,7 +370,7 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
                 contractors: filtersHook.filters.contractors,
                 areas: filtersHook.filters.areas,
                 organizations: filtersHook.filters.organizations,
-                business_categories: filtersHook.filters.business_categories,
+                businessCategories: filtersHook.filters.business_categories,
                 keywords: filtersHook.filters.keywords,
                 time_ranges: yearFilter !== 'all' ? [{ type: 'yearly', year: yearFilter }] : [],
                 includeFloodControl: filtersHook.includeFloodControl
@@ -388,15 +378,30 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
             isDark={darkMode}
           />
 
-          {/* Export Modal */}
+          {/* Unified Export Modal with Streaming */}
           <ExportCSVModal
-            open={exportModal.open}
-            onClose={handleExportClose}
-            onExport={handleExportConfirm}
-            totalCount={pagination.totalCount}
-            dataType={analyticsControls.dimension.replace('by_', '') as any}
+            open={unifiedExport.showExportModal}
+            onClose={unifiedExport.closeExportModal}
+            onExport={async (startRank: number, endRank: number) => {
+              console.log(`📊 Export requested for ranks ${startRank}-${endRank}`)
+              console.log('🔧 Using stored config:', currentExportConfig)
+              console.log('📊 Current dimension:', analyticsControls.dimension)
+              console.log('🔍 Current filters:', filtersHook.filters)
+              if (currentExportConfig) {
+                await unifiedExport.downloadExport(currentExportConfig)
+              } else {
+                console.error('❌ No export config available')
+              }
+            }}
+            onCancel={unifiedExport.cancelExport}
+            totalCount={unifiedExport.exportEstimate?.count || pagination.totalCount}
+            dataType={`${analyticsControls.dimension.replace('by_', '')} Analytics`}
             isDark={darkMode}
-            loading={exportModal.loading}
+            loading={unifiedExport.isExporting}
+            progress={unifiedExport.exportProgress}
+            estimatedSize={unifiedExport.exportEstimate?.bytes}
+            showProgress={true}
+            showFileSize={true}
           />
         </ContentContainer>
       </PageContainer>
