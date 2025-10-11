@@ -80,6 +80,9 @@ const AdvancedSearch: React.FC = () => {
         })
       }
     }
+    
+    console.log('🔍 buildSearchParams - dateRange:', filtersHook.dateRange)
+    console.log('🔍 buildSearchParams - timeRanges:', timeRanges)
 
     return {
       contractors: filtersHook.filters.contractors,
