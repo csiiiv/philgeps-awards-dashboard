@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  backend:
+    volumes:
+      - ./backend/django:/app
+      - ./backend/django/static_data:/data/parquet
+    environment:
+      DEBUG: "True"
+      PARQUET_DIR: "/data/parquet"
+    # Uncomment below for live reload (if supported)
+    # command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+  frontend:
+    volumes:
+      - ./frontend:/app
+    environment:
+      # Example: VITE_API_URL for local backend
+      VITE_API_URL: "http://localhost:3200"
+    # Uncomment below for live reload (if supported)
+    # command: ["npm", "run", "dev"]

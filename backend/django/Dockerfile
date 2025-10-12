@@ -16,17 +16,14 @@ RUN apt-get update \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies (copy from repo-root context)
-COPY backend/django/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy backend project code
-COPY backend/django/ /app/
+COPY . /app/
 
-# Copy Parquet data into the image (if present in repo under data/parquet)
-# This keeps data out of STATIC and avoids exposing it via WhiteNoise.
 RUN mkdir -p /data/parquet
-COPY data/parquet/ /data/parquet/
+# Bake static_data into the image for production/demo use
+COPY static_data/ /data/parquet/
 
 # Make Parquet directory discoverable by the app
 ENV PARQUET_DIR=/data/parquet

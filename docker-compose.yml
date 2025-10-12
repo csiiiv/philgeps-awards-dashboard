@@ -1,12 +1,17 @@
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/django/Dockerfile
+      context: ./backend/django
+      dockerfile: Dockerfile
     image: philgeps-backend:latest
     container_name: philgeps-backend
-    env_file:
-      - ./backend/django/.env
+    environment:
+      SECRET_KEY: "django-insecure-dev-key"
+      DEBUG: "True"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,philgeps-api.simple-systems.dev"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000,https://philgeps.simple-systems.dev"
+      CSRF_TRUSTED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000,https://philgeps.simple-systems.dev"
+      # PARQUET_DIR: "/data/parquet" # Uncomment if mounting data volume
     ports:
       - "3200:8000"
     # volumes:

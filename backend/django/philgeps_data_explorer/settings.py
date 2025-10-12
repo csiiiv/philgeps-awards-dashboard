@@ -84,9 +84,7 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-    BASE_DIR.parent.parent / 'frontend' / 'dist',
-    BASE_DIR.parent.parent / 'frontend' / 'public',  # For global_totals.json
+    BASE_DIR / 'static',  # Backend static files only (admin, etc.)
 ]
 
 # REST Framework

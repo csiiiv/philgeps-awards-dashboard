@@ -1,4 +1,221 @@
+
 # PhilGEPS Dashboard
+
+[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Data](https://img.shields.io/badge/data-5M%20contracts-orange.svg)](data/)
+[![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-compliant-brightgreen.svg)](docs/ACTIVE_API_DOCUMENTATION.md)
+
+A comprehensive government procurement analytics dashboard for the Philippines Government Electronic Procurement System (PhilGEPS). This application provides detailed insights into government contracts, spending patterns, and procurement analytics.
+
+---
+
+## 🚀 Features
+
+- Entity-First Analysis, Interactive Filters, Real-time Search
+- Export Capabilities, Advanced Search, Treemap Visualization
+- Analytics, API Documentation, Responsive Design
+- Dark/Light Mode, Performance Optimized
+
+---
+
+## 📊 Data Overview & Sources
+
+- 5M+ contracts, ₱14.8T+ value, 119K+ contractors, 23K+ organizations
+- Data from PhilGEPS XLSX/CSV, Flood Control Projects
+- 2013-2025 coverage, 2.6GB dataset, 50 columns
+
+---
+
+## ⚡ Quickstart (Local Development)
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/csiiiv/philgeps-awards-dashboard.git
+cd philgeps-awards-dashboard
+```
+
+### 2. Run with Docker Compose (Dev)
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+### 3. Access
+- Backend: http://localhost:3200
+- Frontend: http://localhost:3000
+
+---
+
+## 🏢 Production Deployment (Cloud)
+
+### Separate Service Deployment
+- Build and push backend and frontend images independently
+- Deploy each to your cloud platform (ECS, Azure, S3, Vercel, etc.)
+- Set environment variables per service
+
+See below for full instructions and sample commands.
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+- Backend: SECRET_KEY, DEBUG, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS, PARQUET_DIR
+- Frontend: VITE_API_URL
+
+See `backend/django/env.example` and `frontend/env.example` for details.
+
+### Setup Script
+- Use `setup_env.sh` for auto-generating .env files
+
+---
+
+## 📁 Data Pipeline & File Structure
+
+- Data processing scripts in `scripts/`
+- Parquet files in `backend/django/static_data`
+- See `scripts/DATA_PIPELINE.md` for details
+
+---
+
+## 🛠️ Development Workflow
+
+- Use Docker Compose for local dev
+- Mount code/data for live editing
+- Use multi-file compose pattern for modularity
+
+---
+
+## 📚 API & Documentation
+
+- [Dashboard Documentation](docs/DASHBOARD_DOCUMENTATION.md)
+- [API Documentation](docs/ACTIVE_API_DOCUMENTATION.md)
+- [OpenAPI Migration Guide](docs/OPENAPI_MIGRATION_GUIDE.md)
+- [Production Deployment Guide](docs/PRODUCTION_DEPLOYMENT_GUIDE.md)
+- [Data Pipeline](scripts/DATA_PIPELINE.md)
+- [Data Structure](data/README.md)
+- [Component Documentation](frontend/src/components/README.md)
+- [Scripts Documentation](scripts/README.md)
+- [Changelog](CHANGELOG.md)
+- [GitHub Setup Guide](GITHUB_SETUP.md)
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **PhilGEPS**: For providing the procurement data
+- **Django Community**: For the excellent web framework
+- **React Team**: For the powerful frontend library
+- **Open Source Contributors**: For the amazing tools and libraries
+
+---
+
+## 💬 Support
+
+- Create an issue in the GitHub repository
+- Contact the development team
+- Check the documentation in the `docs/` folder
+- For setup and deployment help, see the Docker deployment guide and Quickstart above.
+
+---
+
+## 🐳 Running with Docker & Compose
+
+### Cloudflare Tunnel Setup
+
+You can expose your local backend and frontend services securely to the internet using Cloudflare Tunnel. This is useful for remote access, demos, or development behind NAT/firewall.
+
+#### 1. Prerequisites
+- Get your Cloudflare Tunnel token from the Cloudflare dashboard.
+
+#### 2. Run with Docker Compose
+```bash
+docker compose -f docker-compose.cloudflare.yml up --build
+```
+
+#### 3. Environment Variables
+- Set `TUNNEL_TOKEN` in the `cloudflared` service (in the compose file or via your environment).
+
+#### 4. How it works
+- The `cloudflared` service creates a secure tunnel to Cloudflare and exposes your backend (port 3200) and frontend (port 3000) to the public internet via your Cloudflare domain.
+- You can configure additional routes and subdomains in your Cloudflare dashboard.
+
+---
+
+## 🐳 Running with Docker & Compose
+
+### Local Development (Multi-File Compose)
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+### Production-like (Base Compose)
+```bash
+docker compose up --build
+```
+
+### Backend volume mount in dev
+```yaml
+services:
+	backend:
+		volumes:
+			- ./backend/django:/app
+			- ./backend/django/static_data:/data/parquet
+		environment:
+			DEBUG: "True"
+			PARQUET_DIR: "/data/parquet"
+```
+
+---
+
+## 🚀 Separate Service Deployment (Cloud Production)
+
+### Backend (API Service)
+```bash
+docker build -t yourrepo/philgeps-backend:latest backend/django
+docker push yourrepo/philgeps-backend:latest
+```
+Set environment variables in your cloud service:
+- SECRET_KEY, DEBUG, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS, PARQUET_DIR
+
+### Frontend (Static Site)
+```bash
+docker build -t yourrepo/philgeps-frontend:latest --build-arg VITE_API_URL=https://your-backend.example.com frontend
+docker push yourrepo/philgeps-frontend:latest
+```
+Set VITE_API_URL at build time to point to your backend’s public URL.
+
+---
+
+## 📝 Required Environment Variables (Backend)
+
+| Variable                | Example Value                        | Description                                 |
+|-------------------------|--------------------------------------|---------------------------------------------|
+| SECRET_KEY              | django-insecure-dev-key              | Django secret key (change in production)    |
+| DEBUG                   | True                                 | Set to False in production                  |
+| ALLOWED_HOSTS           | localhost,127.0.0.1                  | Comma-separated list of allowed hosts       |
+| CORS_ALLOWED_ORIGINS    | http://localhost:3000                | Comma-separated frontend origins            |
+| CSRF_TRUSTED_ORIGINS    | http://localhost:3000                | Comma-separated trusted origins for CSRF    |
+| PARQUET_DIR             | /data/parquet                        | Path to static_data (if mounting volume)    |
+
+See `backend/django/env.example` for more options.
 
 [![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -295,13 +512,143 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **PhilGEPS**: For providing the procurement data
-- **Django Community**: For the excellent web framework
-- **React Team**: For the powerful frontend library
-- **Open Source Contributors**: For the amazing tools and libraries
 
 
-## 📞 Support
+
+
+
+## � Separate Service Deployment (Cloud Production)
+
+For production, deploy backend and frontend as independent services on your chosen cloud platforms. Compose is for local dev only.
+
+### Backend (API Service)
+
+1. **Build and push the image:**
+	```powershell
+	docker build -t yourrepo/philgeps-backend:latest backend/django
+	docker push yourrepo/philgeps-backend:latest
+	```
+2. **Deploy to your cloud platform:**
+	- Use AWS ECS, Azure Container Apps, DigitalOcean App Platform, etc.
+	- Set these environment variables in your cloud service:
+	  - `SECRET_KEY`: your secure Django secret key
+	  - `DEBUG`: `False`
+	  - `ALLOWED_HOSTS`: your backend domain (e.g., `api.example.com`)
+	  - `CORS_ALLOWED_ORIGINS`: your frontend domain (e.g., `https://app.example.com`)
+	  - `CSRF_TRUSTED_ORIGINS`: your frontend domain
+	  - `PARQUET_DIR`: path to data (mount volume or use cloud storage)
+
+### Frontend (Static Site)
+
+1. **Build and push the image:**
+	```powershell
+	docker build -t yourrepo/philgeps-frontend:latest --build-arg VITE_API_URL=https://your-backend.example.com frontend
+	docker push yourrepo/philgeps-frontend:latest
+	```
+2. **Deploy to your cloud platform:**
+	- Use AWS S3 + CloudFront, Azure Static Web Apps, Vercel, Netlify, or a containerized Nginx.
+	- If using a container, set `VITE_API_URL` at build time to point to your backend’s public URL.
+
+### Notes
+- No code or data mounts in production—images should be built and pushed ahead of time.
+- Set all environment variables explicitly in your cloud service’s config.
+- Compose is for local dev only; use your cloud provider’s deployment tools for production.
+
+
+This project uses multiple Docker Compose files for modular, environment-specific setups:
+
+- `docker-compose.yml`: Base configuration (production-like, no mounts, explicit env vars)
+- `docker-compose.dev.yml`: Development overrides (mounts code/data, sets dev env vars)
+
+### Production-like (base only)
+
+```powershell
+docker compose up --build
+```
+
+### Development (base + dev override)
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+The dev override mounts your local code and data for live editing and sets development environment variables. The base file is suitable for CI/CD and cloud deployment.
+
+### Example: Backend volume mount in dev
+
+```yaml
+services:
+	backend:
+		volumes:
+			- ./backend/django:/app
+					- ./backend/django/static_data:/data/parquet
+				environment:
+					DEBUG: "True"
+					PARQUET_DIR: "/data/parquet"
+```
+
+## � Running with Docker
+
+You can run the backend and frontend containers without creating .env files by injecting environment variables directly. This is recommended for cloud deployments and CI/CD.
+
+### Backend Example (docker run)
+
+```bash
+docker run -d --name philgeps-backend -p 3200:8000 \
+	-e SECRET_KEY="django-insecure-dev-key" \
+	-e DEBUG="True" \
+	-e ALLOWED_HOSTS="localhost,127.0.0.1" \
+	-e CORS_ALLOWED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000" \
+	-e CSRF_TRUSTED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000" \
+	philgeps-backend:latest
+```
+
+### Backend Example (docker compose)
+
+```yaml
+services:
+	backend:
+		image: philgeps-backend:latest
+		ports:
+			- "3200:8000"
+		environment:
+			SECRET_KEY: "django-insecure-dev-key"
+			DEBUG: "True"
+			ALLOWED_HOSTS: "localhost,127.0.0.1"
+			CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+			CSRF_TRUSTED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+			# PARQUET_DIR: "/data/parquet" # Uncomment if mounting data volume
+```
+
+### Frontend Example (docker run)
+
+```bash
+docker run -d --name philgeps-frontend -p 3000:80 philgeps-frontend:latest
+```
+
+### Frontend Example (docker compose)
+
+```yaml
+services:
+	frontend:
+		image: philgeps-frontend:latest
+		ports:
+			- "3000:80"
+```
+
+### Required Environment Variables (Backend)
+
+| Variable                | Example Value                        | Description                                 |
+|-------------------------|--------------------------------------|---------------------------------------------|
+| SECRET_KEY              | django-insecure-dev-key              | Django secret key (change in production)    |
+| DEBUG                   | True                                 | Set to False in production                  |
+| ALLOWED_HOSTS           | localhost,127.0.0.1                  | Comma-separated list of allowed hosts       |
+| CORS_ALLOWED_ORIGINS    | http://localhost:3000                | Comma-separated frontend origins            |
+| CSRF_TRUSTED_ORIGINS    | http://localhost:3000                | Comma-separated trusted origins for CSRF    |
+| PARQUET_DIR             | /data/parquet                        | Path to static_data (if mounting volume)    |
+
+See `backend/django/env.example` for more options.
+
 
 For support and questions:
 - Create an issue in the GitHub repository
