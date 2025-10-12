@@ -237,20 +237,14 @@ Raw Data (XLSX/CSV) → Processing Scripts → Consolidated Data → Aggregation
 ## 🛠️ Development
 
 ### Docker Workflow
-
-All development and deployment should use Docker Compose.
-
-Data handling in Docker:
 - Recommended: mount host `./data` into the backend container at `/data` and set `PARQUET_DIR=/data/parquet` (no image rebuild to refresh data).
 - Alternative: bake `data/parquet/` into the backend image (larger image; simpler runtime). Dockerfile already copies `data/parquet/` and sets `PARQUET_DIR=/data/parquet` when building from repo root.
 - Avoid: copying Parquet files into Django `static/` — they’ll be publicly exposed and slow collectstatic.
 
-Verification:
 - Backend health: GET `http://localhost:3200/api/v1/data-processing/health/`
 - Data presence: GET `http://localhost:3200/api/v1/data-processing/available-time-ranges/` should return `{"all_time": true, ...}` when `/data/parquet` is present.
 
 For code style, follow:
-- **Python**: PEP 8 compliance
 - **TypeScript**: ESLint + Prettier
 - **React**: Functional components with hooks
 - **Styling**: Styled Components with theme system
@@ -258,13 +252,11 @@ For code style, follow:
 ## 📈 Performance
 
 ### Optimizations
-- **Lazy Loading**: Components loaded on demand
 - **Memoization**: React.memo for expensive components
 - **Efficient Queries**: Optimized database queries
 - **Caching**: Strategic data caching
 - **Bundle Splitting**: Code splitting for faster loads
 
-### Monitoring
 - **Performance Tracking**: Built-in performance monitoring
 - **Error Boundaries**: Graceful error handling
 

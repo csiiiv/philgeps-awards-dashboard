@@ -237,6 +237,7 @@ curl -f http://localhost/ || exit 1
 - [ ] SSL certificate installed and configured
 - [ ] Security headers configured
 - [ ] CORS properly configured
+- [ ] CSRF trusted origins configured (frontend origin)
 - [ ] Database credentials secured
 - [ ] Secret key is secure and unique
 - [ ] Debug mode disabled
@@ -284,6 +285,32 @@ tar -czf /backups/philgeps_files_$(date +%Y%m%d).tar.gz /var/www/philgeps/
 2. **Static files not loading**: Check Nginx configuration and file permissions
 3. **Database connection errors**: Verify database credentials and connectivity
 4. **CORS errors**: Check CORS_ALLOWED_ORIGINS setting
+5. **CSRF origin checking failed**: Ensure CSRF_TRUSTED_ORIGINS includes your frontend origin with scheme (e.g., `https://frontend.example.com`)
+
+### Split-Origin Setup (Frontend + API on different domains)
+
+1. Frontend `.env`:
+```
+VITE_API_URL=https://your-api-domain.example.com
+```
+Note: Do not include `/api` or `/api/v1` here; the app appends `/api/v1`.
+
+2. Backend `.env`:
+```
+ALLOWED_HOSTS=your-api-domain.example.com
+CORS_ALLOWED_ORIGINS="https://your-frontend-domain.example.com"
+CSRF_TRUSTED_ORIGINS="https://your-frontend-domain.example.com"
+SECURE_SSL_REDIRECT=True
+```
+
+3. Quick tests
+```
+# From frontend container
+curl -i https://your-api-domain.example.com/api/v1/
+
+# From backend container (python shell)
+python -c "import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE','philgeps_data_explorer.settings'); import django; django.setup(); from django.conf import settings; print(settings.CSRF_TRUSTED_ORIGINS)"
+```
 
 ### Debug Commands
 ```bash
