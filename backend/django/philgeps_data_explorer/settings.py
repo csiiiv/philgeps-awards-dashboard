@@ -21,6 +21,10 @@ if allowed_hosts_env:
     host_list = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
     ALLOWED_HOSTS.extend(host_list)
 
+# During local/testing with DEBUG true, allow any host to prevent 400 errors when accessed via LAN/IP
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -136,6 +140,23 @@ if cors_env:
 # Additional CORS settings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False  # Security: only allow specific origins
+
+# CSRF trusted origins (for forms and API requests with CSRF protection)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3002",
+    "http://localhost:3200",
+    "http://127.0.0.1:3200",
+]
+
+csrf_env = config('CSRF_TRUSTED_ORIGINS', default='')
+if csrf_env:
+    csrf_list = [origin.strip() for origin in csrf_env.split(',') if origin.strip()]
+    CSRF_TRUSTED_ORIGINS.extend(csrf_list)
 
 # Security headers
 SECURE_BROWSER_XSS_FILTER = True
