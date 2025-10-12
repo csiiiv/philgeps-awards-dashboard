@@ -4,8 +4,8 @@
 
 The PHILGEPS Awards Data Explorer is a comprehensive transparency dashboard that provides access to Philippine government procurement data from 2013-2025. The dashboard is built as a single-page application with a tabbed interface, featuring advanced search, analytics, and export capabilities with complete OpenAPI 3.0 compliance.
 
-**Version**: v3.2.0 - Value Range Filter & Enhanced UX  
-**Last Updated**: January 6, 2025
+**Version**: v3.3.0 - Docker Support & Unified Export System  
+**Last Updated**: October 12, 2025
 
 ## 🏗️ Current Dashboard Architecture
 
@@ -31,44 +31,42 @@ The dashboard consists of five main tabs:
 
 ---
 
-## 🆕 Latest Updates - v3.2.0
+## 🆕 Latest Updates - v3.3.0
 
-### Value Range Filter & Enhanced UX
+### Docker Support & Unified Export System
 
-The dashboard now includes advanced value range filtering and improved user experience features:
+The dashboard now features complete containerization and a unified export system with major improvements:
 
-#### New Value Range Filter
-- **Contract Amount Filtering** - Filter contracts by minimum and maximum values
-- **KMBT Format Support** - Input values in K (thousands), M (millions), B (billions), T (trillions)
+#### Docker Containerization
+- **Complete Docker Support** - Full containerization with Docker Compose
+- **Multi-Service Setup** - Backend (Django + Gunicorn) and frontend (React + Nginx)
+- **Production Ready** - Multi-stage builds and health check endpoints
+- **Flexible Data Handling** - Configurable Parquet data management
+- **Cloud Deployment** - Azure and AWS deployment guides
+
+#### Unified Export System
+- **Streaming CSV Export** - Memory-efficient export for large datasets
+- **Real-time Progress** - Progress tracking with cancellation support
+- **Performance Optimization** - 3-5x faster export times with 50,000 record batches
+- **Memory Efficiency** - Eliminates browser crashes with large datasets (1.7GB+)
+- **Consistent Interface** - Unified export across all components
+
+#### Value Range Filtering
+- **Contract Amount Filtering** - Min/Max value filtering with KMBT format support
 - **Smart Input Validation** - Real-time validation and formatting
-- **Default Range** - Automatic fallback to 0-1T range when no range is specified
-- **Horizontal Layout** - Time Range and Value Range filters share a row for better space utilization
+- **Enhanced Pagination** - Custom page input for direct navigation
+- **Filter Persistence** - Value range settings saved and restored
 
-#### Enhanced Pagination
-- **Custom Page Input** - Direct page number entry for faster navigation
-- **Always-Visible Input** - Page input field always available in pagination component
-- **Improved UX** - Better navigation experience for large datasets
-
-#### Backend Integration
-- **Complete API Support** - All endpoints now support value range filtering
-- **Type-Safe Queries** - Proper contract amount type casting in database queries
-- **Performance Optimization** - Enhanced query performance for value range filters
-- **Filter Persistence** - Value range settings saved and restored with other filters
-- **Aggregated Data Export** - Export analytics data from Data Explorer
-- **Progress Tracking** - Real-time progress for large export operations
-- **Filtered Results Export** - Export only filtered search results, not all contracts
-
-#### Production Readiness
-- **Mobile Data Loading Fixed** - Resolved issues with mobile device data loading
-- **PowerShell Setup Script** - Improved compatibility with external PowerShell windows
-- **CORS Configuration** - Optimized for both local and production environments
-- **Rate Limiting** - 240 requests per hour per IP address
-- **Enhanced Error Handling** - Comprehensive error messages and recovery
+#### Development Workflow
+- **Docker-First Approach** - Single `docker compose up` command for setup
+- **Environment Standardization** - Consistent development across platforms
+- **Health Monitoring** - Built-in health checks for container orchestration
+- **Production Deployment** - Comprehensive cloud deployment documentation
 
 #### Technical Improvements
-- **13 Active API Endpoints** - All endpoints documented and tested
-- **Input Validation** - Comprehensive validation and sanitization
-- **Security Headers** - Proper security configuration
+- **OpenAPI 3.0 Compliance** - Complete API documentation with Swagger UI
+- **Rate Limiting** - 240 requests per hour per IP address
+- **Enhanced Security** - Proper CORS, CSRF, and security headers
 - **Performance Optimization** - Faster data processing and response times
 
 ---
@@ -283,7 +281,7 @@ The dashboard uses a comprehensive design system with:
 - **Zustand 5.0.8** - State management
 
 ### Backend Technology Stack
-- **Django 4.2** - Web framework
+- **Django 5.2** - Web framework
 - **Django REST Framework** - API framework
 - **SQLite** - Primary database
 - **Parquet Files** - Columnar data storage for analytics
@@ -446,4 +444,4 @@ The dashboard uses a comprehensive design system with:
 
 ---
 
-*This documentation reflects the current state of the PHILGEPS Awards Data Explorer dashboard as of January 27, 2025. The dashboard features a dual-interface architecture with Data Explorer as the primary analytics interface and Advanced Search for detailed contract discovery. The system continues to evolve with regular updates and improvements.*
+*This documentation reflects the current state of the PHILGEPS Awards Data Explorer dashboard as of October 12, 2025. The dashboard features a dual-interface architecture with Data Explorer as the primary analytics interface and Advanced Search for detailed contract discovery, now fully containerized with Docker support and unified export system. The system continues to evolve with regular updates and improvements.*

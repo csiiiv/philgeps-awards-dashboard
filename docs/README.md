@@ -81,5 +81,5 @@ Comprehensive production deployment guide including:
 
 ---
 
-**Last Updated**: October 7, 2025  
-**Version**: v3.2.0 - Value Range Filter & Enhanced UX
+**Last Updated**: October 12, 2025  
+**Version**: v3.3.0 - Docker Support & Unified Export System

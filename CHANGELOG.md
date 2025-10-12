@@ -5,6 +5,18 @@ All notable changes to the PHILGEPS Awards Data Explorer will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-10-12
+
+### Changed
+- **Documentation Update**: Comprehensive audit and update of all documentation files
+  - Updated `docs/DASHBOARD_DOCUMENTATION.md` from v3.2.0 to v3.3.0 with current features
+  - Updated Django version from 4.2 to 5.2.6 to match requirements.txt
+  - Updated API documentation dates from January to October 2025
+  - Fixed version inconsistencies in API documentation (1.0.0 → 1.1.0)
+  - Added Docker containerization and unified export system documentation
+  - Fixed changelog duplicate entries and version inconsistencies
+  - Ensured all documentation reflects current codebase state
+
 ## [3.3.0] - 2025-10-12
 
 ### Added
@@ -113,100 +125,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Type Safety**: Enhanced TypeScript interfaces for export configurations
 - **Documentation**: Detailed component export analysis and usage guides
 - **Testing**: Export testing utilities for development and debugging
-
-## [3.3.0] - 2025-10-12
-
-### Added
-- **Docker Support**: Complete containerization with Docker Compose for local development
-  - Multi-service setup with backend (Django + Gunicorn) and frontend (React + Nginx)
-  - Docker Compose configuration with proper port mapping (backend: 3200:8000, frontend: 3000:80)
-  - Multi-stage frontend build with Node.js build stage and Nginx serving stage
-  - Backend containerization with Python 3.11, Gunicorn WSGI server, and health endpoints
-- **Data Handling Strategy**: Flexible Parquet data management in containers
-  - Support for baking Parquet data into backend image at `/data/parquet`
-  - Configurable `PARQUET_DIR` environment variable for flexible data paths
-  - Alternative volume mounting support for runtime data updates
-  - Proper separation from Django static files (avoid WhiteNoise exposure)
-- **Health Monitoring**: Container health check endpoints
-  - `/api/v1/data-processing/health/` for container health probes
-  - `/api/v1/data-processing/available-time-ranges/` for data presence verification
-  - Built-in health checks for both backend and frontend services
-- **Production Deployment Guide**: Comprehensive cloud deployment documentation
-  - Azure Container Apps, Web App for Containers, and AKS deployment guidance
-  - AWS ECS, Elastic Beanstalk, and S3+CloudFront deployment options
-  - Environment variable configuration and secrets management
-  - TLS termination, CORS configuration, and security best practices
-
-### Changed
-- **Development Workflow**: Migrated from script-based setup to Docker-first approach
-  - Replaced manual environment setup with Docker Compose
-  - Standardized development environment across all platforms
-  - Simplified onboarding with single `docker compose up` command
-- **Environment Configuration**: Streamlined Django settings and environment variables
-  - Removed custom `API_DOMAINS` and `FRONTEND_DOMAINS` logic
-  - Standardized to use `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`
-  - Added comprehensive environment variable documentation
-- **Build Process**: Optimized Docker build context and image sizes
-  - Added comprehensive `.dockerignore` files for reduced build context
-  - Set build context to repository root for data access
-  - Implemented multi-stage builds for frontend optimization
-- **Frontend Serving**: Updated from development server to production Nginx setup
-  - Custom `nginx.conf` with SPA routing support and security headers
-  - Updated Vite base path from `/static/` to `/` for proper asset serving
-  - Optimized static file caching and compression
-
-### Removed
-- **Legacy Setup Scripts**: Archived manual setup and run scripts
-  - Moved `setup_env.ps1`, `setup_env.sh`, `run_local.ps1`, `run_local.sh` to `scripts/archive/`
-  - Removed `setup_env_clean.ps1`, `setup_simple.ps1`, and `run_setup.bat`
-  - Deleted `GITHUB_SETUP.md` (replaced with Docker documentation)
-- **Manual Environment Setup**: Eliminated need for manual `.env` file creation
-  - Docker Compose handles environment configuration
-  - Simplified development setup process
-  - Reduced configuration complexity and potential errors
-
-### Fixed
-- **Asset Loading**: Resolved frontend static file 404 errors in containerized environment
-  - Fixed Vite base path configuration for Nginx serving
-  - Proper asset path resolution in production builds
-- **CORS Configuration**: Improved cross-origin request handling
-  - Standardized CORS origins configuration
-  - Better support for both local development and production domains
-- **Django Settings**: Cleaned up settings.py for better maintainability
-  - Removed redundant environment variable handling
-  - Simplified CORS and allowed hosts configuration
-  - Better separation of development and production settings
-
-### Security
-- **Data Protection**: Enhanced security for Parquet data files
-  - Prevented accidental exposure of data files through Django static serving
-  - Proper isolation of application data from web-accessible static files
-- **Container Security**: Implemented security best practices
-  - Minimal base images and reduced attack surface
-  - Proper file permissions and non-root user considerations
-  - Security headers configuration in Nginx
-
-### Documentation
-- **Docker Deployment Guide**: New comprehensive deployment documentation
-  - Local development with Docker Compose
-  - Cloud deployment strategies for Azure and AWS
-  - Environment variable configuration guide
-  - Security and networking best practices
-- **Updated README**: Docker-first development approach
-  - Simplified quickstart instructions
-  - Data handling verification steps
-  - Environment configuration guidance
-- **Backend Documentation**: Enhanced Django app documentation
-  - Parquet data path configuration
-  - Container-specific setup instructions
-  - Health check endpoint documentation
-
-### Technical Improvements
-- **Infrastructure as Code**: Docker Compose configuration for reproducible environments
-- **Build Optimization**: Efficient Docker builds with proper layering and caching
-- **Health Monitoring**: Built-in health checks for container orchestration
-- **Development Experience**: Streamlined setup with single command deployment
-- **Production Readiness**: Complete containerization with deployment guides
 
 ## [3.2.0] - 2025-10-10
 

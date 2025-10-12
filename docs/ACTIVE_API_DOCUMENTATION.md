@@ -10,7 +10,7 @@ This documentation provides a comprehensive reference for the PHILGEPS Awards Da
 **Local Development**: `http://localhost:3200/api/v1/`  
 **Documentation**: `https://philgeps-api.simple-systems.dev/api/docs/`  
 **ReDoc**: `https://philgeps-api.simple-systems.dev/api/redoc/`  
-**Last Updated**: January 6, 2025
+**Last Updated**: October 12, 2025
 
 ## Table of Contents
 
@@ -896,7 +896,7 @@ aggregatedA.click();
 
 ### Schema Information
 - **OpenAPI Version**: 3.0.3
-- **API Version**: 1.0.0
+- **API Version**: 1.1.0
 - **Schema Size**: ~75KB
 - **Total Endpoints**: 12
 - **Compliance**: 100% OpenAPI 3.0 compliant
@@ -961,4 +961,4 @@ aggregatedA.click();
 
 ---
 
-*This documentation is fully compliant with OpenAPI 3.0 specifications and covers all actively used API endpoints as of January 27, 2025. The API provides comprehensive search, analytics, and export functionality for Philippine government procurement data.*
+*This documentation is fully compliant with OpenAPI 3.0 specifications and covers all actively used API endpoints as of October 12, 2025. The API provides comprehensive search, analytics, and export functionality for Philippine government procurement data.*
