@@ -262,14 +262,15 @@ $RECYCLE.BIN/
 *.vsix
 
 
-# Data files (too large for GitHub)
-# Large parquet files are tracked by Git LFS
-# Small parquet files are allowed in the repo
-data/processed/
-data/raw/
-!data/predefinedFilters.json
-!data/parquet/agg_*.parquet
-!data/parquet/facts_awards_flood_control.parquet
+# Data files
+# Note: Parquet files are tracked via Git LFS as configured in .gitattributes
+# Allow committing data and static_data folders; use LFS for large files
+!backend/django/static_data/**
+!data/**
+*.csv
+*.xlsx
+*.xls
+*.7z
 
 # Database files
 *.sqlite3
@@ -281,7 +282,3 @@ logs/
 
 # Temporary files
 .fuse_hidden*
-
-# Backend static parquet data (do not commit large files)
-backend/django/static_data/*.parquet
-!backend/django/static_data/README.md
