@@ -281,3 +281,7 @@ logs/
 
 # Temporary files
 .fuse_hidden*
+
+# Backend static parquet data (do not commit large files)
+backend/django/static_data/*.parquet
+!backend/django/static_data/README.md

@@ -5,7 +5,7 @@ import { typography, spacing } from '../../../../design-system'
 import type { FilterState, DateRangeState } from '../../../../hooks/advanced-search/useAdvancedSearchFilters'
 import { FilterPersistence } from '../../../../utils/filterPersistence'
 import type { PredefinedFilter, SavedFilter } from '../../../../utils/filterPersistence'
-import predefinedFiltersData from '../../../../data/predefinedFilters.json'
+import predefinedFiltersData from '../../../../constants/predefinedFilters.json'
 
 export interface PredefinedFilterSelectorProps {
   onApplyFilter: (filter: {

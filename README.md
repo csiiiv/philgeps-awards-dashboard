@@ -73,18 +73,9 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 ## 📊 Data Overview
 
-- **💰 Contract Value**: ₱14.8T+ across 5M+ awarded contracts
-- **👥 Entities**: 119K+ contractors, 23K+ government organizations
-- **🌍 Coverage**: 542+ delivery areas across the Philippines
-- **📅 Timeline**: 2013-2025 (13 years of procurement data)
-- **📁 Dataset**: 2.6GB consolidated with 50 columns
-- **🔍 Sources**: PhilGEPS XLSX/CSV + Flood Control Projects
+ **�️ Storage**: Large Parquet data files are now stored in `data/parquet/` as static data. Do not use git-lfs for these files; see [data/README.md](data/README.md) for details and migration instructions.
 
 ### Data Processing Pipeline
-- **Raw Sources**: XLSX (2013-2020) + CSV (2021-2025) files
-- **Consolidated**: 15.5M+ total records in unified format
-- **Clean Dataset**: 5.0M+ contracts with financial values
-- **Optimized Files**: Real-time aggregations for fast analytics
 
 ---
 

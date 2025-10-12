@@ -1,6 +1,7 @@
 # Data Directory
 
 This directory contains the project's data files and structures.
+> **Note (Oct 2025):** Large Parquet data files are now stored in `data/parquet/` as static data. Previous git-lfs usage has been discontinued. Contributors should not push large data files via git-lfs; use the static directory and follow mounting instructions below.
 
 ## 📁 Directory Structure
 
@@ -35,6 +36,7 @@ The data processing pipeline is documented in [`scripts/DATA_PIPELINE.md`](../sc
 ### Docker Integration
 - **Development**: Data is mounted as volume for live updates
 - **Production**: Data can be baked into container image or mounted
+ - **Backend Default**: The backend image bakes demo/static datasets into `backend/django/static_data/` (copied to `/data/parquet` in the container). For large, real datasets, keep them in `data/parquet/` locally and mount `./data:/data` during development.
 
 ## 📈 Statistics
 - **Contract Value**: ₱14.8T+ across all contracts
