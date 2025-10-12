@@ -1,7 +1,7 @@
 # Production Deployment Guide
 
 ## Overview
-This guide covers deploying the PHILGEPS Awards Dashboard with OpenAPI documentation to a production environment.
+This guide covers deploying the PHILGEPS Awards Dashboard to a production environment using traditional deployment methods (non-containerized). For Docker-based deployment, see the [Docker Deployment Guide](DOCKER_DEPLOYMENT_GUIDE.md).
 
 ## Prerequisites
 - Python 3.11+
@@ -9,6 +9,8 @@ This guide covers deploying the PHILGEPS Awards Dashboard with OpenAPI documenta
 - PostgreSQL (recommended) or SQLite
 - Nginx (recommended) or Apache
 - SSL certificate
+
+**Note**: This project is designed with a Docker-first development approach. For local development, use `docker compose` as documented in the main [README.md](../README.md).
 
 ## Current Authentication Status
 **Note**: The API currently has **no authentication system** implemented. All endpoints are publicly accessible with rate limiting of 240 requests per hour per IP address. If authentication is needed, JWT authentication can be implemented using the `djangorestframework-simplejwt` package that's already included in requirements.txt.
