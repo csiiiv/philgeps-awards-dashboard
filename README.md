@@ -138,6 +138,31 @@ docker push yourrepo/philgeps-frontend:latest
 - Copy `frontend/env.example` to `frontend/.env`
 - Or use `setup_env.sh` for automated setup
 
+### Direct Docker `run` environment injection (example)
+
+If you need to run a single container and inject environment variables directly, you can use `docker run -e` flags. This is useful for short-lived testing or debugging but is not recommended for long-term production because environment variables will be visible in process lists and container inspection.
+
+```bash
+# Run the backend API container with explicit env injection
+docker run -d \
+	-p 3200:3200 \
+	-e SECRET_KEY='django-insecure-dev-key' \
+	-e DEBUG=False \
+	-e ALLOWED_HOSTS='api.example.com' \
+	-e PARQUET_DIR='/data/parquet' \
+	--name philgeps-backend \
+	yourrepo/philgeps-backend:latest
+```
+
+Security note: avoid storing sensitive secrets directly in shell history or Docker command lines. Prefer using `--env-file` or an orchestration secret manager for production deployments (see examples below).
+
+Alternative (env file):
+
+```bash
+# Use an env file instead of passing secrets on the command line
+docker run --env-file backend/django/.env -d -p 3200:3200 --name philgeps-backend yourrepo/philgeps-backend:latest
+```
+
 ---
 
 ## 📈 Recent Updates
