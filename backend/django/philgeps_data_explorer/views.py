@@ -1,2 +1,8 @@
-# Pure API service - no frontend serving views needed
-# All views are now in the respective app modules (contracts, data_processing)
+# Pure API service - no view functions needed
+# All API endpoints are handled by Django REST Framework in the apps
+
+
+
+
+
+

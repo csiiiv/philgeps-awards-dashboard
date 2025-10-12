@@ -20,7 +20,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from django.http import JsonResponse
-from . import views
 
 def api_info(request):
     """API information endpoint for production deployments"""
@@ -46,7 +45,8 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    # API info endpoint for production API-only deployment
+
+    # API info endpoint for production
     path('', api_info, name='api_info'),
 ]
 

@@ -1,6 +1,9 @@
 version: '3.8'
 services:
   backend:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
     image: philgeps-backend:latest
     ports:
       - "3200:8000"
@@ -15,6 +18,10 @@ services:
     #   - ./backend/django/static_data:/data/parquet
 
   frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: https://philgeps-api.simple-systems.dev
     image: philgeps-frontend:latest
     ports:
       - "3000:80"
