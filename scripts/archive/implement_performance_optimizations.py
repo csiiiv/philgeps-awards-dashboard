@@ -165,7 +165,7 @@ def implement_query_optimizations():
         SELECT contract_number, award_title, search_text
         FROM read_parquet('data/parquet/facts_awards_super_optimized.parquet')
         WHERE (search_text LIKE '%construction%' OR search_text LIKE '%road%')
-        AND contract_amount > 50000
+        AND contract_amount > 25000
         ORDER BY contract_amount DESC
         LIMIT 20
     """).fetchall()

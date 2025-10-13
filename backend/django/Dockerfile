@@ -41,4 +41,6 @@ RUN python manage.py migrate --noinput
 EXPOSE 8000
 
 # Run the application (ensure correct Django project module)
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "philgeps_data_explorer.wsgi:application"]
+# Allow overriding gunicorn args via GUNICORN_CMD_ARGS. Default to a higher timeout and single worker
+ENV GUNICORN_CMD_ARGS="--bind 0.0.0.0:8000 --timeout 600 --workers 1"
+CMD ["sh", "-c", "gunicorn $GUNICORN_CMD_ARGS philgeps_data_explorer.wsgi:application"]

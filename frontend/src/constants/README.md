@@ -104,7 +104,7 @@ export const PAGINATION = {
 
 export const EXPORT_CONFIG = {
   MAX_RECORDS: 5000000,
-  CHUNK_SIZE: 50000,
+  CHUNK_SIZE: 25000,
   SUPPORTED_FORMATS: ['csv'] as const
 } as const;
 ```

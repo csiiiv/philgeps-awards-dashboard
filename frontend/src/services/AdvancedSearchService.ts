@@ -126,7 +126,7 @@ export interface ExportEstimateResponse {
   estimated_csv_bytes: number
 }
 
-import { resolveUrl, getApiRoot } from '../utils/api'
+import { resolveUrl } from '../utils/api'
 
 export class AdvancedSearchService {
   private baseUrl: string
@@ -136,9 +136,9 @@ export class AdvancedSearchService {
     if (baseUrl) {
       this.baseUrl = baseUrl.replace(/\/$/, '')
     } else {
-      // Build baseUrl from the API root and ensure it includes the API version prefix
-      const root = getApiRoot()
-      this.baseUrl = root ? `${root}/api/v1`.replace(/\/$/, '') : '/api/v1'
+      // Use centralized resolver to normalize API root and version prefix
+      // resolveUrl('/') will return either `${root}/api/v1` or `/api/v1` when root is empty
+      this.baseUrl = resolveUrl('/')
     }
   }
 
@@ -180,7 +180,18 @@ export class AdvancedSearchService {
       })
 
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.statusText}`)
+        // Try to read JSON error body for a clearer message
+        let errMsg = response.statusText || `HTTP ${response.status}`
+        try {
+          const errBody = await response.json()
+          if (errBody && (errBody.error || errBody.message)) {
+            errMsg = errBody.error || errBody.message
+          }
+        } catch (e) {
+          // ignore JSON parse errors and keep statusText
+        }
+        console.error('AdvancedSearchService - searchContracts non-ok response:', response.status, response.statusText)
+        throw new Error(`Search failed: ${errMsg}`)
       }
 
       const data = await response.json()
@@ -223,7 +234,36 @@ export class AdvancedSearchService {
       })
 
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.statusText}`)
+        // Attempt to parse backend JSON error to provide actionable message
+        let errMsg = response.statusText || `HTTP ${response.status}`
+        try {
+          const errBody = await response.json()
+          // errBody can be many shapes: {error: '...'}, {message: '...'}, {'detail': '...'}, or a dict of field->list
+          if (errBody) {
+            if (typeof errBody === 'string') {
+              errMsg = errBody
+            } else if (errBody.error || errBody.message || errBody.detail) {
+              errMsg = errBody.error || errBody.message || errBody.detail
+            } else if (typeof errBody === 'object') {
+              // Build concise message from serializer errors object
+              const parts: string[] = []
+              for (const [k, v] of Object.entries(errBody)) {
+                if (Array.isArray(v)) {
+                  parts.push(`${k}: ${v.join(', ')}`)
+                } else if (typeof v === 'string') {
+                  parts.push(`${k}: ${v}`)
+                } else {
+                  parts.push(`${k}: ${JSON.stringify(v)}`)
+                }
+              }
+              if (parts.length) errMsg = parts.join('; ')
+            }
+          }
+        } catch (e) {
+          // ignore parse errors
+        }
+        console.error('AdvancedSearchService - searchContractsWithChips non-ok response:', response.status, response.statusText)
+        throw new Error(`Search failed: ${errMsg} (status ${response.status})`)
       }
 
       const data = await response.json()

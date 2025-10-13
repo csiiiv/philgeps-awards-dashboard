@@ -73,14 +73,18 @@ export const useAdvancedSearchData = (): UseAdvancedSearchDataReturn => {
         
         console.log('✅ useAdvancedSearchData - search completed successfully')
       } else {
-        setError(response.message || 'Search failed')
+        // Backend may return `error` or `message` depending on implementation
+        const backendMsg = (response as any).error || (response as any).message
+        setError(backendMsg || 'Search failed')
         setSearchResults([])
         setAggregates(null)
-        console.log('❌ useAdvancedSearchData - search failed:', response.message)
+        console.log('❌ useAdvancedSearchData - search failed:', backendMsg)
       }
     } catch (error) {
       console.error('🚨 useAdvancedSearchData - search error:', error)
-      setError('Search failed. Please try again.')
+      // Surface the underlying error message when possible
+      const msg = error instanceof Error ? error.message : String(error)
+      setError(msg || 'Search failed. Please try again.')
       setSearchResults([])
       setAggregates(null)
     } finally {

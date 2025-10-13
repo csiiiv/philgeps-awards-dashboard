@@ -106,12 +106,28 @@ class ChipSearchRequestSerializer(serializers.Serializer):
         max_value=1000,
         help_text="Number of results per page (max 1000)"
     )
-    sortBy = serializers.ChoiceField(
-        choices=['award_date', 'contract_amount', 'reference_id', 'created_at'],
+    # Allow sorting by a broader (but safe) set of fields. Use a CharField with explicit validation
+    # against an allowlist to avoid injection or invalid SQL column names.
+    ALLOWED_SORT_FIELDS = [
+        'award_date', 'contract_amount', 'reference_id', 'created_at',
+        'organization_name', 'awardee_name', 'business_category', 'area_of_delivery',
+        'contract_no', 'award_status', 'award_amount', 'award_title', 'notice_title'
+    ]
+
+    sortBy = serializers.CharField(
         required=False,
         default='award_date',
-        help_text="Field to sort by"
+        help_text="Field to sort by. Allowed: %s" % (', '.join(ALLOWED_SORT_FIELDS))
     )
+
+    def validate_sortBy(self, value):
+        # Normalize incoming value
+        if not value:
+            return value
+        v = str(value).strip()
+        if v in self.ALLOWED_SORT_FIELDS:
+            return v
+        raise serializers.ValidationError(f"Invalid sortBy '{v}'. Allowed fields: {', '.join(self.ALLOWED_SORT_FIELDS)}")
     sortDirection = serializers.ChoiceField(
         choices=['asc', 'desc'],
         required=False,

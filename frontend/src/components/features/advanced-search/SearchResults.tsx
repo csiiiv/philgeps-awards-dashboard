@@ -3,7 +3,11 @@ import { getThemeColors } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
 
 export interface SearchResult {
-  contract_number: string
+  // Backwards-compatible: frontend historically used 'contract_number'
+  // Backend returns 'contract_no' and 'reference_id'. Prefer those but keep compatibility
+  contract_number?: string
+  contract_no?: string
+  reference_id?: string
   award_title: string
   notice_title: string
   award_date: string
@@ -221,7 +225,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             <tr>
               <th 
                 style={thStyle}
-                onClick={() => onSort('contract_number')}
+                onClick={() => onSort('contract_no')}
                 onMouseEnter={(e) => {
                   Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
                 }}
@@ -229,7 +233,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                   Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
                 }}
               >
-                Contract Num {getSortIcon('contract_number')}
+                Contract No {getSortIcon('contract_no')}
               </th>
               <th 
                 style={thStyle}
@@ -342,7 +346,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
               >
                 <td style={tdStyle}>
                   <div style={{ fontWeight: typography.fontWeight.medium }}>
-                    {result.contract_number || 'N/A'}
+                    {result.contract_number || result.contract_no || result.reference_id || 'N/A'}
                   </div>
                 </td>
                 <td style={tdStyle}>
