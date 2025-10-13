@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
+import { resolveUrl } from '../utils/api'
 
 // Export configuration types
 export type ExportType = 'streaming' | 'client-side'
@@ -53,25 +54,8 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
   
   const exportAbort = useRef<AbortController | null>(null)
 
-  // Resolve API root from Vite env or a runtime-injected global. Falls back to '' to keep relative URLs in dev.
-  const API_ROOT = (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_URL)
-    || (typeof window !== 'undefined' && (window as any).__API_URL)
-    || ''
-
-  const resolveUrl = useCallback((path: string) => {
-    // If path is already absolute, return unchanged
-    if (!path) return path
-    if (/^https?:\/\//i.test(path)) return path
-
-    // Ensure API_ROOT has no trailing slash
-    const root = API_ROOT.replace(/\/$/, '')
-    // If path already starts with /api/v1, just join
-    if (path.startsWith('/')) {
-      return root ? `${root}${path}` : path
-    }
-    // otherwise ensure leading slash
-    return root ? `${root}/${path}` : `/${path}`
-  }, [API_ROOT])
+  // Use centralized resolveUrl from `frontend/src/utils/api.ts`
+  // `resolveUrl` handles absolute URLs, VITE_API_URL and optional runtime overrides.
 
   // Normalize filters coming from various components (camelCase or snake_case)
   const normalizeFilters = useCallback((filters: any = {}) => {

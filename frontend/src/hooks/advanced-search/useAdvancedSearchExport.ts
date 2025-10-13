@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { advancedSearchService, type ChipSearchParams } from '../../services/AdvancedSearchService'
+import { resolveUrl } from '../../utils/api'
 
 export interface ExportEstimate {
   count: number
@@ -94,7 +95,8 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
         value_range: params.valueRange
       }
 
-      const response = await fetch('https://philgeps-api.simple-systems.dev/api/v1/contracts/chip-export/', {
+  const apiEndpoint = resolveUrl('/api/v1/contracts/chip-export/')
+  const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -155,15 +157,15 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       setExportProgress(100)
       
       // Create download link
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
+  const downloadUrl = URL.createObjectURL(blob)
+  const a = document.createElement('a')
       const ts = new Date().toISOString().replace(/[:.]/g, '-')
-      a.href = url
+  a.href = downloadUrl
       a.download = `contracts_export_all_${ts}.csv`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+  URL.revokeObjectURL(downloadUrl)
       
       setExportModalOpen(false)
       console.log('✅ useAdvancedSearchExport - download completed successfully')

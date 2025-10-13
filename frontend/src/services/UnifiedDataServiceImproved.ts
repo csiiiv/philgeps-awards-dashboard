@@ -1,14 +1,12 @@
 import { EntityDataService } from './EntityDataService'
 import { ContractDataService } from './ContractDataService'
 import { AnalyticsDataService } from './AnalyticsDataService'
+import { resolveUrl } from '../utils/api'
 import type { 
   EntityType, 
   DatasetType, 
   TimeRange, 
-  SortDirection,
-  EntitySummary,
-  ContractData,
-  DrillModalData
+  SortDirection
 } from '../types/DataExplorer'
 
 export interface UnifiedDataServiceConfig {
@@ -28,11 +26,10 @@ export class UnifiedDataServiceImproved {
   private config: Required<UnifiedDataServiceConfig>
 
   constructor(config: UnifiedDataServiceConfig = {}) {
-    const baseUrl = config.baseUrl || 
-      (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1/data-processing` : '/api/v1/data-processing')
+    const baseUrl = config.baseUrl || resolveUrl('/api/v1/data-processing')
 
     this.config = {
-      baseUrl,
+      baseUrl: baseUrl.replace(/\/$/, ''),
       timeout: 8000,
       retries: 1,
       retryDelay: 300,
@@ -41,27 +38,27 @@ export class UnifiedDataServiceImproved {
       ...config,
     }
 
-    this.entityService = new EntityDataService(this.config.baseUrl)
-    this.contractService = new ContractDataService(this.config.baseUrl)
-    this.analyticsService = new AnalyticsDataService(this.config.baseUrl)
+  this.entityService = new EntityDataService(this.config.baseUrl)
+  this.contractService = new ContractDataService(this.config.baseUrl)
+  this.analyticsService = new AnalyticsDataService(this.config.baseUrl)
     this.cache = new Map()
 
     // Configure services with the same config
-    this.entityService.addRequestInterceptor((config) => ({
+    this.entityService.addRequestInterceptor((config: any) => ({
       ...config,
       timeout: this.config.timeout,
       retries: this.config.retries,
       retryDelay: this.config.retryDelay,
     }))
 
-    this.contractService.addRequestInterceptor((config) => ({
+    this.contractService.addRequestInterceptor((config: any) => ({
       ...config,
       timeout: this.config.timeout,
       retries: this.config.retries,
       retryDelay: this.config.retryDelay,
     }))
 
-    this.analyticsService.addRequestInterceptor((config) => ({
+    this.analyticsService.addRequestInterceptor((config: any) => ({
       ...config,
       timeout: this.config.timeout,
       retries: this.config.retries,
@@ -391,5 +388,5 @@ export class UnifiedDataServiceImproved {
 // Create and export a singleton instance
 // Use environment variable for API URL
 export const unifiedDataServiceImproved = new UnifiedDataServiceImproved({
-  baseUrl: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1/data-processing` : '/api/v1/data-processing'
+  baseUrl: resolveUrl('/api/v1/data-processing')
 })

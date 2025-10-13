@@ -126,11 +126,19 @@ export interface ExportEstimateResponse {
   estimated_csv_bytes: number
 }
 
+import { resolveUrl } from '../utils/api'
+
 export class AdvancedSearchService {
   private baseUrl: string
 
-  constructor(baseUrl: string = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1') {
-    this.baseUrl = baseUrl
+  constructor(baseUrl?: string) {
+    // Prefer explicit baseUrl argument, otherwise resolve from shared helper
+    if (baseUrl) {
+      this.baseUrl = baseUrl.replace(/\/$/, '')
+    } else {
+      // resolveUrl will return either an absolute URL or a relative path starting with /api/v1
+      this.baseUrl = resolveUrl('/api/v1').replace(/\/$/, '')
+    }
   }
 
   // Helper function to provide default value range when undefined or empty
