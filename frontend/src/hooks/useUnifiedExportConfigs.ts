@@ -10,7 +10,7 @@ const createTimestamp = (): string => {
 export const createAdvancedSearchConfig = (): ExportConfig => ({
   type: 'streaming',
   dataSource: 'contracts',
-  apiEndpoint: '/api/v1/contracts/chip-export/',
+  apiEndpoint: '/contracts/chip-export/',
   filename: `contracts_export_${createTimestamp()}.csv`,
   useStreamSaver: true
 })
@@ -20,7 +20,7 @@ export const createDataExplorerConfig = (dimension: string): ExportConfig => {
   return {
     type: 'streaming',
     dataSource: 'aggregated',
-    apiEndpoint: '/api/v1/contracts/chip-export-aggregated/',
+  apiEndpoint: '/contracts/chip-export-aggregated/',
     filename: `analytics_${dimension.replace('by_', '')}_${createTimestamp()}.csv`,
     useStreamSaver: true,
     estimateBytesPerRow: baseEstimate
@@ -33,7 +33,7 @@ export const createAnalyticsExplorerConfig = (dimension: string): ExportConfig =
   return {
     type: 'streaming',
     dataSource: 'aggregated', 
-    apiEndpoint: '/api/v1/contracts/chip-export-aggregated/',
+  apiEndpoint: '/contracts/chip-export-aggregated/',
     filename: `analytics_${dimension.replace('by_', '')}_${createTimestamp()}.csv`,
     useStreamSaver: true,
     estimateBytesPerRow: baseEstimate
@@ -44,7 +44,7 @@ export const createAnalyticsExplorerConfig = (dimension: string): ExportConfig =
 export const createEntityDrillDownContractsConfig = (entityName: string, _entityType: string): ExportConfig => ({
   type: 'streaming',
   dataSource: 'contracts',
-  apiEndpoint: '/api/v1/contracts/chip-export/',
+  apiEndpoint: '/contracts/chip-export/',
   filename: `entity_${entityName.replace(/[^a-zA-Z0-9]/g, '_')}_contracts_${createTimestamp()}.csv`,
   useStreamSaver: true,
   estimateBytesPerRow: getEstimatedBytesPerRow('contracts')
@@ -56,7 +56,7 @@ export const createEntityDrillDownAggregatesConfig = (entityName: string, dimens
   return {
     type: 'streaming',
     dataSource: 'aggregated',
-    apiEndpoint: '/api/v1/contracts/chip-export-aggregated/', 
+  apiEndpoint: '/contracts/chip-export-aggregated/', 
     filename: `entity_${entityName.replace(/[^a-zA-Z0-9]/g, '_')}_${dimension}_${createTimestamp()}.csv`,
     useStreamSaver: true,
     estimateBytesPerRow: baseEstimate

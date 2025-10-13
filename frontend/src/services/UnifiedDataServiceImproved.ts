@@ -373,7 +373,7 @@ export class UnifiedDataServiceImproved {
   }
 
   // Backward compatibility methods
-  async getChunkData(chunkInfo: any) {
+  async getChunkData(_chunkInfo: any) {
     // This method is kept for backward compatibility
     // In the new architecture, this would be handled by the entity service
     console.warn('getChunkData is deprecated. Use queryEntities instead.')

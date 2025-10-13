@@ -121,7 +121,7 @@ export const TreemapPage: React.FC = () => {
       if (!hierarchy) return
 
       const currentLevelType = hierarchy.levels[0]
-  const response = await fetch(resolveUrl('/api/v1/contracts/chip-aggregates/'), {
+  const response = await fetch(resolveUrl('/contracts/chip-aggregates/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -235,7 +235,7 @@ export const TreemapPage: React.FC = () => {
            entity.type === 'category' ? 'business_categories' : 'contractors']: [entity.name]
         }
 
-  const response = await fetch(resolveUrl('/api/v1/contracts/chip-aggregates/'), {
+  const response = await fetch(resolveUrl('/contracts/chip-aggregates/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -273,7 +273,7 @@ export const TreemapPage: React.FC = () => {
            entity.type === 'category' ? 'business_categories' : 'contractors']: [entity.name]
         }
 
-    const response = await fetch(resolveUrl('/api/v1/contracts/chip-aggregates/'), {
+  const response = await fetch(resolveUrl('/contracts/chip-aggregates/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ export const TreemapPage: React.FC = () => {
            entity.type === 'category' ? 'business_categories' : 'contractors']: [entity.name]
         }
 
-  const response = await fetch(resolveUrl('/api/v1/contracts/chip-aggregates/'), {
+  const response = await fetch(resolveUrl('/contracts/chip-aggregates/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

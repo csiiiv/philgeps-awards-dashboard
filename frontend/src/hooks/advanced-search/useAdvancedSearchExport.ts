@@ -95,7 +95,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
         value_range: params.valueRange
       }
 
-  const apiEndpoint = resolveUrl('/api/v1/contracts/chip-export/')
+  const apiEndpoint = resolveUrl('/contracts/chip-export/')
   const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

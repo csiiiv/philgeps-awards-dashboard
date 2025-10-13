@@ -116,7 +116,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
           value_range: normalized.value_range
         }
         console.log('🔎 Export estimate (aggregated) payload:', payload)
-        const url = resolveUrl('/api/v1/contracts/chip-export-aggregated-estimate/')
+  const url = resolveUrl('/contracts/chip-export-aggregated-estimate/')
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -151,7 +151,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
           value_range: normalized.value_range
         }
         console.log('🔎 Export estimate (contracts) payload:', payload)
-        const url = resolveUrl('/api/v1/contracts/chip-export-estimate/')
+  const url = resolveUrl('/contracts/chip-export-estimate/')
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
