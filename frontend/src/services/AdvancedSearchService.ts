@@ -126,7 +126,7 @@ export interface ExportEstimateResponse {
   estimated_csv_bytes: number
 }
 
-import { resolveUrl } from '../utils/api'
+import { resolveUrl, getApiRoot } from '../utils/api'
 
 export class AdvancedSearchService {
   private baseUrl: string
@@ -136,8 +136,9 @@ export class AdvancedSearchService {
     if (baseUrl) {
       this.baseUrl = baseUrl.replace(/\/$/, '')
     } else {
-      // resolveUrl will return either an absolute URL or a relative path starting with /api/v1
-      this.baseUrl = resolveUrl('/api/v1').replace(/\/$/, '')
+      // Build baseUrl from the API root and ensure it includes the API version prefix
+      const root = getApiRoot()
+      this.baseUrl = root ? `${root}/api/v1`.replace(/\/$/, '') : '/api/v1'
     }
   }
 

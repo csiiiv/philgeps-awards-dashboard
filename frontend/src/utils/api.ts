@@ -14,21 +14,24 @@ export const getApiRoot = (): string => {
   return String(fromWindow || fromVite || '').replace(/\/$/, '')
 }
 
-// Normalize path by removing duplicate /api/v1 prefixes and ensuring leading slash
+// Normalize path: ensure it starts with '/api/v1' and remove duplicate api/version prefixes
+const API_VERSION_PREFIX = '/api/v1'
 const normalizePath = (path: string): string => {
   if (!path) return path
   // If absolute URL, return as-is
   if (/^https?:\/\//i.test(path)) return path
 
-  // Remove any leading/trailing whitespace
   let p = String(path).trim()
 
-  // Remove any repeated /api/v1 occurrences so callers may pass paths with or without it
-  p = p.replace(/^(?:\/?api(?:\/v\d+)?)+/i, '');
+  // Remove any leading slashes
+  p = p.replace(/^\/+/, '')
 
-  // Ensure leading slash
-  if (!p.startsWith('/')) p = `/${p}`
-  return p
+  // Remove any leading 'api' or 'api/v<number>' segments so callers may pass paths with or without them
+  p = p.replace(/^api(?:\/v\d+)?\/?/i, '')
+
+  // Ensure we have the API version prefix
+  if (!p) return API_VERSION_PREFIX
+  return `${API_VERSION_PREFIX}/${p}`
 }
 
 export const resolveUrl = (path: string): string => {

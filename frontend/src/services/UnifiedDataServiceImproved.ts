@@ -1,7 +1,7 @@
 import { EntityDataService } from './EntityDataService'
 import { ContractDataService } from './ContractDataService'
 import { AnalyticsDataService } from './AnalyticsDataService'
-import { resolveUrl } from '../utils/api'
+import { resolveUrl, getApiRoot } from '../utils/api'
 import type { 
   EntityType, 
   DatasetType, 
@@ -26,7 +26,10 @@ export class UnifiedDataServiceImproved {
   private config: Required<UnifiedDataServiceConfig>
 
   constructor(config: UnifiedDataServiceConfig = {}) {
-    const baseUrl = config.baseUrl || resolveUrl('/api/v1/data-processing')
+    const baseUrl = config.baseUrl || (() => {
+      const root = getApiRoot()
+      return root ? `${root}/api/v1/data-processing` : '/api/v1/data-processing'
+    })()
 
     this.config = {
       baseUrl: baseUrl.replace(/\/$/, ''),
