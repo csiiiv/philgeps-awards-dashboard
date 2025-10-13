@@ -112,6 +112,88 @@ docker build -t yourrepo/philgeps-frontend:latest --build-arg VITE_API_URL=https
 docker push yourrepo/philgeps-frontend:latest
 ```
 
+### Docker Commands with Environment Variables
+
+#### Running with Direct Environment Variable Injection
+```bash
+# Backend container with custom environment variables
+docker run -d \
+  --name philgeps-backend \
+  -p 3200:8000 \
+  -e SECRET_KEY="your-production-secret-key" \
+  -e DEBUG="False" \
+  -e ALLOWED_HOSTS="api.yourdomain.com,localhost" \
+  -e CORS_ALLOWED_ORIGINS="https://yourdomain.com" \
+  -e CSRF_TRUSTED_ORIGINS="https://yourdomain.com" \
+  philgeps-backend:latest
+
+# Frontend container with custom API URL
+docker run -d \
+  --name philgeps-frontend \
+  -p 3000:80 \
+  philgeps-frontend:latest
+```
+
+#### Docker Compose with Environment Variable Override
+```bash
+# Override environment variables directly in command line
+SECRET_KEY="prod-secret" DEBUG="False" ALLOWED_HOSTS="api.prod.com" \
+docker compose up --build
+
+# Or set multiple variables at once
+env SECRET_KEY="prod-secret" DEBUG="False" CORS_ALLOWED_ORIGINS="https://prod.com" \
+docker compose -f docker-compose.yml up --build
+```
+
+#### Building with Build Arguments
+```bash
+# Backend with custom build args (if needed for build-time config)
+docker build \
+  --build-arg SECRET_KEY="build-time-secret" \
+  -t philgeps-backend:custom \
+  backend/django
+
+# Frontend with custom API URL
+docker build \
+  --build-arg VITE_API_URL="https://api.production.com" \
+  -t philgeps-frontend:production \
+  frontend
+```
+
+#### Docker Compose with Environment File Override
+```bash
+# Use custom environment file
+docker compose --env-file .env.production up --build
+
+# Combine multiple compose files with environment override
+VITE_API_URL="https://api.staging.com" \
+docker compose -f docker-compose.yml -f docker-compose.staging.yml up --build
+```
+
+#### Production Example with All Variables
+```bash
+# Complete production setup with environment variables
+docker run -d \
+  --name philgeps-backend-prod \
+  --restart unless-stopped \
+  -p 8000:8000 \
+  -e SECRET_KEY="$(openssl rand -base64 32)" \
+  -e DEBUG="False" \
+  -e ALLOWED_HOSTS="api.philgeps-analytics.com" \
+  -e CORS_ALLOWED_ORIGINS="https://philgeps-analytics.com" \
+  -e CSRF_TRUSTED_ORIGINS="https://philgeps-analytics.com" \
+  -e PARQUET_DIR="/data/parquet" \
+  -v /host/data:/data \
+  philgeps-backend:latest
+
+docker run -d \
+  --name philgeps-frontend-prod \
+  --restart unless-stopped \
+  -p 80:80 \
+  --link philgeps-backend-prod:backend \
+  philgeps-frontend:latest
+```
+
 ---
 
 ## ⚙️ Configuration

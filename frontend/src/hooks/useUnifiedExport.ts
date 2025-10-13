@@ -53,6 +53,65 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
   
   const exportAbort = useRef<AbortController | null>(null)
 
+  // Resolve API root from Vite env or a runtime-injected global. Falls back to '' to keep relative URLs in dev.
+  const API_ROOT = (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_URL)
+    || (typeof window !== 'undefined' && (window as any).__API_URL)
+    || ''
+
+  const resolveUrl = useCallback((path: string) => {
+    // If path is already absolute, return unchanged
+    if (!path) return path
+    if (/^https?:\/\//i.test(path)) return path
+
+    // Ensure API_ROOT has no trailing slash
+    const root = API_ROOT.replace(/\/$/, '')
+    // If path already starts with /api/v1, just join
+    if (path.startsWith('/')) {
+      return root ? `${root}${path}` : path
+    }
+    // otherwise ensure leading slash
+    return root ? `${root}/${path}` : `/${path}`
+  }, [API_ROOT])
+
+  // Normalize filters coming from various components (camelCase or snake_case)
+  const normalizeFilters = useCallback((filters: any = {}) => {
+    const contractors = filters.contractors || filters.contractor || []
+    const areas = filters.areas || []
+    const organizations = filters.organizations || []
+    const business_categories = filters.business_categories || filters.businessCategories || []
+    const keywords = filters.keywords || []
+
+    // Accept either `time_ranges` or `timeRanges` and coerce to expected objects
+    let time_ranges = filters.time_ranges || filters.timeRanges || []
+    if (!Array.isArray(time_ranges)) time_ranges = []
+
+    // Filter and normalize time range entries to only allowed shapes
+    time_ranges = time_ranges
+      .filter((tr: any) => tr && typeof tr === 'object')
+      .map((tr: any) => {
+        const t = { ...tr }
+        // Some places use `startDate`/`endDate` strings — keep as-is
+        return t
+      })
+      .filter((tr: any) => ['yearly', 'quarterly', 'custom'].includes(String(tr.type)))
+
+    const include_flood_control = filters.include_flood_control ?? filters.includeFloodControl ?? false
+    const value_range = filters.value_range ?? filters.valueRange ?? null
+    const dimension = filters.dimension ?? filters.dimension ?? 'by_contractor'
+
+    return {
+      contractors,
+      areas,
+      organizations,
+      business_categories,
+      keywords,
+      time_ranges,
+      include_flood_control,
+      value_range,
+      dimension
+    }
+  }, [])
+
   // Get export estimate
   const getExportEstimate = useCallback(async (config: ExportConfig): Promise<ExportEstimate> => {
     console.log('🔍 Getting export estimate for:', config.dataSource)
@@ -60,57 +119,71 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
     try {
       if (config.dataSource === 'aggregated') {
         // Get aggregated data estimate
-        const response = await fetch('/api/v1/contracts/chip-export-aggregated-estimate/', {
+        const normalized = normalizeFilters(config.filters)
+        const payload = {
+          contractors: normalized.contractors,
+          areas: normalized.areas,
+          organizations: normalized.organizations,
+          business_categories: normalized.business_categories,
+          keywords: normalized.keywords,
+          time_ranges: normalized.time_ranges,
+          dimension: normalized.dimension || 'by_contractor',
+          include_flood_control: normalized.include_flood_control,
+          value_range: normalized.value_range
+        }
+        console.log('🔎 Export estimate (aggregated) payload:', payload)
+        const url = resolveUrl('/api/v1/contracts/chip-export-aggregated-estimate/')
+        const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contractors: config.filters?.contractors || [],
-            areas: config.filters?.areas || [],
-            organizations: config.filters?.organizations || [],
-            business_categories: config.filters?.businessCategories || [],
-            keywords: config.filters?.keywords || [],
-            time_ranges: config.filters?.timeRanges || [],
-            dimension: config.filters?.dimension || 'by_contractor',
-            include_flood_control: config.filters?.includeFloodControl || false,
-            value_range: config.filters?.valueRange
-          })
+          body: JSON.stringify(payload)
         })
-        
+
         if (!response.ok) {
-          throw new Error(`Failed to get estimate: ${response.status}`)
+          let errText = ''
+          try { errText = await response.text() } catch (e) { errText = '' }
+          console.error('Estimate API error body (aggregated):', errText)
+          throw new Error(`Failed to get estimate: ${response.status} ${errText}`)
         }
-        
+
         const data = await response.json()
-        console.log('✅ Aggregated estimate:', data)
-        
+        console.log('\u2705 Aggregated estimate:', data)
+
         return {
           count: data.total_count,
           bytes: data.estimated_csv_bytes
         }
       } else if (config.dataSource === 'contracts') {
         // Get contracts estimate
-        const response = await fetch('/api/v1/contracts/chip-export-estimate/', {
+        const normalized = normalizeFilters(config.filters)
+        const payload = {
+          contractors: normalized.contractors,
+          areas: normalized.areas,
+          organizations: normalized.organizations,
+          business_categories: normalized.business_categories,
+          keywords: normalized.keywords,
+          time_ranges: normalized.time_ranges,
+          include_flood_control: normalized.include_flood_control,
+          value_range: normalized.value_range
+        }
+        console.log('🔎 Export estimate (contracts) payload:', payload)
+        const url = resolveUrl('/api/v1/contracts/chip-export-estimate/')
+        const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contractors: config.filters?.contractors || [],
-            areas: config.filters?.areas || [],
-            organizations: config.filters?.organizations || [],
-            business_categories: config.filters?.businessCategories || [],
-            keywords: config.filters?.keywords || [],
-            time_ranges: config.filters?.timeRanges || [],
-            include_flood_control: config.filters?.includeFloodControl || false,
-            value_range: config.filters?.valueRange
-          })
+          body: JSON.stringify(payload)
         })
-        
+
         if (!response.ok) {
-          throw new Error(`Failed to get estimate: ${response.status}`)
+          let errText = ''
+          try { errText = await response.text() } catch (e) { errText = '' }
+          console.error('Estimate API error body (contracts):', errText)
+          throw new Error(`Failed to get estimate: ${response.status} ${errText}`)
         }
-        
+
         const data = await response.json()
-        console.log('✅ Contracts estimate:', data)
-        
+        console.log('\u2705 Contracts estimate:', data)
+
         return {
           count: data.total_count,
           bytes: data.estimated_csv_bytes
@@ -230,39 +303,41 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
     console.log('🚀 Starting streaming export:', config)
     console.log('📋 Export filters:', config.filters)
 
-    // Build payload based on data source - match the working Advanced Search format
+    // Build payload based on data source - normalize filters to backend expectations
+    const normalized = normalizeFilters(config.filters)
     let payload: any
     if (config.dataSource === 'contracts') {
       payload = {
-        contractors: config.filters?.contractors || [],
-        areas: config.filters?.areas || [],
-        organizations: config.filters?.organizations || [],
-        business_categories: config.filters?.businessCategories || [],
-        keywords: config.filters?.keywords || [],
-        time_ranges: config.filters?.timeRanges || [],
-        include_flood_control: config.filters?.includeFloodControl || false,
-        value_range: config.filters?.valueRange
+        contractors: normalized.contractors,
+        areas: normalized.areas,
+        organizations: normalized.organizations,
+        business_categories: normalized.business_categories,
+        keywords: normalized.keywords,
+        time_ranges: normalized.time_ranges,
+        include_flood_control: normalized.include_flood_control,
+        value_range: normalized.value_range
       }
     } else if (config.dataSource === 'aggregated') {
       payload = {
-        contractors: config.filters?.contractors || [],
-        areas: config.filters?.areas || [],
-        organizations: config.filters?.organizations || [],
-        business_categories: config.filters?.businessCategories || [],
-        keywords: config.filters?.keywords || [],
-        time_ranges: config.filters?.timeRanges || [],
-        dimension: config.filters?.dimension || 'by_contractor',
-        include_flood_control: config.filters?.includeFloodControl || false,
-        value_range: config.filters?.valueRange
+        contractors: normalized.contractors,
+        areas: normalized.areas,
+        organizations: normalized.organizations,
+        business_categories: normalized.business_categories,
+        keywords: normalized.keywords,
+        time_ranges: normalized.time_ranges,
+        dimension: normalized.dimension || 'by_contractor',
+        include_flood_control: normalized.include_flood_control,
+        value_range: normalized.value_range
       }
     } else {
       throw new Error(`Streaming not supported for data source: ${config.dataSource}`)
     }
 
     console.log('📡 Sending payload to API:', payload)
-    console.log('🌐 API endpoint:', config.apiEndpoint)
+    const endpoint = resolveUrl(config.apiEndpoint || '')
+    console.log('🌐 API endpoint:', endpoint)
 
-    const response = await fetch(config.apiEndpoint, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
