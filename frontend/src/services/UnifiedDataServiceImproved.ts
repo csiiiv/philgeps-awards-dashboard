@@ -391,5 +391,5 @@ export class UnifiedDataServiceImproved {
 // Create and export a singleton instance
 // Use environment variable for API URL
 export const unifiedDataServiceImproved = new UnifiedDataServiceImproved({
-  baseUrl: resolveUrl('/api/v1/data-processing')
+  baseUrl: resolveUrl('/data-processing')
 })

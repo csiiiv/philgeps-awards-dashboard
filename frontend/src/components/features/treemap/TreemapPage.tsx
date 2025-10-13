@@ -414,7 +414,7 @@ export const TreemapPage: React.FC = () => {
         }
       } else {
         // Load aggregations for the level
-  const response = await fetch(resolveUrl('/api/v1/contracts/chip-aggregates/'), {
+  const response = await fetch(resolveUrl('/contracts/chip-aggregates/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
