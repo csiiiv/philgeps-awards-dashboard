@@ -1,0 +1,54 @@
+# Debug/Verbose Logging Overlay for docker-compose.cloudflared.yml
+# Usage: docker compose -f docker-compose.cloudflared.yml -f docker-compose.debug.yml up -d --build
+# This file overrides production settings with verbose logging for troubleshooting
+
+services:
+  backend:
+    environment:
+      # Enable Django debug mode for detailed error pages
+      DEBUG: "True"
+      
+      # Verbose Python logging (show all levels including DEBUG)
+      PYTHONUNBUFFERED: "1"
+      DJANGO_LOG_LEVEL: "DEBUG"
+      
+      # Gunicorn verbose logging
+      GUNICORN_LOG_LEVEL: "debug"
+      GUNICORN_ACCESS_LOG_FORMAT: '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+      
+    # Override command to enable all gunicorn logging flags
+    command: >
+      sh -c "gunicorn 
+      --bind 0.0.0.0:8000 
+      --timeout ${GUNICORN_TIMEOUT:-300} 
+      --graceful-timeout ${GUNICORN_GRACEFUL_TIMEOUT:-330} 
+      --keep-alive ${GUNICORN_KEEPALIVE:-5} 
+      --workers 2 
+      --worker-class gevent 
+      --worker-connections 1000 
+      --log-level debug 
+      --access-logfile - 
+      --error-logfile - 
+      --capture-output 
+      --enable-stdio-inheritance 
+      philgeps_data_explorer.wsgi:application"
+    
+    # Enable verbose logging driver
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+        labels: "service=backend,env=debug"
+
+  frontend:
+    environment:
+      # Add verbose nginx logging
+      NGINX_LOG_LEVEL: "debug"
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+        labels: "service=frontend,env=debug"
