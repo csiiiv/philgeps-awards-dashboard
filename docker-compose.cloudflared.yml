@@ -17,9 +17,8 @@ services:
       # Data directory
       PARQUET_DIR: "/data/parquet"
       # Gunicorn settings for streaming (gevent worker, extended timeouts)
-      # Increased timeout for large exports (1.4GB can take 10+ minutes)
-      GUNICORN_TIMEOUT: "900"
-      GUNICORN_GRACEFUL_TIMEOUT: "930"
+      GUNICORN_TIMEOUT: "1800"  # Allow up to 30 minutes for large exports
+      GUNICORN_GRACEFUL_TIMEOUT: "1805"  # Extra 5s for graceful shutdown
       GUNICORN_KEEPALIVE: "5"
       # Python logging
       PYTHONUNBUFFERED: "1"

@@ -565,16 +565,33 @@ class ContractViewSet(viewsets.ModelViewSet):
                     fetch_size = 5000   # Fetch 5K rows from DuckDB at a time
                     write_size = 2000   # Write/yield every 2K rows
                     row_buffer = []
+                    total_rows = 0
+                    batch_count = 0
+                    
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info("🚀 Starting CSV export streaming")
                     
                     while True:
                         # Fetch batch from DuckDB
-                        batch = result_relation.fetchmany(fetch_size)
+                        try:
+                            batch = result_relation.fetchmany(fetch_size)
+                        except Exception as fetch_err:
+                            logger.error(f"❌ DuckDB fetchmany error at row {total_rows}: {str(fetch_err)}", exc_info=True)
+                            raise
+                        
                         if not batch:
+                            logger.info(f"✅ DuckDB query exhausted. Total rows processed: {total_rows}")
                             break
+                        
+                        batch_count += 1
+                        if batch_count % 100 == 0:  # Log every 100 batches (500K rows)
+                            logger.info(f"📊 Batch {batch_count}: {total_rows} rows processed so far")
                         
                         for row in batch:
                             # row is a tuple from DuckDB - write directly (no dict conversion)
                             row_buffer.append(row)
+                            total_rows += 1
                             
                             # Write and yield when buffer reaches write_size
                             if len(row_buffer) >= write_size:
@@ -589,6 +606,7 @@ class ContractViewSet(viewsets.ModelViewSet):
                     
                     # Write remaining rows
                     if row_buffer:
+                        logger.info(f"📝 Writing final {len(row_buffer)} rows")
                         writer.writerows(row_buffer)
                         text_wrapper.flush()
                         chunk = bytes_buf.getvalue()
@@ -596,16 +614,17 @@ class ContractViewSet(viewsets.ModelViewSet):
                             yield chunk
                         bytes_buf.seek(0)
                         bytes_buf.truncate(0)
+                    
+                    logger.info(f"✅ Export completed successfully. Total rows: {total_rows}")
                         
                 except GeneratorExit:
                     # Client disconnected; stop producing
+                    logger.warning(f"⚠️ Client disconnected during export. Rows processed before disconnect: {total_rows}")
                     return
                 except Exception as e:
-                    # Log error but don't crash - connection might be gone
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.error(f"Export error: {str(e)}")
-                    return
+                    # Log error with full traceback
+                    logger.error(f"❌ Export error at row {total_rows}: {str(e)}", exc_info=True)
+                    raise  # Re-raise instead of silently returning
 
             response = StreamingHttpResponse(generate(), content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="contracts_export.csv"'
