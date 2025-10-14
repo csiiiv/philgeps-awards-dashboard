@@ -274,7 +274,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
                 Exporting...
               </span>
               <span style={{ fontSize: typography.fontSize.sm, color: theme.text.primary, fontWeight: typography.fontWeight.semibold }}>
-                {Math.round(progress)}%
+                {(Math.max(0, Math.min(100, progress))).toFixed(4)}%
               </span>
             </div>
             <div style={{
@@ -285,7 +285,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
               overflow: 'hidden'
             }}>
               <div style={{
-                width: `${progress}%`,
+                width: `${Math.max(0, Math.min(100, progress))}%`,
                 height: '100%',
                 backgroundColor: theme.primary[500],
                 borderRadius: spacing[1],

@@ -221,8 +221,8 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
         const { done, value } = await reader.read()
         
         if (done) {
-          setExportProgress(100)
-          console.log('✅ Streaming completed - 100%')
+          setExportProgress(100.0000)
+          console.log('✅ Streaming completed - 100.0000%')
           break
         }
         
@@ -233,9 +233,10 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
           // Update progress
           const progressTotal = total > 0 ? total : (exportEstimate?.bytes || 0)
           if (progressTotal > 0) {
-            const progress = Math.round((received / progressTotal) * 100)
-            setExportProgress(progress)
-            console.log(`📈 Progress: ${progress}% (${received.toLocaleString()}/${progressTotal.toLocaleString()} bytes)`)
+            const progressFloat = Math.min(100, (received / progressTotal) * 100)
+            const progressRounded = Number(progressFloat.toFixed(4))
+            setExportProgress(progressRounded)
+            console.log(`📈 Progress: ${progressRounded.toFixed(4)}% (${received.toLocaleString()}/${progressTotal.toLocaleString()} bytes)`)
             
             // Show accuracy improvement when we have both estimate and actual
             if (exportEstimate && total > 0 && exportEstimate.bytes !== total) {
@@ -244,9 +245,10 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
             }
           } else {
             // Fallback progress estimation
-            const estimatedProgress = Math.min(95, Math.round((received / 1000000) * 100))
-            setExportProgress(estimatedProgress)
-            console.log(`📈 Progress (estimated): ${estimatedProgress}% (${received.toLocaleString()} bytes)`)
+            const estimatedProgressFloat = Math.min(95, (received / 1000000) * 100)
+            const estimatedProgressRounded = Number(estimatedProgressFloat.toFixed(4))
+            setExportProgress(estimatedProgressRounded)
+            console.log(`📈 Progress (estimated): ${estimatedProgressRounded.toFixed(4)}% (${received.toLocaleString()} bytes)`)
           }
         }
       }
@@ -361,7 +363,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
       
-      setExportProgress(100)
+  setExportProgress(100.0000)
       console.log('✅ Client-side export completed')
       
     } catch (error) {
@@ -377,7 +379,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
     try {
       setIsExporting(true)
       setExportError(null)
-      setExportProgress(0)
+  setExportProgress(0.0000)
       
       // Get export estimate
       const estimate = await getExportEstimate(config)
@@ -402,7 +404,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
     try {
       setIsExporting(true)
       setExportError(null)
-      setExportProgress(0)
+  setExportProgress(0.0000)
       
       // Create abort controller for cancellation
       exportAbort.current = new AbortController()
@@ -438,7 +440,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
     }
     
     setIsExporting(false)
-    setExportProgress(0)
+  setExportProgress(0.0000)
     setExportError(null)
   }, [])
 
@@ -446,7 +448,7 @@ export const useUnifiedExport = (): UseUnifiedExportReturn => {
   const closeExportModal = useCallback(() => {
     setShowExportModal(false)
     setExportError(null)
-    setExportProgress(0)
+  setExportProgress(0.0000)
   }, [])
 
   return {

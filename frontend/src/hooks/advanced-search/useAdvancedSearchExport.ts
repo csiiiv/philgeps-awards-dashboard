@@ -79,7 +79,6 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
     setExportAbort(controller)
 
     try {
-
       // Use the stored parameters from exportAllWithEstimate
       const params = exportParams
 
@@ -95,8 +94,8 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
         value_range: params.valueRange
       }
 
-  const apiEndpoint = resolveUrl('/contracts/chip-export/')
-  const response = await fetch(apiEndpoint, {
+      const apiEndpoint = resolveUrl('/contracts/chip-export/')
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -128,19 +127,20 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
             received += value.length
             chunk_count += 1
             if (total > 0) {
-              const pct = Math.min(95, Math.round((received / total) * 100))
-              setExportProgress(pct)
+              const pctFloat = Math.min(95, (received / total) * 100)
+              const pctRounded = Number(pctFloat.toFixed(4))
+              setExportProgress(pctRounded)
               if (chunk_count % 1000 === 0) { // Log every 1000 chunks
-                console.log(`📊 Export progress: ${pct}% (${received.toLocaleString()} / ${total.toLocaleString()} bytes)`)
+                console.log(`📊 Export progress: ${pctRounded.toFixed(4)}% (${received.toLocaleString()} / ${total.toLocaleString()} bytes)`)
               }
             } else {
               // If we don't have total size, estimate progress based on data received
-              // Assume average chunk size of 8KB and estimate based on received bytes
               const estimatedTotal = exportEstimate?.bytes || (received * 1.5) // Conservative estimate
-              const estimatedProgress = Math.min(95, Math.round((received / estimatedTotal) * 100))
-              setExportProgress(estimatedProgress)
+              const estimatedProgressFloat = Math.min(95, (received / estimatedTotal) * 100)
+              const estimatedProgressRounded = Number(estimatedProgressFloat.toFixed(4))
+              setExportProgress(estimatedProgressRounded)
               if (chunk_count % 1000 === 0) { // Log every 1000 chunks
-                console.log(`📊 Export progress (estimated): ${estimatedProgress}% (${received.toLocaleString()} bytes, ~${estimatedTotal.toLocaleString()} estimated)`)
+                console.log(`📊 Export progress (estimated): ${estimatedProgressRounded.toFixed(4)}% (${received.toLocaleString()} bytes, ~${estimatedTotal.toLocaleString()} estimated)`)
               }
             }
           }
@@ -157,15 +157,15 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
       setExportProgress(100)
       
       // Create download link
-  const downloadUrl = URL.createObjectURL(blob)
-  const a = document.createElement('a')
+      const downloadUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
       const ts = new Date().toISOString().replace(/[:.]/g, '-')
-  a.href = downloadUrl
+      a.href = downloadUrl
       a.download = `contracts_export_all_${ts}.csv`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-  URL.revokeObjectURL(downloadUrl)
+      URL.revokeObjectURL(downloadUrl)
       
       setExportModalOpen(false)
       console.log('✅ useAdvancedSearchExport - download completed successfully')
@@ -217,7 +217,7 @@ export const useAdvancedSearchExport = (): UseAdvancedSearchExportReturn => {
   }, [exportEstimate])
 
   const getFormattedProgress = useCallback(() => {
-    return `${exportProgress}%`
+    return `${exportProgress.toFixed(4)}%`
   }, [exportProgress])
 
   return {
