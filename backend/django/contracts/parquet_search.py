@@ -10,6 +10,10 @@ from datetime import datetime, date
 import duckdb
 
 class ParquetSearchService:
+    # Singleton DuckDB connection for reuse across requests
+    _connection = None
+    _connection_lock = None
+    
     def __init__(self):
         # Get the project root directory (four levels up from this file)
         # File is at: backend/django/contracts/parquet_search.py
@@ -17,6 +21,19 @@ class ParquetSearchService:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
         self.data_dir = os.path.join(project_root, 'data', 'parquet')
         self.parquet_files = self._get_parquet_files()
+    
+    @classmethod
+    def get_connection(cls):
+        """Get or create a persistent DuckDB connection with performance optimizations"""
+        if cls._connection is None:
+            cls._connection = duckdb.connect()
+            # Enable parallel execution with 4 threads
+            cls._connection.execute("SET threads TO 4")
+            # Enable object cache for parquet metadata caching
+            cls._connection.execute("SET enable_object_cache TO true")
+            # Set memory limit (adjust based on available memory)
+            cls._connection.execute("SET memory_limit = '4GB'")
+        return cls._connection
         
     def _get_parquet_files(self, include_flood_control: bool = False) -> List[str]:
         """Get parquet files with optimization for analytics"""
@@ -228,8 +245,8 @@ class ParquetSearchService:
         paginated_query = f"{base_query} LIMIT {page_size} OFFSET {offset}"
         
         try:
-            # Execute queries using DuckDB
-            conn = duckdb.connect()
+            # Execute queries using DuckDB with reusable connection
+            conn = self.get_connection()
             
             # Get total count
             count_result = conn.execute(count_query).fetchone()
@@ -251,7 +268,7 @@ class ParquetSearchService:
                         contract_dict['award_date'] = str(contract_dict['award_date'])
                 contracts.append(contract_dict)
             
-            conn.close()
+            # Don't close connection - keep it alive for reuse
             
             total_pages = (total_count + page_size - 1) // page_size
             
@@ -282,7 +299,7 @@ class ParquetSearchService:
     def get_filter_options(self) -> Dict[str, List[str]]:
         """Get filter options from parquet files including flood control data"""
         try:
-            conn = duckdb.connect()
+            conn = self.get_connection()
             
             # Get unique values for each filter
             queries = {
@@ -324,7 +341,7 @@ class ParquetSearchService:
             years_rows = conn.execute(years_query).fetchall()
             filter_options['years'] = [row[0] for row in years_rows if row[0] is not None]
             
-            conn.close()
+            # Don't close connection - keep it alive for reuse
             return filter_options
             
         except Exception as e:
@@ -361,41 +378,84 @@ class ParquetSearchService:
         keywords = [kw.strip() for kw in keyword_string.split('&&') if kw.strip()]
         return keywords
 
-    def search_contracts_with_chips(self, 
-                                   contractors: List[str] = [],
-                                   areas: List[str] = [],
-                                   organizations: List[str] = [],
-                                   business_categories: List[str] = [],
-                                   keywords: List[str] = [],
-                                   time_ranges: List[Dict] = [],
-                                   page: int = 1,
-                                   page_size: int = 20,
-                                   sort_by: str = "award_date",
-                                   sort_direction: str = "desc",
-                                   include_flood_control: bool = False,
-                                   value_range: Optional[Dict] = None) -> Dict[str, Any]:
+    def search_contracts_with_chips_streaming(self,
+                                              contractors: List[str] = [],
+                                              areas: List[str] = [],
+                                              organizations: List[str] = [],
+                                              business_categories: List[str] = [],
+                                              keywords: List[str] = [],
+                                              time_ranges: List[Dict] = [],
+                                              include_flood_control: bool = False,
+                                              value_range: Optional[Dict] = None):
         """
-        Search contracts with chip-based filters (OR logic within each type)
+        Stream contracts with chip-based filters for CSV export.
+        Returns a DuckDB result relation for efficient streaming (no pagination, no sorting).
+        """
+        # Build WHERE conditions using same logic as search_contracts_with_chips
+        where_conditions = self._build_chip_where_conditions(
+            contractors, areas, organizations, business_categories,
+            keywords, time_ranges, value_range
+        )
+        
+        # Build base query
+        select_fields = """
+            contract_number as reference_id,
+            contract_number as contract_no,
+            award_title,
+            notice_title,
+            awardee_name,
+            organization_name,
+            area_of_delivery,
+            business_category,
+            contract_amount,
+            award_date,
+            'active' as award_status
         """
         
-        # Build SQL query for DuckDB
-        query_parts = []
+        parquet_files = self._get_parquet_files(include_flood_control)
+        union_queries = []
+        for file_path in parquet_files:
+            file_query = f"SELECT {select_fields} FROM read_parquet('{file_path}')"
+            union_queries.append(file_query)
+        
+        if not union_queries:
+            return None
+        
+        if where_conditions:
+            where_clause = " AND ".join(where_conditions)
+            union_queries_with_where = [f"{q} WHERE {where_clause}" for q in union_queries]
+            base_query = " UNION ALL ".join(union_queries_with_where)
+        else:
+            base_query = " UNION ALL ".join(union_queries)
+        
+        # NO ORDER BY for exports - sorting is expensive and unnecessary
+        # Users can sort in Excel/Sheets if needed
+        streaming_query = f"SELECT * FROM ({base_query})"
+        
+        conn = self.get_connection()
+        return conn.execute(streaming_query)
+    
+    def _build_chip_where_conditions(self,
+                                    contractors: List[str] = [],
+                                    areas: List[str] = [],
+                                    organizations: List[str] = [],
+                                    business_categories: List[str] = [],
+                                    keywords: List[str] = [],
+                                    time_ranges: List[Dict] = [],
+                                    value_range: Optional[Dict] = None) -> List[str]:
+        """Build WHERE conditions for chip-based filtering (extracted for reuse)"""
         where_conditions = []
         
-        # Keywords search (OR logic between keyword groups, AND logic within each keyword group) with performance optimizations
+        # Keywords search
         if keywords:
             keyword_conditions = []
             for keyword in keywords:
                 if keyword.strip():
-                    # Parse AND keywords within the keyword string
                     and_keywords = self._parse_and_keywords(keyword.strip())
                     if and_keywords:
-                        # Create AND conditions for all keywords within this keyword group
                         keyword_and_conditions = []
                         for and_keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(and_keyword)
-                            # Use CONTAINS function for better performance when available
-                            # Fallback to LIKE for compatibility
                             try:
                                 keyword_and_conditions.append(f"CONTAINS(LOWER(search_text), LOWER('{escaped_keyword}'))")
                             except:
@@ -404,15 +464,13 @@ class ParquetSearchService:
             if keyword_conditions:
                 where_conditions.append(f"({' OR '.join(keyword_conditions)})")
         
-        # Contractor filter (OR logic between contractors, AND logic within each contractor)
+        # Contractor filter
         if contractors:
             contractor_conditions = []
             for contractor in contractors:
                 if contractor.strip():
-                    # Parse AND keywords within the contractor string
                     and_keywords = self._parse_and_keywords(contractor.strip())
                     if and_keywords:
-                        # Create AND conditions for all keywords within this contractor
                         contractor_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
@@ -421,15 +479,13 @@ class ParquetSearchService:
             if contractor_conditions:
                 where_conditions.append(f"({' OR '.join(contractor_conditions)})")
         
-        # Area filter (OR logic between areas, AND logic within each area)
+        # Area filter
         if areas:
             area_conditions = []
             for area in areas:
                 if area.strip():
-                    # Parse AND keywords within the area string
                     and_keywords = self._parse_and_keywords(area.strip())
                     if and_keywords:
-                        # Create AND conditions for all keywords within this area
                         area_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
@@ -438,15 +494,13 @@ class ParquetSearchService:
             if area_conditions:
                 where_conditions.append(f"({' OR '.join(area_conditions)})")
         
-        # Organization filter (OR logic between organizations, AND logic within each organization)
+        # Organization filter
         if organizations:
             org_conditions = []
             for org in organizations:
                 if org.strip():
-                    # Parse AND keywords within the organization string
                     and_keywords = self._parse_and_keywords(org.strip())
                     if and_keywords:
-                        # Create AND conditions for all keywords within this organization
                         org_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
@@ -455,15 +509,13 @@ class ParquetSearchService:
             if org_conditions:
                 where_conditions.append(f"({' OR '.join(org_conditions)})")
         
-        # Business category filter (OR logic between categories, AND logic within each category)
+        # Business category filter
         if business_categories:
             category_conditions = []
             for category in business_categories:
                 if category.strip():
-                    # Parse AND keywords within the category string
                     and_keywords = self._parse_and_keywords(category.strip())
                     if and_keywords:
-                        # Create AND conditions for all keywords within this category
                         category_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
@@ -472,7 +524,7 @@ class ParquetSearchService:
             if category_conditions:
                 where_conditions.append(f"({' OR '.join(category_conditions)})")
         
-        # Time range filter (OR logic between time ranges)
+        # Time range filter
         if time_ranges:
             time_conditions = []
             for time_range in time_ranges:
@@ -500,46 +552,63 @@ class ParquetSearchService:
                     start_date = time_range['startDate']
                     end_date = time_range['endDate']
                     
-                    # Handle both string and date object inputs
                     if hasattr(start_date, 'strftime'):
-                        # It's a date object, convert to string
                         start_date = start_date.strftime('%Y-%m-%d')
                     if hasattr(end_date, 'strftime'):
-                        # It's a date object, convert to string
                         end_date = end_date.strftime('%Y-%m-%d')
                     
                     if len(start_date) == 10 and len(end_date) == 10:
                         try:
-                            # Validate date format by attempting to parse
                             from datetime import datetime
                             datetime.strptime(start_date, '%Y-%m-%d')
                             datetime.strptime(end_date, '%Y-%m-%d')
                             time_conditions.append(f"TRY_CAST(award_date AS DATE) >= '{start_date}' AND TRY_CAST(award_date AS DATE) <= '{end_date}'")
                         except ValueError:
-                            # Skip invalid date formats
                             continue
             
             if time_conditions:
                 where_conditions.append(f"({' OR '.join(time_conditions)})")
         
-        # Contract amount range filtering
+        # Value range filter
         if value_range:
             amount_conditions = []
             min_amount = value_range.get('min')
             max_amount = value_range.get('max')
             
             if min_amount is not None and max_amount is not None:
-                # Both min and max specified
                 amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount} AND CAST(contract_amount AS DOUBLE) <= {max_amount}")
             elif min_amount is not None:
-                # Only min specified
                 amount_conditions.append(f"CAST(contract_amount AS DOUBLE) >= {min_amount}")
             elif max_amount is not None:
-                # Only max specified
                 amount_conditions.append(f"CAST(contract_amount AS DOUBLE) <= {max_amount}")
             
             if amount_conditions:
                 where_conditions.append(f"({' AND '.join(amount_conditions)})")
+        
+        return where_conditions
+    
+    def search_contracts_with_chips(self, 
+                                   contractors: List[str] = [],
+                                   areas: List[str] = [],
+                                   organizations: List[str] = [],
+                                   business_categories: List[str] = [],
+                                   keywords: List[str] = [],
+                                   time_ranges: List[Dict] = [],
+                                   page: int = 1,
+                                   page_size: int = 20,
+                                   sort_by: str = "award_date",
+                                   sort_direction: str = "desc",
+                                   include_flood_control: bool = False,
+                                   value_range: Optional[Dict] = None,
+                                   include_count: bool = True) -> Dict[str, Any]:
+        """
+        Search contracts with chip-based filters (OR logic within each type)
+        """
+        # Reuse extracted WHERE condition builder
+        where_conditions = self._build_chip_where_conditions(
+            contractors, areas, organizations, business_categories,
+            keywords, time_ranges, value_range
+        )
         
         # Build the main query
         select_fields = """
@@ -627,26 +696,29 @@ class ParquetSearchService:
         else:
             base_query += f" ORDER BY {sort_by} {sort_direction_sql}"
         
-        # Get total count
+        # Prepare count query and paginated query
         count_query = f"SELECT COUNT(*) as total FROM ({base_query})"
-        
-        # Add pagination
+
         offset = (page - 1) * page_size
         paginated_query = f"{base_query} LIMIT {page_size} OFFSET {offset}"
-        
+
         try:
-            # Execute queries using DuckDB
-            conn = duckdb.connect()
-            
-            # Get total count
-            count_result = conn.execute(count_query).fetchone()
-            total_count = count_result[0] if count_result else 0
-            
+            # Use reusable connection for better performance
+            conn = self.get_connection()
+
+            total_count = 0
+            # Only execute count if caller requests it (avoid expensive global counts during streaming exports)
+            if include_count:
+                try:
+                    count_result = conn.execute(count_query).fetchone()
+                    total_count = count_result[0] if count_result else 0
+                except Exception:
+                    total_count = 0
+
             # Get paginated results
             results = conn.execute(paginated_query).fetchall()
             columns = [desc[0] for desc in conn.description]
-            
-            # Convert to list of dictionaries
+
             contracts = []
             for row in results:
                 contract_dict = dict(zip(columns, row))
@@ -657,11 +729,11 @@ class ParquetSearchService:
                     else:
                         contract_dict['award_date'] = str(contract_dict['award_date'])
                 contracts.append(contract_dict)
-            
-            conn.close()
-            
-            total_pages = (total_count + page_size - 1) // page_size
-            
+
+            # Don't close connection - keep it alive for reuse
+
+            total_pages = (total_count + page_size - 1) // page_size if include_count and total_count else 0
+
             return {
                 'success': True,
                 'data': contracts,
@@ -860,10 +932,8 @@ class ParquetSearchService:
         }
 
         try:
-            conn = duckdb.connect()
-            # Configure DuckDB for better performance with large datasets
-            conn.execute("SET memory_limit='2GB'")
-            conn.execute("SET threads=4")
+            # Use reusable connection (already configured with threads=4, memory limit, etc.)
+            conn = self.get_connection()
             result: Dict[str, Any] = {}
             for key, q in queries.items():
                 try:
@@ -873,7 +943,7 @@ class ParquetSearchService:
                 except Exception as inner_e:
                     # If a specific aggregate fails, return empty set for that key instead of failing all
                     result[key] = []
-            conn.close()
+            # Don't close connection - keep it alive for reuse
             return {'success': True, 'data': result}
         except Exception as e:
             return {'success': False, 'error': str(e), 'data': {}}
@@ -1112,7 +1182,7 @@ class ParquetSearchService:
         """
 
         try:
-            conn = duckdb.connect()
+            conn = self.get_connection()
             rows = conn.execute(query).fetchall()
             cols = [d[0] for d in conn.description]
             data = [dict(zip(cols, r)) for r in rows]
@@ -1136,7 +1206,7 @@ class ParquetSearchService:
                 'has_previous': page > 1
             }
             
-            conn.close()
+            # Don't close connection - keep it alive for reuse
             return {
                 'success': True, 
                 'data': data,

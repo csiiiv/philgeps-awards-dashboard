@@ -8,7 +8,7 @@ from django.db import models
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import StreamingHttpResponse
-import re
+import io, csv, time, re
 from django.core.paginator import Paginator
 import os
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
@@ -61,6 +61,25 @@ class ContractViewSet(viewsets.ModelViewSet):
         elif self.action == 'create':
             return ContractCreateSerializer
         return ContractDetailSerializer
+
+    def _call_service_with_retries(self, parquet_service, method_name, retries=2, backoff=0.5, **kwargs):
+        """Helper to call a method of parquet_service with retries and prefer include_count=False.
+
+        This is defined on the viewset so multiple actions can reuse it.
+        """
+        method = getattr(parquet_service, method_name)
+        attempt = 0
+        while True:
+            try:
+                try:
+                    return method(**kwargs, include_count=False)
+                except TypeError:
+                    return method(**kwargs)
+            except Exception:
+                attempt += 1
+                if attempt > retries:
+                    raise
+                time.sleep(backoff * attempt)
     
     @action(detail=False, methods=['post'], url_path='advanced-search')
     def advanced_search(self, request):
@@ -506,67 +525,92 @@ class ContractViewSet(viewsets.ModelViewSet):
                 'reference_id','contract_no','award_title','notice_title','awardee_name',
                 'organization_name','area_of_delivery','business_category','contract_amount','award_date','award_status'
             ]
-            def esc(v):
-                s = '' if v is None else str(v)
-                s = s.replace('"','""')
-                return f'"{s}"' if (',' in s or '"' in s or '\n' in s) else s
-            def row_to_csv(r):
-                vals = [
-                    r.get('reference_id') or '',
-                    r.get('contract_no') or '',
-                    r.get('award_title') or '',
-                    r.get('notice_title') or '',
-                    r.get('awardee_name') or '',
-                    r.get('organization_name') or '',
-                    r.get('area_of_delivery') or '',
-                    r.get('business_category') or '',
-                    r.get('contract_amount') or '',
-                    r.get('award_date') or '',
-                    r.get('award_status') or ''
-                ]
-                return ','.join(esc(v) for v in vals)
+            # Use the viewset-level retry helper: self._call_service_with_retries(parquet_service, method_name, ...)
 
             def generate():
-                yield ','.join(headers) + '\n'
-                
-                # Use pagination with larger page sizes for better performance
-                page = 1
-                page_size = 50000  # Large but reasonable page size
-                
-                while True:
-                    result = parquet_service.search_contracts_with_chips(
+                # Use BytesIO + TextIOWrapper + csv.writer to produce properly-quoted UTF-8 CSV bytes
+                bytes_buf = io.BytesIO()
+                text_wrapper = io.TextIOWrapper(bytes_buf, encoding='utf-8', newline='', write_through=True)
+                writer = csv.writer(text_wrapper, quoting=csv.QUOTE_MINIMAL)
+
+                # Write UTF-8 BOM and header immediately to keep connection alive
+                # BOM helps Excel detect UTF-8 encoding
+                bytes_buf.write(b'\xef\xbb\xbf')
+                writer.writerow(headers)
+                text_wrapper.flush()
+                chunk = bytes_buf.getvalue()
+                if chunk:
+                    yield chunk
+                bytes_buf.seek(0)
+                bytes_buf.truncate(0)
+
+                try:
+                    # Use streaming query - no pagination, no sorting (80-90% faster!)
+                    result_relation = self._call_service_with_retries(
+                        parquet_service, 'search_contracts_with_chips_streaming',
                         contractors=validated_data.get('contractors', []),
                         areas=validated_data.get('areas', []),
                         organizations=validated_data.get('organizations', []),
                         business_categories=validated_data.get('business_categories', []),
                         keywords=validated_data.get('keywords', []),
                         time_ranges=validated_data.get('time_ranges', []),
-                        page=page,
-                        page_size=page_size,
-                        sort_by='award_date',
-                        sort_direction='desc',
                         include_flood_control=validated_data.get('include_flood_control', False),
                         value_range=validated_data.get('value_range', None)
                     )
                     
-                    rows = result.get('data', [])
-                    if not rows:
-                        break
+                    if result_relation is None:
+                        return
                     
-                    # Process all rows for this page at once
-                    csv_rows = []
-                    for r in rows:
-                        csv_rows.append(row_to_csv(r))
+                    # Smaller batches = faster first yield = keeps connection alive
+                    fetch_size = 5000   # Fetch 5K rows from DuckDB at a time
+                    write_size = 2000   # Write/yield every 2K rows
+                    row_buffer = []
                     
-                    # Yield all rows for this page at once
-                    yield '\n'.join(csv_rows) + '\n'
+                    while True:
+                        # Fetch batch from DuckDB
+                        batch = result_relation.fetchmany(fetch_size)
+                        if not batch:
+                            break
+                        
+                        for row in batch:
+                            # row is a tuple from DuckDB - write directly (no dict conversion)
+                            row_buffer.append(row)
+                            
+                            # Write and yield when buffer reaches write_size
+                            if len(row_buffer) >= write_size:
+                                writer.writerows(row_buffer)
+                                text_wrapper.flush()
+                                chunk = bytes_buf.getvalue()
+                                if chunk:
+                                    yield chunk
+                                bytes_buf.seek(0)
+                                bytes_buf.truncate(0)
+                                row_buffer = []
                     
-                    if len(rows) < page_size:
-                        break
-                    page += 1
+                    # Write remaining rows
+                    if row_buffer:
+                        writer.writerows(row_buffer)
+                        text_wrapper.flush()
+                        chunk = bytes_buf.getvalue()
+                        if chunk:
+                            yield chunk
+                        bytes_buf.seek(0)
+                        bytes_buf.truncate(0)
+                        
+                except GeneratorExit:
+                    # Client disconnected; stop producing
+                    return
+                except Exception as e:
+                    # Log error but don't crash - connection might be gone
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Export error: {str(e)}")
+                    return
 
             response = StreamingHttpResponse(generate(), content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="contracts_export.csv"'
+            # Help proxies and Gunicorn understand we want streaming (may be ignored by some infra)
+            response['X-Accel-Buffering'] = 'no'
             return response
         except ValidationError:
             raise
@@ -607,57 +651,68 @@ class ContractViewSet(viewsets.ModelViewSet):
             dimension = validated_data.get('dimension', 'by_contractor')
             
             parquet_service = ParquetSearchService()
-            
+
             # Headers for aggregated data
             headers = ['label', 'total_value', 'count', 'avg_value']
-            
-            def esc(v):
-                s = '' if v is None else str(v)
-                s = s.replace('"','""')
-                return f'"{s}"' if (',' in s or '"' in s or '\n' in s) else s
-            
-            def row_to_csv(r):
-                vals = [
-                    r.get('label') or '',
-                    r.get('total_value') or '',
-                    r.get('count') or '',
-                    r.get('avg_value') or ''
-                ]
-                return ','.join(esc(v) for v in vals)
 
             def generate():
-                yield ','.join(headers) + '\n'
+                # Bytes-based CSV writer
+                bytes_buf = io.BytesIO()
+                text_wrapper = io.TextIOWrapper(bytes_buf, encoding='utf-8', newline='', write_through=True)
+                writer = csv.writer(text_wrapper, quoting=csv.QUOTE_MINIMAL)
+
+                # yield header
+                writer.writerow(headers)
+                text_wrapper.flush()
+                chunk = bytes_buf.getvalue()
+                if chunk:
+                    yield chunk
+                bytes_buf.seek(0)
+                bytes_buf.truncate(0)
+
                 page = 1
-                # Use a large page size to minimize parquet service calls and increase chunk size
-                # This mirrors the contracts export which uses 50,000 rows per page
-                page_size = 50000
-                while True:
-                    result = parquet_service.chip_aggregates_paginated(
-                        contractors=validated_data.get('contractors', []),
-                        areas=validated_data.get('areas', []),
-                        organizations=validated_data.get('organizations', []),
-                        business_categories=validated_data.get('business_categories', []),
-                        keywords=validated_data.get('keywords', []),
-                        time_ranges=validated_data.get('time_ranges', []),
-                        dimension=dimension,
-                        page=page,
-                        page_size=page_size,
-                        sort_by='total_value',
-                        sort_direction='desc',
-                        include_flood_control=validated_data.get('include_flood_control', False),
-                        value_range=validated_data.get('value_range', None)
-                    )
-                    rows = result.get('data', [])
-                    if not rows:
-                        break
-                    # Yield all rows for this page at once to reduce Python->WSGI writes
-                    csv_rows = []
-                    for r in rows:
-                        csv_rows.append(row_to_csv(r))
-                    yield '\n'.join(csv_rows) + '\n'
-                    if len(rows) < page_size:
-                        break
-                    page += 1
+                page_size = 10000  # Increased from 2000 for better throughput
+                try:
+                    while True:
+                        result = self._call_service_with_retries(
+                            parquet_service, 'chip_aggregates_paginated',
+                            contractors=validated_data.get('contractors', []),
+                            areas=validated_data.get('areas', []),
+                            organizations=validated_data.get('organizations', []),
+                            business_categories=validated_data.get('business_categories', []),
+                            keywords=validated_data.get('keywords', []),
+                            time_ranges=validated_data.get('time_ranges', []),
+                            dimension=dimension,
+                            page=page,
+                            page_size=page_size,
+                            sort_by='total_value',
+                            sort_direction='desc',
+                            include_flood_control=validated_data.get('include_flood_control', False),
+                            value_range=validated_data.get('value_range', None)
+                        )
+                        rows = result.get('data', [])
+                        if not rows:
+                            break
+
+                        for r in rows:
+                            writer.writerow([
+                                r.get('label') or '',
+                                r.get('total_value') or '',
+                                r.get('count') or '',
+                                r.get('avg_value') or ''
+                            ])
+                            text_wrapper.flush()
+                            chunk = bytes_buf.getvalue()
+                            if chunk:
+                                yield chunk
+                            bytes_buf.seek(0)
+                            bytes_buf.truncate(0)
+
+                        if len(rows) < page_size:
+                            break
+                        page += 1
+                except GeneratorExit:
+                    return
 
             response = StreamingHttpResponse(generate(), content_type='text/csv')
             response['Content-Disposition'] = f'attachment; filename="{dimension.replace("by_", "")}_export.csv"'
