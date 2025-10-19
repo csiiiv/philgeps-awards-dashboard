@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { getThemeCSSVariables } from '../design-system/theme'
 
 type Theme = 'light' | 'dark'
 
@@ -50,6 +51,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     document.documentElement.classList.toggle('dark', isDark)
+
+    // Apply CSS variables so components using var(...) follow the theme
+    const vars = getThemeCSSVariables(isDark)
+    Object.entries(vars).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        document.documentElement.style.setProperty(key, value)
+      }
+    })
   }, [theme, isDark])
 
   const value = {
