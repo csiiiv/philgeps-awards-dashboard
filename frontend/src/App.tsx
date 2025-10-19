@@ -81,11 +81,11 @@ const AppContent: React.FC = () => {
       <Header $isDark={isDark}>
         <HeaderContent>
           <LogoWrapper>
-            <img src="/BetterGov_Icon-Primary.svg" alt="BetterGov logo" style={{ width: 44, height: 44 }} />
-            <div>
+            <LogoImg src="/BetterGov_Icon-Primary.svg" alt="BetterGov logo" />
+            <TextWrapper>
               <Title $isDark={isDark}>Open PhilGEPS by BetterGov.ph</Title>
               <Subtitle $isDark={isDark}>PhilGEPS Bid Awards Data Explorer</Subtitle>
-            </div>
+            </TextWrapper>
           </LogoWrapper>
           <HeaderRight>
             <Version $isDark={isDark}>

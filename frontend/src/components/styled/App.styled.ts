@@ -33,6 +33,18 @@ export const LogoWrapper = styled.div`
   gap: 0.75rem;
 `;
 
+export const LogoImg = styled.img`
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+`;
+
+export const TextWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
 export const Title = styled.h1<StyledProps>`
   font-size: 1.875rem;
   font-weight: 700;
