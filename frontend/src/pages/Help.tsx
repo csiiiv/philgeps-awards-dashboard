@@ -13,21 +13,21 @@ import {
 
 export const Help: React.FC = () => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const colors = getThemeColors(isDark)
   const [activeSection, setActiveSection] = useState('overview')
 
   const sections = [
-    { id: 'overview', title: 'Overview', icon: '🏠', color: themeColors.primary[600] },
-    { id: 'quickstart', title: 'Quick Start', icon: '🚀', color: themeColors.success[600] },
-    { id: 'search', title: 'Advanced Search', icon: '🔍', color: themeColors.primary[500] },
-    { id: 'analytics', title: 'Analytics', icon: '📊', color: themeColors.warning[600] },
-    { id: 'drilldown', title: 'Drill-down', icon: '🔍', color: themeColors.secondary[600] },
-    { id: 'treemap', title: 'Treemap', icon: '�', color: themeColors.primary[400] },
-    { id: 'presets', title: 'Filter Presets', icon: '💾', color: themeColors.warning[500] },
-    { id: 'dataset', title: 'Sumbong sa Pangulo', icon: '🌊', color: themeColors.primary[400] },
-    { id: 'examples', title: 'Examples', icon: '💡', color: themeColors.success[500] },
-    { id: 'tips', title: 'Tips & Best Practices', icon: '💡', color: themeColors.secondary[500] },
-    { id: 'troubleshooting', title: 'Troubleshooting', icon: '🔧', color: themeColors.error[600] }
+  { id: 'overview', title: 'Overview', icon: '🏠', color: colors.primary[600] },
+  { id: 'quickstart', title: 'Quick Start', icon: '🚀', color: colors.success[600] },
+  { id: 'search', title: 'Advanced Search', icon: '🔍', color: colors.primary[500] },
+  { id: 'analytics', title: 'Analytics', icon: '📊', color: colors.warning[600] },
+  { id: 'drilldown', title: 'Drill-down', icon: '🔍', color: colors.secondary[600] },
+  { id: 'treemap', title: 'Treemap', icon: '�', color: colors.primary[400] },
+  { id: 'presets', title: 'Filter Presets', icon: '💾', color: colors.warning[500] },
+  { id: 'dataset', title: 'Sumbong sa Pangulo', icon: '🌊', color: colors.primary[400] },
+  { id: 'examples', title: 'Examples', icon: '💡', color: colors.success[500] },
+  { id: 'tips', title: 'Tips & Best Practices', icon: '💡', color: colors.secondary[500] },
+  { id: 'troubleshooting', title: 'Troubleshooting', icon: '🔧', color: colors.error[600] }
   ]
 
   const renderTableOfContents = () => (
@@ -49,9 +49,9 @@ export const Help: React.FC = () => {
               alignItems: 'center',
               gap: spacing[2],
               padding: spacing[3],
-              backgroundColor: activeSection === section.id ? section.color : themeColors.background.secondary,
-              color: activeSection === section.id ? themeColors.text.inverse : themeColors.text.primary,
-              border: `1px solid ${activeSection === section.id ? section.color : themeColors.border.medium}`,
+              backgroundColor: activeSection === section.id ? section.color : colors.background.secondary,
+              color: activeSection === section.id ? colors.text.inverse : colors.text.primary,
+              border: `1px solid ${activeSection === section.id ? section.color : colors.border.medium}`,
               borderRadius: spacing[2],
               cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -61,14 +61,14 @@ export const Help: React.FC = () => {
             }}
             onMouseOver={(e) => {
               if (activeSection !== section.id) {
-                e.currentTarget.style.backgroundColor = themeColors.background.tertiary
+                e.currentTarget.style.backgroundColor = colors.background.tertiary
                 e.currentTarget.style.borderColor = section.color
               }
             }}
             onMouseOut={(e) => {
               if (activeSection !== section.id) {
-                e.currentTarget.style.backgroundColor = themeColors.background.secondary
-                e.currentTarget.style.borderColor = themeColors.border.medium
+                e.currentTarget.style.backgroundColor = colors.background.secondary
+                e.currentTarget.style.borderColor = colors.border.medium
               }
             }}
           >
