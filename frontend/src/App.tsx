@@ -20,6 +20,7 @@ import {
   HeaderContent,
   LogoWrapper,
   Title,
+  Subtitle,
   HeaderRight,
   Version,
   Navigation,
@@ -81,9 +82,10 @@ const AppContent: React.FC = () => {
         <HeaderContent>
           <LogoWrapper>
             <img src="/BetterGov_Icon-Primary.svg" alt="BetterGov logo" style={{ width: 44, height: 44 }} />
-            <Title $isDark={isDark}>
-              Open PhilGEPS by BetterGov.ph
-            </Title>
+            <div>
+              <Title $isDark={isDark}>Open PhilGEPS by BetterGov.ph</Title>
+              <Subtitle $isDark={isDark}>PhilGEPS Bid Awards Data Explorer</Subtitle>
+            </div>
           </LogoWrapper>
           <HeaderRight>
             <Version $isDark={isDark}>

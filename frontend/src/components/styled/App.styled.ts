@@ -41,6 +41,14 @@ export const Title = styled.h1<StyledProps>`
   line-height: 1.2;
 `
 
+export const Subtitle = styled.h2<StyledProps>`
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  color: ${props => getThemeColors(props.$isDark).text.secondary};
+  margin-top: 0.25rem;
+`;
+
 export const HeaderRight = styled.div`
   display: flex;
   align-items: center;
