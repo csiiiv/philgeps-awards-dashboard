@@ -78,9 +78,12 @@ const AppContent: React.FC = () => {
       {/* Header */}
       <Header $isDark={isDark}>
         <HeaderContent>
-          <Title $isDark={isDark}>
-            PHILGEPS Awards Data Explorer
-          </Title>
+          <LogoWrapper>
+            <img src="/BetterGov_Icon-Primary.svg" alt="BetterGov logo" style={{ width: 44, height: 44 }} />
+            <Title $isDark={isDark}>
+              Open PhilGEPS by BetterGov.ph
+            </Title>
+          </LogoWrapper>
           <HeaderRight>
             <Version $isDark={isDark}>
               v3.2.0 - Metrics Dashboard

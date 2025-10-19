@@ -27,6 +27,12 @@ export const HeaderContent = styled.div`
   justify-content: space-between;
 `
 
+export const LogoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
 export const Title = styled.h1<StyledProps>`
   font-size: 1.875rem;
   font-weight: 700;
