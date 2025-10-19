@@ -18,6 +18,7 @@ import {
   AppContainer,
   Header,
   HeaderContent,
+  LogoWrapper,
   Title,
   HeaderRight,
   Version,
