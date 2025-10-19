@@ -22,8 +22,8 @@ services:
       GUNICORN_KEEPALIVE: "5"
       # Python logging
       PYTHONUNBUFFERED: "1"
-      # volumes:
-      #   - ./backend/django/static_data:/data/parquet
+    volumes:
+      - ./backend/django/static_data:/data/parquet
 
     restart: unless-stopped
     healthcheck:

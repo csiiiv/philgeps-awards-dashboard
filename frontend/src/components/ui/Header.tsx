@@ -1,10 +1,10 @@
 import React from 'react'
-import Image from 'next/image'
 import { LogoImg, TextWrapper } from '@/components/styled/App.styled'
+import { ThemeToggle } from '@/components/features/shared/ThemeToggle'
 
 const Header: React.FC<{ title?: string; subtitle?: string }> = ({
   title = 'Open PhilGEPS by BetterGov.ph',
-  subtitle = 'PhilGEPS Bid Awards Data Explorer',
+  subtitle = 'PhilGEPS Contracts Award Data Explorer',
 }) => {
   return (
     <header className="w-full border-b bg-white">
@@ -18,7 +18,7 @@ const Header: React.FC<{ title?: string; subtitle?: string }> = ({
           </div>
         </div>
         <div>
-          {/* Placeholder for theme toggle / version */}
+          <ThemeToggle />
         </div>
       </div>
     </header>

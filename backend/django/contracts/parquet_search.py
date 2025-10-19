@@ -40,9 +40,21 @@ class ParquetSearchService:
         # Use all_time file for complete data (5M contracts)
         all_time_file = os.path.join(self.data_dir, 'facts_awards_all_time.parquet')
         
+        # Prefer the all_time file when present, but validate it before trusting it.
+        files: List[str] = []
         if os.path.exists(all_time_file):
-            # Use all_time file for complete dataset
-            files = [all_time_file]
+            # Validate parquet file readability with DuckDB. If it's corrupted or not a parquet
+            # file (for example, partially copied or zero-length), DuckDB will raise an error.
+            try:
+                conn = self.get_connection()
+                # Try a very small read to validate the file. Use a safe select that doesn't
+                # materialize many rows.
+                conn.execute(f"SELECT 1 FROM read_parquet('{all_time_file}') LIMIT 1").fetchone()
+                files = [all_time_file]
+            except Exception as e:
+                # File appears invalid. Log and fall back to per-year files below.
+                print(f"Warning: Parquet file validation failed for {all_time_file}: {e}. Falling back to per-year files.")
+                files = []
         else:
             # Fallback to original logic
             pattern = os.path.join(self.data_dir, 'facts_awards_*.parquet')
@@ -71,9 +83,14 @@ class ParquetSearchService:
             # Sort by year
             year_files.sort(key=lambda x: int(os.path.basename(x).split('_')[-1].split('.')[0]))
             
-            # Add all_time file at the beginning
-            if all_time_file:
-                year_files.insert(0, all_time_file)
+            # Add all_time file at the beginning (only if it passed validation)
+            if os.path.exists(all_time_file) and all_time_file not in year_files and files and files[0].endswith('all_time.parquet'):
+                # already present in files list
+                pass
+            elif os.path.exists(all_time_file) and all_time_file not in year_files and os.path.exists(all_time_file):
+                # if validation succeeded earlier, ensure it's first
+                if all_time_file not in year_files:
+                    year_files.insert(0, all_time_file)
             
             files = year_files
         

@@ -1,5 +1,6 @@
 ## Build stage
-FROM node:18-alpine AS build
+# Use Node 20 (LTS) for improved ESM support and compatibility with newer packages
+FROM node:20-alpine AS build
 LABEL org.opencontainers.image.source="https://github.com/csiiiv/philgeps-awards-dashboard"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL maintainer="philgeps-team@example.org"
