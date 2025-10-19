@@ -148,6 +148,9 @@ const AppContent: React.FC = () => {
           Built with React, TypeScript, and Django REST API
           {isRegistered && ' • Service Worker Active'}
         </p>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+          <a href="/PUBLIC_DOMAIN_LICENSE.txt" target="_blank" rel="noopener noreferrer">Public domain license (CC0 1.0)</a>
+        </p>
       </Footer>
     </AppContainer>
   )
