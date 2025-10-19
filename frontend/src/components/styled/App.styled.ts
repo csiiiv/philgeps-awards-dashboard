@@ -89,13 +89,13 @@ export const TabButton = styled.button<StyledProps & { $isActive: boolean }>`
   border: none;
   background-color: ${props => 
     props.$isActive 
-      ? var(--color-primary-600) 
+      ? 'var(--color-primary-600)' 
       : 'transparent'
   };
   color: ${props => 
     props.$isActive 
-      ? var(--color-text-inverse) 
-      : var(--color-text-primary)
+      ? 'var(--color-text-inverse)' 
+      : 'var(--color-text-primary)'
   };
   cursor: pointer;
   font-size: 0.875rem;
@@ -110,8 +110,8 @@ export const TabButton = styled.button<StyledProps & { $isActive: boolean }>`
   &:hover {
     background-color: ${props => 
       props.$isActive 
-        ? var(--color-primary-600)
-        : var(--color-primary-50)
+        ? 'var(--color-primary-600)'
+        : 'var(--color-primary-50)'
     };
   }
 
