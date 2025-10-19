@@ -21,6 +21,8 @@ import {
   LogoWrapper,
   Title,
   Subtitle,
+  LogoImg,
+  TextWrapper,
   HeaderRight,
   Version,
   Navigation,
