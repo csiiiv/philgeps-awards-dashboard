@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { getThemeColors } from '../../design-system/theme'
 
 interface StyledProps {
   $isDark: boolean
@@ -7,14 +6,14 @@ interface StyledProps {
 
 export const AppContainer = styled.div<StyledProps>`
   min-height: 100vh;
-  background-color: ${props => getThemeColors(props.$isDark).background.secondary};
-  font-family: ${props => getThemeColors(props.$isDark).fontFamily?.sans?.join(', ') || 'system-ui, sans-serif'};
-  color: ${props => getThemeColors(props.$isDark).text.primary};
+  background-color: var(--color-background-secondary);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--color-text-primary);
 `
 
 export const Header = styled.header<StyledProps>`
-  background-color: ${props => getThemeColors(props.$isDark).background.primary};
-  border-bottom: 1px solid ${props => getThemeColors(props.$isDark).border.light};
+  background-color: var(--color-background-primary);
+  border-bottom: 1px solid var(--color-border-light);
   padding: 1rem 1.5rem;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
 `
@@ -48,7 +47,7 @@ export const TextWrapper = styled.div`
 export const Title = styled.h1<StyledProps>`
   font-size: 1.875rem;
   font-weight: 700;
-  color: ${props => getThemeColors(props.$isDark).text.primary};
+  color: var(--color-text-primary);
   margin: 0;
   line-height: 1.2;
 `
@@ -57,7 +56,7 @@ export const Subtitle = styled.h2<StyledProps>`
   font-size: 0.95rem;
   font-weight: 500;
   margin: 0;
-  color: ${props => getThemeColors(props.$isDark).text.secondary};
+  color: var(--color-text-secondary);
   margin-top: 0.25rem;
 `;
 
@@ -69,12 +68,12 @@ export const HeaderRight = styled.div`
 
 export const Version = styled.div<StyledProps>`
   font-size: 0.875rem;
-  color: ${props => getThemeColors(props.$isDark).text.secondary};
+  color: var(--color-text-secondary);
 `
 
 export const Navigation = styled.nav<StyledProps>`
-  background-color: ${props => getThemeColors(props.$isDark).background.primary};
-  border-bottom: 1px solid ${props => getThemeColors(props.$isDark).border.light};
+  background-color: var(--color-background-primary);
+  border-bottom: 1px solid var(--color-border-light);
   padding: 0 1.5rem;
 `
 
@@ -90,13 +89,13 @@ export const TabButton = styled.button<StyledProps & { $isActive: boolean }>`
   border: none;
   background-color: ${props => 
     props.$isActive 
-      ? getThemeColors(props.$isDark).primary[600] 
+      ? var(--color-primary-600) 
       : 'transparent'
   };
   color: ${props => 
     props.$isActive 
-      ? getThemeColors(props.$isDark).text.inverse 
-      : getThemeColors(props.$isDark).text.primary
+      ? var(--color-text-inverse) 
+      : var(--color-text-primary)
   };
   cursor: pointer;
   font-size: 0.875rem;
@@ -111,13 +110,13 @@ export const TabButton = styled.button<StyledProps & { $isActive: boolean }>`
   &:hover {
     background-color: ${props => 
       props.$isActive 
-        ? getThemeColors(props.$isDark).primary[600]
-        : getThemeColors(props.$isDark).primary[50]
+        ? var(--color-primary-600)
+        : var(--color-primary-50)
     };
   }
 
   &:focus {
-    outline: 2px solid ${props => getThemeColors(props.$isDark).primary[500]};
+    outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
   }
 
@@ -126,8 +125,8 @@ export const TabButton = styled.button<StyledProps & { $isActive: boolean }>`
   }
 
   &[aria-current="page"] {
-    background-color: ${props => getThemeColors(props.$isDark).primary[600]};
-    color: ${props => getThemeColors(props.$isDark).text.inverse};
+    background-color: var(--color-primary-600);
+    color: var(--color-text-inverse);
   }
 `
 
@@ -138,12 +137,12 @@ export const MainContent = styled.main`
 `
 
 export const Footer = styled.footer<StyledProps>`
-  background-color: ${props => getThemeColors(props.$isDark).background.primary};
-  border-top: 1px solid ${props => getThemeColors(props.$isDark).border.light};
+  background-color: var(--color-background-primary);
+  border-top: 1px solid var(--color-border-light);
   padding: 1.5rem;
   margin-top: 3rem;
   text-align: center;
-  color: ${props => getThemeColors(props.$isDark).text.secondary};
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
 
   p {
