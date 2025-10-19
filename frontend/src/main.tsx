@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/features/shared/ErrorBoundary'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { registerServiceWorker } from './utils/serviceWorker'
 import './index.css'
 import App from './App.tsx'
@@ -32,18 +33,20 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error boundary for the entire app
 const AppWithErrorBoundary = () => (
-  <ErrorBoundary
-    onError={(error, errorInfo) => {
-      // Log to external service in production
-      if (process.env.NODE_ENV === 'production') {
-        console.error('App error:', { error, errorInfo })
-        // In a real app, you would send this to your error reporting service
-        // errorReportingService.captureException(error, { extra: errorInfo })
-      }
-    }}
-  >
-    <App />
-  </ErrorBoundary>
+  <ThemeProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        // Log to external service in production
+        if (process.env.NODE_ENV === 'production') {
+          console.error('App error:', { error, errorInfo })
+          // In a real app, you would send this to your error reporting service
+          // errorReportingService.captureException(error, { extra: errorInfo })
+        }
+      }}
+    >
+      <App />
+    </ErrorBoundary>
+  </ThemeProvider>
 )
 
 createRoot(document.getElementById('root')!).render(
