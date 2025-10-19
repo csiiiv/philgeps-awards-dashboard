@@ -115,87 +115,107 @@ export const getThemeCSSVariables = (isDark: boolean) => {
   }
 }
 
-// Returns a theme object with the same shape as getThemeColors but
-// with CSS variable references (e.g. 'var(--color-text-primary)') as values.
-export const getThemeVars = (_isDark: boolean) => ({
-  primary: {
-    50: 'var(--color-primary-50)',
-    100: 'var(--color-primary-100)',
-    200: 'var(--color-primary-200)',
-    300: 'var(--color-primary-300)',
-    400: 'var(--color-primary-400)',
-    500: 'var(--color-primary-500)',
-    600: 'var(--color-primary-600)',
-    700: 'var(--color-primary-700)',
-    800: 'var(--color-primary-800)',
-    900: 'var(--color-primary-900)'
-  },
-  secondary: {
-    50: 'var(--color-primary-50)',
-    100: 'var(--color-primary-100)',
-    200: 'var(--color-primary-200)',
-    300: 'var(--color-primary-300)',
-    400: 'var(--color-primary-400)',
-    500: 'var(--color-primary-500)',
-    600: 'var(--color-primary-600)',
-    700: 'var(--color-primary-700)',
-    800: 'var(--color-primary-800)',
-    900: 'var(--color-primary-900)'
-  },
-  gray: {
-    50: 'var(--color-gray-50)',
-    100: 'var(--color-gray-100)',
-    200: 'var(--color-gray-200)',
-    300: 'var(--color-gray-300)',
-    400: 'var(--color-gray-400)',
-    500: 'var(--color-gray-500)',
-    600: 'var(--color-gray-600)',
-    700: 'var(--color-gray-700)',
-    800: 'var(--color-gray-800)',
-    900: 'var(--color-gray-900)'
-  },
-  success: { 50: 'var(--color-success)', 500: 'var(--color-success)', 600: 'var(--color-success)' },
-  warning: { 50: 'var(--color-warning)', 500: 'var(--color-warning)', 600: 'var(--color-warning)' },
-  error: { 50: 'var(--color-error)', 500: 'var(--color-error)', 600: 'var(--color-error)' },
-  background: {
-    primary: 'var(--color-background-primary)',
-    secondary: 'var(--color-background-secondary)',
-    tertiary: 'var(--color-background-tertiary)'
-  },
-  text: {
-    primary: 'var(--color-text-primary)',
-    secondary: 'var(--color-text-secondary)',
-    tertiary: 'var(--color-text-tertiary)',
-    inverse: 'var(--color-text-inverse)'
-  },
-  border: {
-    light: 'var(--color-border-light)',
-    medium: 'var(--color-border-medium)',
-    dark: 'var(--color-border-dark)'
+// Return a parallel object that contains CSS var() references instead of hex colors.
+export const getThemeVars = (/* isDark: boolean */) => {
+  // We intentionally ignore isDark here because CSS variables are applied at runtime by ThemeProvider.
+  // Consumers should prefer these var(...) strings when writing styles that should respond to data-theme.
+  return {
+    primary: {
+      50: 'var(--color-primary-50)',
+      100: 'var(--color-primary-100)',
+      200: 'var(--color-primary-200)',
+      300: 'var(--color-primary-300)',
+      400: 'var(--color-primary-400)',
+      500: 'var(--color-primary-500)',
+      600: 'var(--color-primary-600)',
+      700: 'var(--color-primary-700)',
+      800: 'var(--color-primary-800)',
+      900: 'var(--color-primary-900)'
+    },
+    background: {
+      primary: 'var(--color-background-primary)',
+      secondary: 'var(--color-background-secondary)',
+      tertiary: 'var(--color-background-tertiary)'
+    },
+    text: {
+      primary: 'var(--color-text-primary)',
+      secondary: 'var(--color-text-secondary)',
+      tertiary: 'var(--color-text-tertiary)',
+      inverse: 'var(--color-text-inverse)'
+    },
+    border: {
+      light: 'var(--color-border-light)',
+      medium: 'var(--color-border-medium)',
+      dark: 'var(--color-border-dark)'
+    },
+    // semantic tokens
+    success: { 50: 'var(--color-success, #22c55e)', 500: 'var(--color-success, #22c55e)', 600: 'var(--color-success, #22c55e)' },
+    warning: { 50: 'var(--color-warning, #f59e0b)', 500: 'var(--color-warning, #f59e0b)', 600: 'var(--color-warning, #f59e0b)' },
+    error: { 50: 'var(--color-error, #ef4444)', 500: 'var(--color-error, #ef4444)', 600: 'var(--color-error, #ef4444)' }
   }
-})
+}
 
-// Small helper to map a semantic token key to a CSS var string.
-// Example: themeVar('text.primary') -> 'var(--color-text-primary')
-export const themeVar = (token: string) => {
-  const map: Record<string, string> = {
+// Typed token names for themeVar helper
+export type ThemeToken =
+  | 'text.primary'
+  | 'text.secondary'
+  | 'text.inverse'
+  | 'background.primary'
+  | 'background.secondary'
+  | 'background.tertiary'
+  | 'border.light'
+  | 'border.medium'
+  | 'primary.50'
+  | 'primary.100'
+  | 'primary.200'
+  | 'primary.300'
+  | 'primary.400'
+  | 'primary.500'
+  | 'primary.600'
+  | 'primary.700'
+  | 'primary.800'
+  | 'primary.900'
+  | 'success.50'
+  | 'success.500'
+  | 'success.600'
+  | 'warning.50'
+  | 'warning.500'
+  | 'warning.600'
+  | 'error.50'
+  | 'error.500'
+  | 'error.600'
+
+// Small helper to return a CSS var string for a semantic token
+export const themeVar = (token: ThemeToken): string => {
+  const map: Record<ThemeToken, string> = {
     'text.primary': 'var(--color-text-primary)',
     'text.secondary': 'var(--color-text-secondary)',
-    'text.tertiary': 'var(--color-text-tertiary)',
     'text.inverse': 'var(--color-text-inverse)',
-
     'background.primary': 'var(--color-background-primary)',
     'background.secondary': 'var(--color-background-secondary)',
     'background.tertiary': 'var(--color-background-tertiary)',
-
     'border.light': 'var(--color-border-light)',
     'border.medium': 'var(--color-border-medium)',
-    'border.dark': 'var(--color-border-dark)',
-
+    'primary.50': 'var(--color-primary-50)',
+    'primary.100': 'var(--color-primary-100)',
+    'primary.200': 'var(--color-primary-200)',
+    'primary.300': 'var(--color-primary-300)',
+    'primary.400': 'var(--color-primary-400)',
     'primary.500': 'var(--color-primary-500)',
-    'primary.600': 'var(--color-primary-600)'
+    'primary.600': 'var(--color-primary-600)',
+    'primary.700': 'var(--color-primary-700)',
+    'primary.800': 'var(--color-primary-800)',
+    'primary.900': 'var(--color-primary-900)',
+    'success.50': 'var(--color-success)',
+    'success.500': 'var(--color-success)',
+    'success.600': 'var(--color-success)',
+    'warning.50': 'var(--color-warning)',
+    'warning.500': 'var(--color-warning)',
+    'warning.600': 'var(--color-warning)',
+    'error.50': 'var(--color-error)',
+    'error.500': 'var(--color-error)',
+    'error.600': 'var(--color-error)'
   }
-
-  return map[token] || ''
+  return map[token]
 }
 
