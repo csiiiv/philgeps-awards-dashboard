@@ -16,15 +16,6 @@ import {
 } from './components/lazy/LazyComponents'
 import {
   AppContainer,
-  Header,
-  HeaderContent,
-  LogoWrapper,
-  Title,
-  Subtitle,
-  LogoImg,
-  TextWrapper,
-  HeaderRight,
-  Version,
   Navigation,
   NavigationContent,
   TabButton,
@@ -33,6 +24,7 @@ import {
   TabIcon,
   TabLabel,
 } from './components/styled/App.styled'
+import Header from './components/ui/Header'
 import './App.css'
 import './styles/theme.css'
 
@@ -80,40 +72,7 @@ const AppContent: React.FC = () => {
   return (
     <AppContainer $isDark={isDark}>
       {/* Header */}
-      <Header $isDark={isDark}>
-        <HeaderContent>
-          <LogoWrapper>
-            <LogoImg src="/BetterGov_Icon-Primary.svg" alt="BetterGov logo" />
-            <TextWrapper>
-              <Title $isDark={isDark}>Open PhilGEPS by BetterGov.ph</Title>
-              <Subtitle $isDark={isDark}>PhilGEPS Bid Awards Data Explorer</Subtitle>
-            </TextWrapper>
-          </LogoWrapper>
-          <HeaderRight>
-            <Version $isDark={isDark}>
-              v3.2.0 - Metrics Dashboard
-            </Version>
-            <ThemeToggle />
-            {isUpdateAvailable && (
-              <button
-                onClick={updateServiceWorker}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                }}
-                aria-label="Update available - click to refresh"
-              >
-                Update Available
-              </button>
-            )}
-          </HeaderRight>
-        </HeaderContent>
-      </Header>
+      <Header />
 
       {/* Navigation Tabs */}
       <Navigation $isDark={isDark}>
