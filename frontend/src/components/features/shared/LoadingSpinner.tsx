@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { useAccessibility } from '../../../hooks/useAccessibility'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { reducedMotion } from '../../../design-system/accessibility'
 
 interface LoadingSpinnerProps {
@@ -19,8 +19,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const { isDark } = useTheme()
   const { isHighContrast, prefersReducedMotion } = useAccessibility()
   
-  const themeColors = getThemeColors(isDark)
-  const spinnerColor = color || themeColors.primary[600]
+  const vars = getThemeVars()
+  const spinnerColor = color || vars.primary[600]
   
   const sizeMap = {
     small: '1rem',
@@ -33,8 +33,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const spinnerStyle = {
     width: spinnerSize,
     height: spinnerSize,
-    border: `3px solid ${themeColors.border.light}`,
-    borderTop: `3px solid ${spinnerColor}`,
+  border: `3px solid ${vars.border.light}`,
+  borderTop: `3px solid ${spinnerColor}`,
     borderRadius: '50%',
     animation: reducedMotion.getAnimation('spin 1s linear infinite'),
     margin: '0 auto',
@@ -51,7 +51,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   }
   
   const messageStyle = {
-    color: themeColors.text.secondary,
+    color: vars.text.secondary,
     fontSize: size === 'small' ? '0.875rem' : '1rem',
     fontWeight: '500',
   }
