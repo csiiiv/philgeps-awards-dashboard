@@ -1,11 +1,12 @@
 import React from 'react'
 import { useTheme } from '../contexts/ThemeContext'
-import { getThemeColors } from '../design-system/theme'
+import { themeVar, getThemeVars } from '../design-system/theme'
 import { typography, spacing } from '../design-system'
 
 const ApiDocumentation: React.FC = () => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  // Use getThemeVars() for var(...) strings (ThemeProvider applies the values at runtime)
+  const vars = getThemeVars()
   
   // Get the correct API base URL from environment variables
   const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://philgeps-api.simple-systems.dev'
@@ -19,35 +20,35 @@ const ApiDocumentation: React.FC = () => {
   const renderOverview = () => (
     <div>
       <div style={{ marginBottom: spacing[6] }}>
-        <h2 style={{ ...typography.textStyles.h2, color: themeColors.text.primary, marginBottom: spacing[4] }}>
+  <h2 style={{ ...typography.textStyles.h2, color: vars.text.primary, marginBottom: spacing[4] }}>
           API Documentation
         </h2>
-        <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, marginBottom: spacing[4] }}>
+  <p style={{ ...typography.textStyles.body, color: vars.text.secondary, marginBottom: spacing[4] }}>
           The PHILGEPS Awards Data Explorer provides a comprehensive REST API for querying and analyzing government contract data. 
           The API is built with Django REST Framework and uses DuckDB for efficient data processing with Parquet files.
         </p>
         
 
-        <div style={{
-          backgroundColor: themeColors.background.secondary,
-          border: `1px solid ${themeColors.border.medium}`,
+          <div style={{
+          backgroundColor: vars.background.secondary,
+          border: `1px solid ${vars.border.medium}`,
           borderRadius: spacing[2],
           padding: spacing[4],
           marginBottom: spacing[4]
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.text.primary, marginBottom: spacing[2] }}>
             API Information
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing[3] }}>
     <div>
-              <strong style={{ color: themeColors.text.primary }}>Base URL:</strong>
+              <strong style={{ color: vars.text.primary }}>Base URL:</strong>
               <br />
           <code style={{
-            backgroundColor: themeColors.background.primary,
+            backgroundColor: vars.background.primary,
                 padding: spacing[1],
             borderRadius: spacing[1],
             fontFamily: 'monospace',
-            color: themeColors.primary[600],
+            color: vars.primary[600],
                 fontSize: typography.fontSize.sm
           }}>
             {apiBaseUrl}/api/v1/
@@ -56,7 +57,7 @@ const ApiDocumentation: React.FC = () => {
               <div>
               <strong style={{ color: themeColors.text.primary }}>OpenAPI Version:</strong>
               <br />
-              <span style={{ color: themeColors.text.secondary }}>3.0.3</span>
+              <span style={{ color: vars.text.secondary }}>3.0.3</span>
       </div>
             <div>
               <strong style={{ color: themeColors.text.primary }}>Total Endpoints:</strong>
@@ -71,9 +72,9 @@ const ApiDocumentation: React.FC = () => {
         </div>
       </div>
 
-        <div style={{
-          backgroundColor: themeColors.background.secondary,
-          border: `1px solid ${themeColors.border.medium}`,
+          <div style={{
+          backgroundColor: vars.background.secondary,
+          border: `1px solid ${vars.border.medium}`,
           borderRadius: spacing[2],
           padding: spacing[4],
           marginBottom: spacing[4]
@@ -85,9 +86,9 @@ const ApiDocumentation: React.FC = () => {
             Access the full interactive API documentation with testing capabilities:
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
-            <div style={{
-              backgroundColor: themeColors.background.primary,
-              border: `1px solid ${themeColors.border.light}`,
+                  <div style={{
+              backgroundColor: vars.background.primary,
+              border: `1px solid ${vars.border.light}`,
               borderRadius: spacing[1],
               padding: spacing[3]
             }}>
@@ -96,17 +97,17 @@ const ApiDocumentation: React.FC = () => {
                   href={swaggerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    color: themeColors.primary[600],
+                    style={{
+                    color: vars.primary[600],
                     textDecoration: 'underline',
                     fontSize: typography.fontSize.lg,
                     fontWeight: typography.fontWeight.semibold
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.color = themeColors.primary[700]
+                    e.currentTarget.style.color = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-700') || ''
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.color = themeColors.primary[600]
+                    e.currentTarget.style.color = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-600') || ''
                   }}
                 >
                   Swagger UI
@@ -127,17 +128,17 @@ const ApiDocumentation: React.FC = () => {
                   href={redocUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    color: themeColors.primary[600],
+                    style={{
+                    color: vars.primary[600],
                     textDecoration: 'underline',
                     fontSize: typography.fontSize.lg,
                     fontWeight: typography.fontWeight.semibold
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.color = themeColors.primary[700]
+                    e.currentTarget.style.color = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-700') || ''
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.color = themeColors.primary[600]
+                    e.currentTarget.style.color = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-600') || ''
                   }}
                 >
                   ReDoc
@@ -166,13 +167,13 @@ const ApiDocumentation: React.FC = () => {
               rel="noopener noreferrer"
               style={{
                 padding: `${spacing[2]} ${spacing[3]}`,
-                backgroundColor: themeColors.background.primary,
-                color: themeColors.text.primary,
+                backgroundColor: vars.background.primary,
+                color: vars.text.primary,
                 textDecoration: 'none',
                 borderRadius: spacing[1],
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium,
-              border: `1px solid ${themeColors.border.medium}`,
+            border: `1px solid ${vars.border.medium}`,
                 display: 'flex',
                 alignItems: 'center',
                 gap: spacing[2]
@@ -186,13 +187,13 @@ const ApiDocumentation: React.FC = () => {
               rel="noopener noreferrer"
               style={{
                 padding: `${spacing[2]} ${spacing[3]}`,
-                backgroundColor: themeColors.background.primary,
-                color: themeColors.text.primary,
+                backgroundColor: vars.background.primary,
+                color: vars.text.primary,
                 textDecoration: 'none',
                 borderRadius: spacing[1],
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium,
-            border: `1px solid ${themeColors.border.medium}`,
+            border: `1px solid ${vars.border.medium}`,
                 display: 'flex',
                 alignItems: 'center',
                 gap: spacing[2]
