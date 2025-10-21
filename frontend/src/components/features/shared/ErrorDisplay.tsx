@@ -2,7 +2,7 @@ import React from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { useAccessibility } from '../../../hooks/useAccessibility'
 import { AccessibleButton } from './AccessibleButton'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 
 interface ErrorDisplayProps {
   error: string | { message?: string }
@@ -22,7 +22,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   const { isDark } = useTheme()
   const { isHighContrast, announce } = useAccessibility()
   
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars()
   
   const getVariantStyles = () => {
     const baseStyles = {
@@ -38,23 +38,23 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       case 'error':
         return {
           ...baseStyles,
-          backgroundColor: isHighContrast ? '#000000' : '#fef2f2',
-          borderColor: isHighContrast ? '#ffffff' : '#fecaca',
-          color: isHighContrast ? '#ffffff' : '#dc2626',
+          backgroundColor: isHighContrast ? '#000000' : vars.error[50],
+          borderColor: isHighContrast ? '#ffffff' : 'var(--color-error)',
+          color: isHighContrast ? '#ffffff' : 'var(--color-error)'
         }
       case 'warning':
         return {
           ...baseStyles,
-          backgroundColor: isHighContrast ? '#000000' : '#fffbeb',
-          borderColor: isHighContrast ? '#ffffff' : '#fed7aa',
-          color: isHighContrast ? '#ffffff' : '#d97706',
+          backgroundColor: isHighContrast ? '#000000' : vars.warning[50],
+          borderColor: isHighContrast ? '#ffffff' : 'var(--color-warning)',
+          color: isHighContrast ? '#ffffff' : 'var(--color-warning)'
         }
       case 'info':
         return {
           ...baseStyles,
-          backgroundColor: isHighContrast ? '#000000' : '#eff6ff',
-          borderColor: isHighContrast ? '#ffffff' : '#bfdbfe',
-          color: isHighContrast ? '#ffffff' : '#2563eb',
+          backgroundColor: isHighContrast ? '#000000' : vars.primary[50],
+          borderColor: isHighContrast ? '#ffffff' : 'var(--color-primary-200)',
+          color: isHighContrast ? '#ffffff' : 'var(--color-primary-600)'
         }
       default:
         return baseStyles

@@ -55,19 +55,19 @@ const ApiDocumentation: React.FC = () => {
           </code>
         </div>
               <div>
-              <strong style={{ color: themeColors.text.primary }}>OpenAPI Version:</strong>
+              <strong style={{ color: vars.text.primary }}>OpenAPI Version:</strong>
               <br />
               <span style={{ color: vars.text.secondary }}>3.0.3</span>
       </div>
             <div>
-              <strong style={{ color: themeColors.text.primary }}>Total Endpoints:</strong>
+              <strong style={{ color: vars.text.primary }}>Total Endpoints:</strong>
               <br />
-              <span style={{ color: themeColors.text.secondary }}>12</span>
+              <span style={{ color: vars.text.secondary }}>12</span>
           </div>
             <div>
-              <strong style={{ color: themeColors.text.primary }}>Rate Limit:</strong>
+              <strong style={{ color: vars.text.primary }}>Rate Limit:</strong>
               <br />
-              <span style={{ color: themeColors.text.secondary }}>240/hour</span>
+              <span style={{ color: vars.text.secondary }}>240/hour</span>
           </div>
         </div>
       </div>
@@ -79,10 +79,10 @@ const ApiDocumentation: React.FC = () => {
           padding: spacing[4],
           marginBottom: spacing[4]
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[3] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.text.primary, marginBottom: spacing[3] }}>
             Interactive Documentation
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, marginBottom: spacing[4] }}>
+          <p style={{ ...typography.textStyles.body, color: vars.text.secondary, marginBottom: spacing[4] }}>
             Access the full interactive API documentation with testing capabilities:
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
@@ -92,7 +92,7 @@ const ApiDocumentation: React.FC = () => {
               borderRadius: spacing[1],
               padding: spacing[3]
             }}>
-              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+              <h4 style={{ ...typography.textStyles.h4, color: vars.text.primary, marginBottom: spacing[2] }}>
                 📚 <a
                   href={swaggerUrl}
                   target="_blank"
@@ -113,17 +113,17 @@ const ApiDocumentation: React.FC = () => {
                   Swagger UI
                 </a>
               </h4>
-              <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
+              <p style={{ ...typography.textStyles.body, color: vars.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
                 Interactive API explorer with testing capabilities. Click to open in a new tab.
               </p>
             </div>
             <div style={{
-              backgroundColor: themeColors.background.primary,
-              border: `1px solid ${themeColors.border.light}`,
+              backgroundColor: vars.background.primary,
+              border: `1px solid ${vars.border.light}`,
               borderRadius: spacing[1],
               padding: spacing[3]
             }}>
-              <h4 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+              <h4 style={{ ...typography.textStyles.h4, color: vars.text.primary, marginBottom: spacing[2] }}>
                 📖 <a
                   href={redocUrl}
                   target="_blank"
@@ -144,20 +144,19 @@ const ApiDocumentation: React.FC = () => {
                   ReDoc
                 </a>
               </h4>
-              <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
+              <p style={{ ...typography.textStyles.body, color: vars.text.secondary, fontSize: typography.fontSize.sm, margin: 0 }}>
                 Clean, readable API documentation format. Click to open in a new tab.
               </p>
             </div>
           </div>
         </div>
-
           <div style={{
-            backgroundColor: themeColors.background.secondary,
-            border: `1px solid ${themeColors.border.medium}`,
+            backgroundColor: vars.background.secondary,
+            border: `1px solid ${vars.border.medium}`,
             borderRadius: spacing[2],
             padding: spacing[4]
           }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[3] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.text.primary, marginBottom: spacing[3] }}>
             Additional Resources
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>

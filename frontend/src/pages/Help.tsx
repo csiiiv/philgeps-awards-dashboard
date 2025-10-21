@@ -83,15 +83,15 @@ export const Help: React.FC = () => {
   const renderOverview = () => (
     <div>
       <div style={{
-        background: `linear-gradient(135deg, ${themeColors.primary[50]} 0%, ${themeColors.primary[100]} 100%)`,
+        background: `linear-gradient(135deg, ${colors.primary[50]} 0%, ${colors.primary[100]} 100%)`,
         borderRadius: spacing[3],
         padding: spacing[6],
         marginBottom: spacing[6],
-        border: `1px solid ${themeColors.primary[200]}`
+        border: `1px solid ${colors.primary[200]}`
       }}>
         <h1 style={{
           ...typography.textStyles.h1,
-          color: themeColors.primary[800],
+          color: colors.primary[800],
           marginBottom: spacing[3],
           display: 'flex',
           alignItems: 'center',
@@ -102,7 +102,7 @@ export const Help: React.FC = () => {
         </h1>
         <div style={{
           ...typography.textStyles.h3,
-          color: themeColors.primary[700],
+          color: colors.primary[700],
           marginBottom: spacing[4],
           fontWeight: typography.fontWeight.normal
         }}>
@@ -110,7 +110,7 @@ export const Help: React.FC = () => {
         </div>
         <p style={{
           ...typography.textStyles.body,
-          color: themeColors.primary[700],
+          color: colors.primary[700],
           fontSize: typography.fontSize.lg,
           lineHeight: 1.6,
           margin: 0
@@ -123,47 +123,47 @@ export const Help: React.FC = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: spacing[4], marginBottom: spacing[6] }}>
         <div style={{
-          backgroundColor: themeColors.success[50],
-          border: `1px solid ${themeColors.success[600]}`,
+          backgroundColor: colors.success[50],
+          border: `1px solid ${colors.success[600]}`,
           borderRadius: spacing[2],
           padding: spacing[4],
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📊</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.success[600], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h4, color: colors.success[600], marginBottom: spacing[2] }}>
             5M+ Contracts
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+            <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Comprehensive database of awarded government contracts
           </p>
         </div>
         <div style={{
-          backgroundColor: themeColors.primary[50],
-          border: `1px solid ${themeColors.primary[600]}`,
+          backgroundColor: colors.primary[50],
+          border: `1px solid ${colors.primary[600]}`,
           borderRadius: spacing[2],
           padding: spacing[4],
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>🏢</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.primary[600], marginBottom: spacing[2] }}>
             23K+ Organizations
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Government agencies and contracting entities
           </p>
         </div>
         <div style={{
-          backgroundColor: themeColors.warning[50],
-          border: `1px solid ${themeColors.warning[600]}`,
+          backgroundColor: colors.warning[50],
+          border: `1px solid ${colors.warning[600]}`,
           borderRadius: spacing[2],
           padding: spacing[4],
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>👥</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.warning[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.warning[600], marginBottom: spacing[2] }}>
             119K+ Contractors
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Registered contractors and suppliers
           </p>
         </div>
@@ -172,55 +172,55 @@ export const Help: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: spacing[4] }}>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>🔍</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.text.primary, marginBottom: spacing[2] }}>
             Advanced Search
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Powerful search with multiple filters, keywords, and time ranges
           </p>
         </Card>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>📊</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.text.primary, marginBottom: spacing[2] }}>
             Analytics & Charts
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Interactive visualizations and data analysis tools
           </p>
         </Card>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>📥</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.text.primary, marginBottom: spacing[2] }}>
             Export & Download
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Export individual contracts or aggregated data as CSV
           </p>
         </Card>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>🔍</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.text.primary, marginBottom: spacing[2] }}>
             Drill-down Analysis
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Multi-level data exploration and detailed insights
           </p>
         </Card>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>👁</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.text.primary, marginBottom: spacing[2] }}>
             Treemap Visualization
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Interactive treemap charts with drill-down capabilities
           </p>
         </Card>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3em', marginBottom: spacing[3] }}>📚</div>
-          <h3 style={{ ...typography.textStyles.h4, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h4, color: colors.text.primary, marginBottom: spacing[2] }}>
             API Documentation
           </h3>
-          <p style={{ ...typography.textStyles.body, color: themeColors.text.secondary, margin: 0 }}>
+          <p style={{ ...typography.textStyles.body, color: colors.text.secondary, margin: 0 }}>
             Complete OpenAPI 3.0 documentation with live testing
           </p>
         </Card>
