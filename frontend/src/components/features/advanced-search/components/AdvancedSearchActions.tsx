@@ -64,7 +64,8 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
 
   const searchButtonDisabledStyle = {
     ...searchButtonStyle,
-    backgroundColor: vars.gray[300],
+    // vars.gray is not provided by getThemeVars; use background/border tokens instead
+    backgroundColor: vars.background.secondary,
     color: vars.text.secondary,
     cursor: 'not-allowed'
   }
@@ -79,7 +80,8 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
 
   const analyticsButtonStyle = {
     ...baseButtonStyle,
-    backgroundColor: hasAggregates ? vars.gray[100] : vars.gray[300],
+    // map gray tokens to available semantic tokens from getThemeVars()
+    backgroundColor: hasAggregates ? vars.background.tertiary : vars.background.secondary,
     color: vars.text.primary,
     border: `1px solid ${vars.border.medium}`,
     cursor: hasAggregates && !disabled ? 'pointer' : 'not-allowed',
@@ -87,7 +89,7 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
   }
 
   const analyticsButtonHoverStyle = {
-    backgroundColor: vars.gray[200],
+    backgroundColor: vars.background.tertiary,
     transform: 'translateY(-1px)',
     boxShadow: `0 2px 4px rgba(0, 0, 0, 0.1)`
   }
