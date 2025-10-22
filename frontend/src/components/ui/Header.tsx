@@ -16,7 +16,7 @@ const Header: React.FC<{ title?: string; subtitle?: string }> = ({
       <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
           {/* Logo with circular white background so it shows on dark themes */}
-          <div className="rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-gray" style={{ width: 128, height: 128 }}>
+          <div className="rounded-full bg-white flex items-center justify-center overflow-hidden border-0 border-gray" style={{ width: 128, height: 128 }}>
             <img src="/BetterGov_Icon-Primary.svg" alt="BetterGov logo" style={{ width: 128, height: 128 }} />
           </div>
           <div className="flex flex-col items-start">
