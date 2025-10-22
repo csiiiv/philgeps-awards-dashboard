@@ -64,9 +64,9 @@ const FilterChip: React.FC<FilterChipProps> = ({
       case 'keyword':
         return {
           ...baseStyle,
-          backgroundColor: vars.secondary[50],
-          color: vars.secondary[600],
-          borderColor: vars.secondary[500]
+          backgroundColor: vars.primary[50],
+          color: vars.primary[600],
+          borderColor: vars.primary[500]
         }
       case 'timerange':
         return {

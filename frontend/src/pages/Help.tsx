@@ -612,7 +612,7 @@ export const Help: React.FC = () => {
     <Card $isDark={isDark}>
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3], marginBottom: spacing[4] }}>
         <div style={{
-          backgroundColor: vars.secondary[50],
+          backgroundColor: vars.primary[50],
           borderRadius: '50%',
           width: '60px',
           height: '60px',
@@ -958,7 +958,7 @@ export const Help: React.FC = () => {
     <Card $isDark={isDark}>
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3], marginBottom: spacing[4] }}>
         <div style={{
-          backgroundColor: vars.secondary[50],
+          backgroundColor: vars.primary[50],
           borderRadius: '50%',
           width: '60px',
           height: '60px',
