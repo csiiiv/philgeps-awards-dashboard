@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { useTheme } from '../../../contexts/ThemeContext'
 
 interface Props {
@@ -57,7 +57,7 @@ class ErrorBoundaryClass extends Component<Props, State> {
 
 const ErrorFallback: React.FC<{ error?: Error }> = ({ error }) => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   return (
     <div
@@ -68,27 +68,27 @@ const ErrorFallback: React.FC<{ error?: Error }> = ({ error }) => {
         justifyContent: 'center',
         minHeight: '400px',
         padding: '2rem',
-        backgroundColor: themeColors.background.secondary,
-        color: themeColors.text.primary,
+        backgroundColor: vars.background.secondary,
+        color: vars.text.primary,
         textAlign: 'center',
         borderRadius: '8px',
-        border: `1px solid ${themeColors.border.light}`,
+        border: `1px solid ${vars.border.light}`,
         margin: '1rem',
       }}
     >
       <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚠️</div>
-      <h2 style={{ marginBottom: '1rem', color: themeColors.text.primary }}>
+      <h2 style={{ marginBottom: '1rem', color: vars.text.primary }}>
         Something went wrong
       </h2>
-      <p style={{ marginBottom: '1.5rem', color: themeColors.text.secondary }}>
+      <p style={{ marginBottom: '1.5rem', color: vars.text.secondary }}>
         We're sorry, but something unexpected happened. Please try refreshing the page.
       </p>
       <button
         onClick={() => window.location.reload()}
         style={{
           padding: '0.75rem 1.5rem',
-          backgroundColor: themeColors.primary[600],
-          color: themeColors.text.inverse,
+          backgroundColor: vars.primary[600],
+          color: vars.text.inverse,
           border: 'none',
           borderRadius: '6px',
           cursor: 'pointer',
@@ -96,10 +96,10 @@ const ErrorFallback: React.FC<{ error?: Error }> = ({ error }) => {
           fontWeight: '500',
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = themeColors.primary[700]
+          e.currentTarget.style.backgroundColor = vars.primary[700]
         }}
         onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = themeColors.primary[600]
+          e.currentTarget.style.backgroundColor = vars.primary[600]
         }}
       >
         Refresh Page
@@ -111,12 +111,12 @@ const ErrorFallback: React.FC<{ error?: Error }> = ({ error }) => {
           </summary>
           <pre
             style={{
-              backgroundColor: themeColors.background.primary,
+              backgroundColor: vars.background.primary,
               padding: '1rem',
               borderRadius: '4px',
               overflow: 'auto',
               fontSize: '0.875rem',
-              color: themeColors.text.secondary,
+              color: vars.text.secondary,
             }}
           >
             {error.stack}

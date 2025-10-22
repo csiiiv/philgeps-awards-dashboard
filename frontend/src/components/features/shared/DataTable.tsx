@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
 import { UnifiedPagination } from './UnifiedPagination'
 
@@ -57,7 +57,7 @@ export const DataTable = <T extends Record<string, any>>({
   showPageSizeControl = true,
   pageSizeOptions = [10, 20, 50, 100]
 }: DataTableProps<T>) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   const handleSort = useCallback((field: string) => {
     if (!onSortChange) return
@@ -87,16 +87,16 @@ export const DataTable = <T extends Record<string, any>>({
     width: '100%',
     borderCollapse: 'collapse' as const,
     fontSize: typography.fontSize.sm,
-    color: theme.text.primary
+    color: vars.text.primary
   }
 
   const thStyle = {
     padding: spacing[3],
     textAlign: 'left' as const,
     fontWeight: typography.fontWeight.semibold,
-    color: theme.text.primary,
-    backgroundColor: theme.background.secondary,
-    borderBottom: `2px solid ${theme.border.medium}`,
+    color: vars.text.primary,
+    backgroundColor: vars.background.secondary,
+    borderBottom: `2px solid ${vars.border.medium}`,
     cursor: 'pointer',
     userSelect: 'none' as const,
     position: 'sticky' as const,
@@ -106,8 +106,8 @@ export const DataTable = <T extends Record<string, any>>({
 
   const getTdStyle = (column: Column<T>) => ({
     padding: spacing[3],
-    borderBottom: `1px solid ${theme.border.light}`,
-    color: theme.text.primary,
+    borderBottom: `1px solid ${vars.border.light}`,
+    color: vars.text.primary,
     wordWrap: 'break-word' as const,
     wordBreak: 'break-word' as const,
     whiteSpace: 'normal' as const,
@@ -117,8 +117,8 @@ export const DataTable = <T extends Record<string, any>>({
 
   const rowStyle = (index: number) => ({
     backgroundColor: index % 2 === 0 
-      ? theme.background.primary 
-      : theme.background.secondary,
+      ? vars.background.primary 
+      : vars.background.secondary,
     cursor: onRowClick ? 'pointer' : 'default',
     transition: 'background-color 0.2s ease'
   })
@@ -128,13 +128,13 @@ export const DataTable = <T extends Record<string, any>>({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing[8],
-    color: theme.text.secondary
+    color: vars.text.secondary
   }
 
   const emptyStyle = {
     textAlign: 'center' as const,
     padding: spacing[8],
-    color: theme.text.secondary,
+    color: vars.text.secondary,
     fontStyle: 'italic' as const
   }
 
@@ -203,14 +203,14 @@ export const DataTable = <T extends Record<string, any>>({
                   onClick={() => onRowClick?.(item, index)}
                   onMouseEnter={(e) => {
                     if (onRowClick) {
-                      e.currentTarget.style.backgroundColor = theme.background.tertiary
+                      e.currentTarget.style.backgroundColor = vars.background.tertiary
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (onRowClick) {
                       e.currentTarget.style.backgroundColor = index % 2 === 0 
-                        ? theme.background.primary 
-                        : theme.background.secondary
+                        ? vars.background.primary 
+                        : vars.background.secondary
                     }
                   }}
                 >

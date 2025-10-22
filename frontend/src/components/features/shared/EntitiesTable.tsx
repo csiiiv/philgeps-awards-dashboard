@@ -1,6 +1,6 @@
 import React from 'react'
 import { DataTable, Column } from './DataTable'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 
 export interface EntitySummary {
   name: string
@@ -52,7 +52,7 @@ export const EntitiesTable: React.FC<EntitiesTableProps> = ({
   showPagination = true,
   showPageSizeControl = true
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
@@ -93,7 +93,7 @@ export const EntitiesTable: React.FC<EntitiesTableProps> = ({
           style={{
             background: 'none',
             border: 'none',
-            color: theme.primary[600],
+            color: vars.primary[600],
             textDecoration: 'underline',
             cursor: 'pointer',
             textAlign: 'left',

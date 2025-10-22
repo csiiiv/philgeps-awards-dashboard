@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { spacing, typography } from '../../../../design-system'
 import { Card, SectionTitle } from '../../../styled/Common.styled'
 import { AnalyticsControls } from '../../analytics/AnalyticsControls'
@@ -23,7 +23,7 @@ export const DataExplorerControls: React.FC<DataExplorerControlsProps> = memo(({
   onYearFilterChange,
   isDark
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   return (
     <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>

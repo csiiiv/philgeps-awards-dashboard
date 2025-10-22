@@ -7,7 +7,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorDisplay } from './ErrorDisplay'
 import { QuarterlyTrendsChart } from '../../charts/QuarterlyTrendsChart'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
 import {
   AppContainer,
@@ -71,7 +71,7 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
   const { isDark: themeIsDark } = useTheme()
   const { announce, isHighContrast } = useAccessibility()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
-  const theme = getThemeColors(darkMode)
+  const vars = getThemeVars(darkMode)
 
   // Performance monitoring - MUST be before any early returns
   usePerformanceMonitoring(`UnifiedAnalyticsExplorer-${mode}`)
@@ -267,7 +267,7 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
                 backgroundColor: darkMode ? '#374151' : '#f3f4f6', 
                 borderRadius: spacing[1],
                 fontSize: typography.fontSize.xs,
-                color: theme.text.secondary
+                color: vars.text.secondary
               }}>
                 Debug: Total Pages: {pagination.totalPages}, Current Page: {pagination.currentPage}, 
                 Page Size: {pagination.pageSize}, Total Count: {pagination.totalCount}
@@ -277,16 +277,16 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
             {/* Charts */}
             {showCharts && aggregates && (
               <div style={{ marginTop: spacing[6] }}>
-                <div style={{ marginBottom: spacing[4], fontWeight: typography.fontWeight.semibold, color: theme.text.primary, fontSize: typography.fontSize.lg }}>
+                <div style={{ marginBottom: spacing[4], fontWeight: typography.fontWeight.semibold, color: vars.text.primary, fontSize: typography.fontSize.lg }}>
                   Charts
                 </div>
                 <div style={{ display: 'grid', gap: spacing[6] }}>
                   {/* Horizontal bar chart for Top entities */}
                   <div>
-                    <div style={{ marginBottom: spacing[2], color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
+                    <div style={{ marginBottom: spacing[2], color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
                       Top {Math.min(10, processedData.length)} {analyticsControls.dimension.replace('by_', '').replace('_', ' ')}
                     </div>
-                    <div style={{ padding: spacing[4], backgroundColor: theme.background.primary, borderRadius: spacing[2], border: `1px solid ${theme.border.light}` }}>
+                    <div style={{ padding: spacing[4], backgroundColor: vars.background.primary, borderRadius: spacing[2], border: `1px solid ${vars.border.light}` }}>
                       <svg width="100%" height={Math.max(40, Math.min(10, processedData.length) * 26)} style={{ background: darkMode ? '#0b1220' : '#f9fafb' }}>
                         {processedData.slice(0, 10).map((item, i) => {
                           const val = analyticsControls.metric === 'amount' ? item.total_value : 
@@ -322,10 +322,10 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
 
                   {/* Quarterly Trends Chart */}
                   <div>
-                    <div style={{ marginBottom: spacing[2], color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
+                    <div style={{ marginBottom: spacing[2], color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
                       Year/Quarter Trend
                     </div>
-                    <div style={{ padding: spacing[4], backgroundColor: theme.background.primary, borderRadius: spacing[2], border: `1px solid ${theme.border.light}` }}>
+                    <div style={{ padding: spacing[4], backgroundColor: vars.background.primary, borderRadius: spacing[2], border: `1px solid ${vars.border.light}` }}>
                       <QuarterlyTrendsChart 
                         quarterlyData={(() => {
                           // Group monthly data by year and quarter, then aggregate

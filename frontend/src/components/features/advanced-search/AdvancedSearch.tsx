@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing, commonStyles } from '../../../design-system'
 import { advancedSearchService, type FilterOptions } from '../../../services/AdvancedSearchService'
 
@@ -20,7 +20,7 @@ import { ExportCSVModal } from '../shared/ExportCSVModal'
 
 const AdvancedSearch: React.FC = () => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   // Use extracted hooks
   const filtersHook = useAdvancedSearchFilters()
@@ -255,8 +255,8 @@ const AdvancedSearch: React.FC = () => {
       maxWidth: '1200px',
       margin: '0 auto',
       padding: spacing[4],
-      backgroundColor: themeColors.background.primary,
-      color: themeColors.text.primary,
+      backgroundColor: vars.background.primary,
+      color: vars.text.primary,
       fontFamily: typography.fontFamily.sans
     }}>
       {/* Header */}
@@ -268,13 +268,13 @@ const AdvancedSearch: React.FC = () => {
     fontSize: typography.fontSize['2xl'],
     fontWeight: typography.fontWeight.bold,
           margin: `0 0 ${spacing[2]} 0`,
-          color: themeColors.text.primary
+          color: vars.text.primary
         }}>
           Advanced Search
         </h1>
         <p style={{
     fontSize: typography.fontSize.lg,
-    color: themeColors.text.secondary,
+    color: vars.text.secondary,
           margin: 0
         }}>
           Search and analyze government contracts with advanced filtering options

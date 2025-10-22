@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { typography, spacing } from '../../../../design-system'
 import { FilterChip } from '../FilterChip'
 import { FilterSection } from '../FilterSection'
@@ -80,7 +80,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
   loadingOptions = false
 }) => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   // Generate year options (2013-2025)
   const yearOptions = Array.from({ length: 13 }, (_, i) => 2013 + i).reverse()
@@ -106,14 +106,14 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: spacing[3],
-        backgroundColor: themeColors.background.secondary,
-        border: `1px solid ${themeColors.border.light}`,
+        backgroundColor: vars.background.secondary,
+        border: `1px solid ${vars.border.light}`,
         borderRadius: spacing[2]
       }}>
         <div>
           <h3 style={{
             margin: 0,
-            color: themeColors.text.primary,
+            color: vars.text.primary,
             fontSize: typography.fontSize.lg,
             fontWeight: typography.fontWeight.semibold
           }}>
@@ -121,7 +121,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           </h3>
           <p style={{
             margin: `${spacing[1]} 0 0 0`,
-            color: themeColors.text.secondary,
+            color: vars.text.secondary,
             fontSize: typography.fontSize.xs
           }}>
             Choose from predefined filters or save your current configuration
@@ -142,8 +142,8 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
               style={{
                 padding: `${spacing[2]} ${spacing[4]}`,
                 backgroundColor: 'transparent',
-                color: themeColors.text.secondary,
-                border: `1px solid ${themeColors.border.medium}`,
+                color: vars.text.secondary,
+                border: `1px solid ${vars.border.medium}`,
                 borderRadius: spacing[1],
                 cursor: loading ? 'not-allowed' : 'pointer',
                 fontSize: typography.fontSize.sm,
@@ -242,7 +242,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
         gap: spacing[2]
       }}>
         <label style={{
-          color: themeColors.text.primary,
+          color: vars.text.primary,
           fontSize: typography.fontSize.sm,
           fontWeight: typography.fontWeight.medium
         }}>
@@ -262,11 +262,11 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
             style={{
               flex: 1,
               padding: `${spacing[2]} ${spacing[3]}`,
-              border: `1px solid ${themeColors.border.medium}`,
+              border: `1px solid ${vars.border.medium}`,
               borderRadius: spacing[1],
               fontSize: typography.fontSize.sm,
-              backgroundColor: themeColors.background.primary,
-              color: themeColors.text.primary
+              backgroundColor: vars.background.primary,
+              color: vars.text.primary
             }}
             disabled={loading}
           />
@@ -275,8 +275,8 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
             disabled={loading || !keywordInput.trim()}
             style={{
               padding: `${spacing[2]} ${spacing[4]}`,
-              backgroundColor: themeColors.primary[600],
-              color: themeColors.text.inverse,
+              backgroundColor: vars.primary[600],
+              color: vars.text.inverse,
               border: 'none',
               borderRadius: spacing[1],
               cursor: loading || !keywordInput.trim() ? 'not-allowed' : 'pointer',
@@ -322,13 +322,13 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           flexDirection: 'column',
           gap: spacing[2],
           padding: spacing[3],
-          backgroundColor: themeColors.background.secondary,
+          backgroundColor: vars.background.secondary,
           borderRadius: spacing[2],
-          border: `1px solid ${themeColors.border.light}`,
+          border: `1px solid ${vars.border.light}`,
           minHeight: '120px' // Ensure consistent minimum height
         }}>
           <label style={{
-            color: themeColors.text.primary,
+            color: vars.text.primary,
             fontSize: typography.fontSize.sm,
             fontWeight: typography.fontWeight.medium,
             textAlign: 'left'
@@ -346,11 +346,11 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
               onChange={(e) => onDateRangeTypeChange(e.target.value as DateRangeState['type'])}
               style={{
                 padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${themeColors.border.medium}`,
+                border: `1px solid ${vars.border.medium}`,
                 borderRadius: spacing[1],
                 fontSize: typography.fontSize.sm,
-                backgroundColor: themeColors.background.primary,
-                color: themeColors.text.primary
+                backgroundColor: vars.background.primary,
+                color: vars.text.primary
               }}
               disabled={loading}
             >
@@ -366,11 +366,11 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                 onChange={(e) => onDateRangeYearChange(Number(e.target.value))}
                 style={{
                   padding: `${spacing[2]} ${spacing[3]}`,
-                  border: `1px solid ${themeColors.border.medium}`,
+                  border: `1px solid ${vars.border.medium}`,
                   borderRadius: spacing[1],
                   fontSize: typography.fontSize.sm,
-                  backgroundColor: themeColors.background.primary,
-                  color: themeColors.text.primary
+                  backgroundColor: vars.background.primary,
+                  color: vars.text.primary
                 }}
                 disabled={loading}
               >
@@ -387,11 +387,11 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                   onChange={(e) => onDateRangeYearChange(Number(e.target.value))}
                   style={{
                     padding: `${spacing[2]} ${spacing[3]}`,
-                    border: `1px solid ${themeColors.border.medium}`,
+                    border: `1px solid ${vars.border.medium}`,
                     borderRadius: spacing[1],
                     fontSize: typography.fontSize.sm,
-                    backgroundColor: themeColors.background.primary,
-                    color: themeColors.text.primary
+                    backgroundColor: vars.background.primary,
+                    color: vars.text.primary
                   }}
                   disabled={loading}
                 >
@@ -404,11 +404,11 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                   onChange={(e) => onDateRangeQuarterChange(Number(e.target.value))}
                   style={{
                     padding: `${spacing[2]} ${spacing[3]}`,
-                    border: `1px solid ${themeColors.border.medium}`,
+                    border: `1px solid ${vars.border.medium}`,
                     borderRadius: spacing[1],
                     fontSize: typography.fontSize.sm,
-                    backgroundColor: themeColors.background.primary,
-                    color: themeColors.text.primary
+                    backgroundColor: vars.background.primary,
+                    color: vars.text.primary
                   }}
                   disabled={loading}
                 >
@@ -439,25 +439,25 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                     max="2025-12-31"
                     style={{
                       padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${!dateRange.startDate && dateRange.type === 'custom' ? (themeColors.text.error || '#ef4444') : themeColors.border.medium}`,
+                      border: `1px solid ${!dateRange.startDate && dateRange.type === 'custom' ? (vars.text.error || '#ef4444') : vars.border.medium}`,
                       borderRadius: spacing[1],
                       fontSize: typography.fontSize.sm,
-                      backgroundColor: themeColors.background.primary,
-                      color: themeColors.text.primary
+                      backgroundColor: vars.background.primary,
+                      color: vars.text.primary
                     }}
                     disabled={loading}
                     placeholder="Start date"
                   />
                   {!dateRange.startDate && dateRange.type === 'custom' && (
                     <span style={{ 
-                      color: themeColors.text.error || '#ef4444', 
+                      color: vars.text.error || '#ef4444', 
                       fontSize: typography.fontSize.xs 
                     }}>
                       Please input a valid date
                     </span>
                   )}
                 </div>
-                <span style={{ color: themeColors.text.secondary }}>to</span>
+                <span style={{ color: vars.text.secondary }}>to</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[1] }}>
                   <input
                     type="date"
@@ -473,18 +473,18 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
                     max="2025-12-31"
                     style={{
                       padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${!dateRange.endDate && dateRange.type === 'custom' ? (themeColors.text.error || '#ef4444') : themeColors.border.medium}`,
+                      border: `1px solid ${!dateRange.endDate && dateRange.type === 'custom' ? (vars.text.error || '#ef4444') : vars.border.medium}`,
                       borderRadius: spacing[1],
                       fontSize: typography.fontSize.sm,
-                      backgroundColor: themeColors.background.primary,
-                      color: themeColors.text.primary
+                      backgroundColor: vars.background.primary,
+                      color: vars.text.primary
                     }}
                     disabled={loading}
                     placeholder="End date"
                   />
                   {!dateRange.endDate && dateRange.type === 'custom' && (
                     <span style={{ 
-                      color: themeColors.text.error || '#ef4444', 
+                      color: vars.text.error || '#ef4444', 
                       fontSize: typography.fontSize.xs 
                     }}>
                       Please input a valid date
@@ -516,8 +516,8 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
       <div style={{
         marginBottom: spacing[4],
         padding: spacing[4],
-        backgroundColor: themeColors.background.secondary,
-        border: `1px solid ${themeColors.border.light}`,
+        backgroundColor: vars.background.secondary,
+        border: `1px solid ${vars.border.light}`,
         borderRadius: spacing[2]
       }}>
         <div style={{
@@ -533,7 +533,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
             style={{
               width: 18,
               height: 18,
-              accentColor: themeColors.primary[600],
+              accentColor: vars.primary[600],
               cursor: 'pointer'
             }}
             disabled={loading}
@@ -541,7 +541,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           <label
             htmlFor="include-flood-control"
             style={{
-              color: themeColors.text.primary,
+              color: vars.text.primary,
               fontSize: typography.fontSize.sm,
               cursor: 'pointer',
               userSelect: 'none'
@@ -551,7 +551,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           </label>
         </div>
         <p style={{
-          color: themeColors.text.secondary,
+          color: vars.text.secondary,
           fontSize: typography.fontSize.xs,
           margin: `${spacing[2]} 0 0 0`,
           fontStyle: 'italic'

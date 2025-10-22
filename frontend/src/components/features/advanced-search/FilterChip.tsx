@@ -1,5 +1,5 @@
 import React from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
 
 export interface FilterChipProps {
@@ -17,7 +17,7 @@ const FilterChip: React.FC<FilterChipProps> = ({
   onRemove, 
   isDark = false 
 }) => {
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   
   const getChipStyle = (type: string) => {
     const baseStyle = {
@@ -36,58 +36,58 @@ const FilterChip: React.FC<FilterChipProps> = ({
       case 'contractor':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.primary[100],
-          color: themeColors.primary[800],
-          borderColor: themeColors.primary[300]
+          backgroundColor: vars.primary[100],
+          color: vars.primary[800],
+          borderColor: vars.primary[300]
         }
       case 'area':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.success[50],
-          color: themeColors.success[600],
-          borderColor: themeColors.success[500]
+          backgroundColor: vars.success[50],
+          color: vars.success[600],
+          borderColor: vars.success[500]
         }
       case 'organization':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.warning[50],
-          color: themeColors.warning[600],
-          borderColor: themeColors.warning[500]
+          backgroundColor: vars.warning[50],
+          color: vars.warning[600],
+          borderColor: vars.warning[500]
         }
       case 'category':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.primary[50],
-          color: themeColors.primary[600],
-          borderColor: themeColors.primary[500]
+          backgroundColor: vars.primary[50],
+          color: vars.primary[600],
+          borderColor: vars.primary[500]
         }
       case 'keyword':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.secondary[50],
-          color: themeColors.secondary[600],
-          borderColor: themeColors.secondary[500]
+          backgroundColor: vars.secondary[50],
+          color: vars.secondary[600],
+          borderColor: vars.secondary[500]
         }
       case 'timerange':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.gray[100],
-          color: themeColors.gray[700],
-          borderColor: themeColors.gray[400]
+          backgroundColor: vars.gray[100],
+          color: vars.gray[700],
+          borderColor: vars.gray[400]
         }
       case 'date':
         return {
           ...baseStyle,
-          backgroundColor: themeColors.warning[50],
-          color: themeColors.warning[700],
-          borderColor: themeColors.warning[400]
+          backgroundColor: vars.warning[50],
+          color: vars.warning[700],
+          borderColor: vars.warning[400]
         }
       default:
         return {
           ...baseStyle,
-          backgroundColor: themeColors.gray[100],
-          color: themeColors.gray[700],
-          borderColor: themeColors.gray[400]
+          backgroundColor: vars.gray[100],
+          color: vars.gray[700],
+          borderColor: vars.gray[400]
         }
     }
   }

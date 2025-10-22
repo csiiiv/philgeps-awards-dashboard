@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { spacing, typography } from '../../../../design-system'
 import { Card, SectionTitle } from '../../../styled/Common.styled'
 import { AnalyticsSummary } from '../../analytics/AnalyticsSummary'
@@ -17,7 +17,7 @@ export const DataExplorerSummary: React.FC<DataExplorerSummaryProps> = memo(({
   summaryStats,
   isDark
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   return (
     <Card $isDark={isDark} style={{ marginBottom: spacing[4] }}>
@@ -35,7 +35,7 @@ export const DataExplorerSummary: React.FC<DataExplorerSummaryProps> = memo(({
         <div style={{ 
           textAlign: 'center', 
           padding: spacing[4],
-          color: theme.text.secondary,
+          color: vars.text.secondary,
           fontStyle: 'italic'
         }}>
           No data available. Use the filters above to search for data.

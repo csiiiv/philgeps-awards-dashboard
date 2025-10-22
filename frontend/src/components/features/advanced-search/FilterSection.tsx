@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
 import { SearchableSelect } from './SearchableSelect'
 import { FilterChip } from './FilterChip'
@@ -31,7 +31,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   supportAndLogic = false,
   loading = false
 }) => {
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const [exactWord, setExactWord] = useState(false)
 
   const containerStyle = {
@@ -44,7 +44,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     marginBottom: spacing[2],
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: themeColors.text.primary
+    color: vars.text.primary
   }
 
   const chipsContainerStyle = {
@@ -63,8 +63,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 
   const addButtonStyle = {
     padding: `${spacing[1]} ${spacing[3]}`,
-    backgroundColor: themeColors.primary[500],
-    color: themeColors.white,
+    backgroundColor: vars.primary[500],
+    color: vars.white,
     border: 'none',
     borderRadius: spacing[2],
     fontSize: typography.fontSize.sm,
@@ -74,7 +74,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   }
 
   const addButtonHoverStyle = {
-    backgroundColor: themeColors.primary[600]
+    backgroundColor: vars.primary[600]
   }
 
   const handleAdd = (value: string) => {
@@ -91,7 +91,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         {loading && (
           <span style={{ 
             marginLeft: spacing[2], 
-            color: themeColors.text.secondary,
+            color: vars.text.secondary,
             fontSize: typography.fontSize.xs
           }}>
             (Loading...)
@@ -100,7 +100,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         {!loading && (
           <span style={{ 
             marginLeft: spacing[2], 
-            color: themeColors.text.secondary,
+            color: vars.text.secondary,
             fontSize: typography.fontSize.xs
           }}>
             ({selectedValues.length} selected)
@@ -141,7 +141,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           />
         </div>
         {(type === 'contractor' || type === 'area' || type === 'organization' || type === 'category') && (
-          <label style={{ display: 'flex', alignItems: 'center', gap: spacing[1], fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: spacing[1], fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
             <input type="checkbox" checked={exactWord} onChange={(e) => setExactWord(e.target.checked)} />
             Exact word
           </label>

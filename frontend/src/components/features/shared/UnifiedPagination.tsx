@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
 
 export interface UnifiedPaginationProps {
@@ -53,7 +53,7 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
 }) => {
   const { isDark: themeIsDark } = useTheme()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
-  const theme = getThemeColors(darkMode)
+  const vars = getThemeVars(darkMode)
 
   // Generate showing text if not provided
   const startItem = (currentPage - 1) * pageSize + 1
@@ -189,7 +189,7 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
       padding: `${spacing[4]} ${spacing[6]}`,
       backgroundColor: darkMode ? '#1f2937' : '#f9fafb',
       borderRadius: spacing[2],
-      border: `1px solid ${theme.border.light}`
+      border: `1px solid ${vars.border.light}`
     }
 
     if (variant === 'minimal') {
@@ -208,11 +208,11 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
   const buttonStyle = (disabled: boolean, isActive = false) => ({
     padding: `${spacing[2]} ${spacing[3]}`,
     backgroundColor: disabled 
-      ? theme.background.tertiary 
+      ? vars.background.tertiary 
       : isActive 
-        ? theme.primary[600] 
-        : theme.primary[500],
-    color: disabled ? theme.text.secondary : 'white',
+        ? vars.primary[600] 
+        : vars.primary[500],
+    color: disabled ? vars.text.secondary : 'white',
     border: 'none',
     borderRadius: spacing[1],
     cursor: disabled ? 'not-allowed' : 'pointer',
@@ -225,9 +225,9 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
 
   const selectStyle = {
     padding: `${spacing[1]} ${spacing[2]}`,
-    backgroundColor: theme.background.primary,
-    color: theme.text.primary,
-    border: `1px solid ${theme.border.light}`,
+    backgroundColor: vars.background.primary,
+    color: vars.text.primary,
+    border: `1px solid ${vars.border.light}`,
     borderRadius: spacing[1],
     fontSize: typography.fontSize.sm,
     cursor: 'pointer',
@@ -236,10 +236,10 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
 
   const inputStyle = {
     padding: `${spacing[2]} ${spacing[2]}`,
-    border: `1px solid ${theme.primary[500]}`,
+    border: `1px solid ${vars.primary[500]}`,
     borderRadius: spacing[1],
-    backgroundColor: theme.background.primary,
-    color: theme.text.primary,
+    backgroundColor: vars.background.primary,
+    color: vars.text.primary,
     fontSize: typography.fontSize.sm,
     margin: `0 ${spacing[1]}`,
     width: '60px',
@@ -252,7 +252,7 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
   if (totalPages <= 1) {
     return (
       <div style={getContainerStyle()}>
-        <div style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+        <div style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
           {displayShowingText}
         </div>
       </div>
@@ -264,13 +264,13 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
   return (
     <div style={getContainerStyle()} className={className}>
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing[4] }}>
-        <div style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+        <div style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
           {displayShowingText}
         </div>
         
         {showPageSizeSelector && (
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
-            <label style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+            <label style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Show:
             </label>
             <select
@@ -328,7 +328,7 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
                 <span
                   key={index}
                   style={{
-                    color: theme.text.secondary,
+                    color: vars.text.secondary,
                     fontSize: typography.fontSize.sm,
                     margin: `0 ${spacing[1]}`,
                     padding: `${spacing[2]} ${spacing[1]}`,
@@ -370,7 +370,7 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1], marginLeft: spacing[2] }}>
             <label style={{ 
               fontSize: typography.fontSize.sm, 
-              color: theme.text.secondary,
+              color: vars.text.secondary,
               whiteSpace: 'nowrap'
             }}>
               Go to:

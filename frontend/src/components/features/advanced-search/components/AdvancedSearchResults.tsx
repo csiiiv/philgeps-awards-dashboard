@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { typography, spacing } from '../../../../design-system'
 import { SearchResults } from '../SearchResults'
 import { UnifiedPagination } from '../../shared/UnifiedPagination'
@@ -41,7 +41,7 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
   analyticsLoading = false
 }) => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   // Don't render if no search has been performed
   if (!hasSearched) {
@@ -60,10 +60,10 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: `${spacing[3]} 0`,
-        borderBottom: `1px solid ${themeColors.border.light}`
+        borderBottom: `1px solid ${vars.border.light}`
       }}>
         <h3 style={{
-          color: themeColors.text.primary,
+          color: vars.text.primary,
           fontSize: typography.fontSize.lg,
           fontWeight: typography.fontWeight.bold,
           margin: 0
@@ -73,7 +73,7 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
         
         {totalCount > 0 && (
           <div style={{
-            color: themeColors.text.secondary,
+            color: vars.text.secondary,
             fontSize: typography.fontSize.sm
           }}>
             {totalCount.toLocaleString()} result{totalCount !== 1 ? 's' : ''} found
@@ -88,7 +88,7 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
           justifyContent: 'center',
           alignItems: 'center',
           padding: spacing[8],
-          color: themeColors.text.secondary
+          color: vars.text.secondary
         }}>
           <div style={{
             display: 'flex',
@@ -99,8 +99,8 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
             <div style={{
               width: 32,
               height: 32,
-              border: `3px solid ${themeColors.border.light}`,
-              borderTop: `3px solid ${themeColors.primary[600]}`,
+              border: `3px solid ${vars.border.light}`,
+              borderTop: `3px solid ${vars.primary[600]}`,
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
             }} />
@@ -115,10 +115,10 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
       {error && (
         <div style={{
           padding: spacing[4],
-          backgroundColor: themeColors.background.secondary,
-          border: `1px solid ${themeColors.border.light}`,
+          backgroundColor: vars.background.secondary,
+          border: `1px solid ${vars.border.light}`,
           borderRadius: spacing[2],
-          color: themeColors.text.primary
+          color: vars.text.primary
         }}>
           <div style={{
             display: 'flex',
@@ -165,7 +165,7 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
             🔍
           </div>
           <h3 style={{
-            color: themeColors.text.primary,
+            color: vars.text.primary,
             fontSize: typography.fontSize.lg,
             fontWeight: typography.fontWeight.medium,
             margin: `0 0 ${spacing[2]} 0`
@@ -173,7 +173,7 @@ export const AdvancedSearchResults: React.FC<AdvancedSearchResultsProps> = ({
             No results found
           </h3>
           <p style={{
-            color: themeColors.text.secondary,
+            color: vars.text.secondary,
             fontSize: typography.fontSize.sm,
             margin: 0,
             maxWidth: '400px'

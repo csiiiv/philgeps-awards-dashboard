@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
 import { 
   SummaryContainer,
@@ -24,7 +24,7 @@ export const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
 }) => {
   const { isDark: themeIsDark } = useTheme()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
-  const theme = getThemeColors(darkMode)
+  const vars = getThemeVars(darkMode)
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-PH', {

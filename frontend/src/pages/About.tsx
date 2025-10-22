@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTheme } from '../contexts/ThemeContext'
-import { getThemeColors } from '../design-system/theme'
+import { getThemeVars, getThemeColors } from '../design-system/theme'
 import { typography, spacing } from '../design-system'
 import {
   PageContainer,
@@ -13,19 +13,20 @@ import {
 
 export const About: React.FC = () => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars()
+  const colors = getThemeColors(isDark) // Keep for section colors array
   const [activeSection, setActiveSection] = useState('overview')
 
   const sections = [
-    { id: 'overview', title: 'Overview', icon: '🏛️', color: themeColors.primary[600] },
-    { id: 'data', title: 'Data Sources', icon: '📊', color: themeColors.success[600] },
-    { id: 'features', title: 'Key Features', icon: '⚡', color: themeColors.warning[600] },
-    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: themeColors.primary[500] },
-    { id: 'architecture', title: 'Architecture', icon: '🏗️', color: themeColors.secondary[600] },
-    { id: 'methodology', title: 'Methodology', icon: '🔬', color: themeColors.primary[500] },
-    { id: 'quality', title: 'Data Quality', icon: '✅', color: themeColors.success[500] },
-    { id: 'api', title: 'API & Development', icon: '🔌', color: themeColors.warning[500] },
-    { id: 'contact', title: 'Support', icon: '📞', color: themeColors.error[600] }
+    { id: 'overview', title: 'Overview', icon: '🏛️', color: colors.primary[600] },
+    { id: 'data', title: 'Data Sources', icon: '📊', color: colors.success[600] },
+    { id: 'features', title: 'Key Features', icon: '⚡', color: colors.warning[600] },
+    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: colors.primary[500] },
+    { id: 'architecture', title: 'Architecture', icon: '🏗️', color: colors.secondary[600] },
+    { id: 'methodology', title: 'Methodology', icon: '🔬', color: colors.primary[500] },
+    { id: 'quality', title: 'Data Quality', icon: '✅', color: colors.success[500] },
+    { id: 'api', title: 'API & Development', icon: '🔌', color: colors.warning[500] },
+    { id: 'contact', title: 'Support', icon: '📞', color: colors.error[600] }
   ]
 
   const renderTableOfContents = () => (
@@ -47,9 +48,9 @@ export const About: React.FC = () => {
               alignItems: 'center',
               gap: spacing[2],
               padding: spacing[3],
-              backgroundColor: activeSection === section.id ? section.color : themeColors.background.secondary,
-              color: activeSection === section.id ? themeColors.text.inverse : themeColors.text.primary,
-              border: `1px solid ${activeSection === section.id ? section.color : themeColors.border.medium}`,
+              backgroundColor: activeSection === section.id ? section.color : vars.background.secondary,
+              color: activeSection === section.id ? vars.text.inverse : vars.text.primary,
+              border: `1px solid ${activeSection === section.id ? section.color : vars.border.medium}`,
               borderRadius: spacing[2],
               cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -59,14 +60,14 @@ export const About: React.FC = () => {
             }}
             onMouseOver={(e) => {
               if (activeSection !== section.id) {
-                e.currentTarget.style.backgroundColor = themeColors.background.tertiary
+                e.currentTarget.style.backgroundColor = vars.background.tertiary
                 e.currentTarget.style.borderColor = section.color
               }
             }}
             onMouseOut={(e) => {
               if (activeSection !== section.id) {
-                e.currentTarget.style.backgroundColor = themeColors.background.secondary
-                e.currentTarget.style.borderColor = themeColors.border.medium
+                e.currentTarget.style.backgroundColor = vars.background.secondary
+                e.currentTarget.style.borderColor = vars.border.medium
               }
             }}
           >
@@ -81,15 +82,15 @@ export const About: React.FC = () => {
   const renderOverview = () => (
     <div>
         <div style={{
-          background: `linear-gradient(135deg, ${themeColors.primary[50]} 0%, ${themeColors.primary[100]} 100%)`,
+          background: `linear-gradient(135deg, ${vars.primary[50]} 0%, ${vars.primary[100]} 100%)`,
           borderRadius: spacing[3],
           padding: spacing[6],
           marginBottom: spacing[6],
-          border: `1px solid ${themeColors.primary[200]}`
+          border: `1px solid ${vars.primary[200]}`
         }}>
           <h1 style={{
             ...typography.textStyles.h1,
-            color: themeColors.primary[600],
+            color: vars.primary[600],
             marginBottom: spacing[3],
             display: 'flex',
             alignItems: 'center',
@@ -100,7 +101,7 @@ export const About: React.FC = () => {
           </h1>
           <p style={{
             ...typography.textStyles.h3,
-            color: themeColors.primary[500],
+            color: vars.primary[500],
             marginBottom: spacing[4]
           }}>
             v3.2.0 - Value Range Filter & Enhanced UX
@@ -120,7 +121,7 @@ export const About: React.FC = () => {
       }}>
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📈</div>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[2] }}>
             5M+ Contracts
           </h3>
           <BodyText $isDark={isDark}>
@@ -130,7 +131,7 @@ export const About: React.FC = () => {
         
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>🏢</div>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[2] }}>
             23K+ Agencies
           </h3>
           <BodyText $isDark={isDark}>
@@ -140,7 +141,7 @@ export const About: React.FC = () => {
         
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>⚡</div>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.warning[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.warning[600], marginBottom: spacing[2] }}>
             Real-time Search
           </h3>
           <BodyText $isDark={isDark}>
@@ -150,7 +151,7 @@ export const About: React.FC = () => {
         
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>👁</div>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[500], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.primary[500], marginBottom: spacing[2] }}>
             Treemap Visualization
           </h3>
           <BodyText $isDark={isDark}>
@@ -160,7 +161,7 @@ export const About: React.FC = () => {
         
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📚</div>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.secondary[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.secondary[600], marginBottom: spacing[2] }}>
             API Documentation
           </h3>
           <BodyText $isDark={isDark}>
@@ -179,16 +180,16 @@ export const About: React.FC = () => {
         </SectionTitle>
         
         <div style={{
-          background: `linear-gradient(135deg, ${themeColors.success[50]} 0%, ${themeColors.success[50]} 100%)`,
+          background: `linear-gradient(135deg, ${vars.success[50]} 0%, ${vars.success[50]} 100%)`,
           borderRadius: spacing[2],
           padding: spacing[4],
           marginBottom: spacing[4],
-          border: `1px solid ${themeColors.success[600]}`
+          border: `1px solid ${vars.success[600]}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[2] }}>
             Primary Source: PHILGEPS
           </h3>
-          <BodyText $isDark={isDark} style={{ color: themeColors.success[600] }}>
+          <BodyText $isDark={isDark} style={{ color: vars.success[600] }}>
             Philippine Government Electronic Procurement System - Official government procurement platform
           </BodyText>
         </div>
@@ -200,103 +201,103 @@ export const About: React.FC = () => {
           marginBottom: spacing[4]
         }}>
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[3],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[1] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[1] }}>
               Time Period
             </h4>
             <BodyText $isDark={isDark} style={{ fontWeight: typography.fontWeight.semibold }}>
               2013 - 2025
             </BodyText>
-            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               13+ years of data
             </BodyText>
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[3],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[1] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[1] }}>
               Total Contracts
             </h4>
             <BodyText $isDark={isDark} style={{ fontWeight: typography.fontWeight.semibold }}>
               2.2M+ Records
             </BodyText>
-            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Awarded contracts only
             </BodyText>
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[3],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[1] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[1] }}>
               Contractors
             </h4>
             <BodyText $isDark={isDark} style={{ fontWeight: typography.fontWeight.semibold }}>
               74K+ Unique
             </BodyText>
-            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Business entities
             </BodyText>
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[3],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[1] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[1] }}>
               Organizations
             </h4>
             <BodyText $isDark={isDark} style={{ fontWeight: typography.fontWeight.semibold }}>
               14K+ Agencies
             </BodyText>
-            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Government entities
             </BodyText>
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[3],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[1] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[1] }}>
               Geographic Areas
             </h4>
             <BodyText $isDark={isDark} style={{ fontWeight: typography.fontWeight.semibold }}>
               520 Areas
             </BodyText>
-            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Delivery locations
             </BodyText>
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[3],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[1] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[1] }}>
               Categories
             </h4>
             <BodyText $isDark={isDark} style={{ fontWeight: typography.fontWeight.semibold }}>
               169 Types
             </BodyText>
-            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: themeColors.text.secondary }}>
+            <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Business categories
             </BodyText>
           </div>
@@ -318,16 +319,16 @@ export const About: React.FC = () => {
         </SectionTitle>
         
         <div style={{
-          background: `linear-gradient(135deg, ${themeColors.success[50]} 0%, ${themeColors.success[100]} 100%)`,
+          background: `linear-gradient(135deg, ${vars.success[50]} 0%, ${vars.success[100]} 100%)`,
           borderRadius: spacing[2],
           padding: spacing[4],
           marginBottom: spacing[4],
-          border: `1px solid ${themeColors.success[600]}`
+          border: `1px solid ${vars.success[600]}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[2] }}>
             ✅ Value Range Filter & Enhanced UX
           </h3>
-          <BodyText $isDark={isDark} style={{ color: themeColors.success[600] }}>
+          <BodyText $isDark={isDark} style={{ color: vars.success[600] }}>
             New contract value range filtering with KMBT format support, enhanced pagination, and improved filter layout
           </BodyText>
         </div>
@@ -339,15 +340,15 @@ export const About: React.FC = () => {
           marginBottom: spacing[4]
         }}>
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.primary[600], marginBottom: spacing[3] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[3] }}>
               🔌 Enhanced API Documentation
             </h4>
-            <ul style={{ color: themeColors.text.primary }}>
+            <ul style={{ color: vars.text.primary }}>
               <li style={{ marginBottom: spacing[1] }}>Complete OpenAPI 3.0 schema</li>
               <li style={{ marginBottom: spacing[1] }}>Interactive Swagger UI interface</li>
               <li style={{ marginBottom: spacing[1] }}>ReDoc documentation viewer</li>
@@ -357,15 +358,15 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.success[600], marginBottom: spacing[3] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.success[600], marginBottom: spacing[3] }}>
               📥 Improved Export Functionality
             </h4>
-            <ul style={{ color: themeColors.text.primary }}>
+            <ul style={{ color: vars.text.primary }}>
               <li style={{ marginBottom: spacing[1] }}>Accurate file size estimation</li>
               <li style={{ marginBottom: spacing[1] }}>Individual contract export</li>
               <li style={{ marginBottom: spacing[1] }}>Aggregated data export</li>
@@ -375,15 +376,15 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.warning[600], marginBottom: spacing[3] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.warning[600], marginBottom: spacing[3] }}>
               🚀 Production Ready
             </h4>
-            <ul style={{ color: themeColors.text.primary }}>
+            <ul style={{ color: vars.text.primary }}>
               <li style={{ marginBottom: spacing[1] }}>Mobile data loading fixed</li>
               <li style={{ marginBottom: spacing[1] }}>PowerShell setup script improved</li>
               <li style={{ marginBottom: spacing[1] }}>CORS configuration optimized</li>
@@ -393,15 +394,15 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: themeColors.secondary[600], marginBottom: spacing[3] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.secondary[600], marginBottom: spacing[3] }}>
               🔧 Technical Improvements
             </h4>
-            <ul style={{ color: themeColors.text.primary }}>
+            <ul style={{ color: vars.text.primary }}>
               <li style={{ marginBottom: spacing[1] }}>13 active API endpoints</li>
               <li style={{ marginBottom: spacing[1] }}>Comprehensive error handling</li>
               <li style={{ marginBottom: spacing[1] }}>Input validation and sanitization</li>
@@ -432,19 +433,19 @@ export const About: React.FC = () => {
           gap: spacing[4]
         }}>
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>🔍</div>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[600], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[2] }}>
               Advanced Search
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
               Multi-criteria contract search with chip-based filters, autocomplete, and real-time results
             </BodyText>
-            <ul style={{ paddingLeft: spacing[4], color: themeColors.text.secondary }}>
+            <ul style={{ paddingLeft: spacing[4], color: vars.text.secondary }}>
               <li>Keyword search with AND logic (&&)</li>
               <li>Entity-based filtering</li>
               <li>Time range selection</li>
@@ -453,19 +454,19 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>📊</div>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[2] }}>
               Analytics Dashboard
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
               Interactive charts, trend analysis, and drill-down capabilities for comprehensive data exploration
             </BodyText>
-            <ul style={{ paddingLeft: spacing[4], color: themeColors.text.secondary }}>
+            <ul style={{ paddingLeft: spacing[4], color: vars.text.secondary }}>
               <li>Contractor performance metrics</li>
               <li>Spending trend analysis</li>
               <li>Category breakdowns</li>
@@ -474,19 +475,19 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>💾</div>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.warning[600], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.warning[600], marginBottom: spacing[2] }}>
               Data Export
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
               CSV export with estimation and full dataset download capabilities
             </BodyText>
-            <ul style={{ paddingLeft: spacing[4], color: themeColors.text.secondary }}>
+            <ul style={{ paddingLeft: spacing[4], color: vars.text.secondary }}>
               <li>Rank range selection</li>
               <li>File size estimation</li>
               <li>Progress tracking</li>
@@ -495,19 +496,19 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>🔌</div>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.secondary[600], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.secondary[600], marginBottom: spacing[2] }}>
               API Access
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
               Complete REST API with interactive documentation and code examples
             </BodyText>
-            <ul style={{ paddingLeft: spacing[4], color: themeColors.text.secondary }}>
+            <ul style={{ paddingLeft: spacing[4], color: vars.text.secondary }}>
               <li>RESTful endpoints</li>
               <li>Interactive documentation</li>
               <li>Code examples</li>
@@ -516,19 +517,19 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>🔍</div>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[500], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.primary[500], marginBottom: spacing[2] }}>
               Drill-down Analysis
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
               Nested drill-down modals for granular contract analysis and detailed exploration
             </BodyText>
-            <ul style={{ paddingLeft: spacing[4], color: themeColors.text.secondary }}>
+            <ul style={{ paddingLeft: spacing[4], color: vars.text.secondary }}>
               <li>Entity drill-down</li>
               <li>Nested contract views</li>
               <li>Related entity analysis</li>
@@ -537,19 +538,19 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.background.secondary,
+            backgroundColor: vars.background.secondary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.light}`
+            border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>💾</div>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.warning[500], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.warning[500], marginBottom: spacing[2] }}>
               Filter Presets
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
               Save, load, and manage custom filter configurations for efficient workflow
             </BodyText>
-            <ul style={{ paddingLeft: spacing[4], color: themeColors.text.secondary }}>
+            <ul style={{ paddingLeft: spacing[4], color: vars.text.secondary }}>
               <li>Predefined filters</li>
               <li>Custom filter saving</li>
               <li>Auto-save functionality</li>
@@ -574,15 +575,15 @@ export const About: React.FC = () => {
           gap: spacing[4]
         }}>
           <div style={{
-            backgroundColor: themeColors.primary[50],
+            backgroundColor: vars.primary[50],
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.primary[200]}`
+            border: `1px solid ${vars.primary[200]}`
           }}>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[600], marginBottom: spacing[3] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[3] }}>
               Frontend
             </h3>
-            <ul style={{ color: themeColors.primary[600] }}>
+            <ul style={{ color: vars.primary[600] }}>
               <li style={{ marginBottom: spacing[1] }}>React 18 with TypeScript</li>
               <li style={{ marginBottom: spacing[1] }}>Vite for build tooling and development</li>
               <li style={{ marginBottom: spacing[1] }}>Custom design system with theming</li>
@@ -593,15 +594,15 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.success[50],
+            backgroundColor: vars.success[50],
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.success[600]}`
+            border: `1px solid ${vars.success[600]}`
           }}>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[3] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[3] }}>
               Backend
             </h3>
-            <ul style={{ color: themeColors.success[600] }}>
+            <ul style={{ color: vars.success[600] }}>
               <li style={{ marginBottom: spacing[1] }}>Django 4.2 with REST Framework</li>
               <li style={{ marginBottom: spacing[1] }}>DuckDB for fast data processing</li>
               <li style={{ marginBottom: spacing[1] }}>Parquet files for columnar storage</li>
@@ -613,13 +614,13 @@ export const About: React.FC = () => {
         </div>
 
         <div style={{
-          backgroundColor: themeColors.background.secondary,
+          backgroundColor: vars.background.secondary,
           padding: spacing[4],
           borderRadius: spacing[2],
           marginTop: spacing[4],
-          border: `1px solid ${themeColors.border.light}`
+          border: `1px solid ${vars.border.light}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.text.primary, marginBottom: spacing[2] }}>
             Data Flow
           </h3>
           <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
@@ -632,7 +633,7 @@ export const About: React.FC = () => {
             gap: spacing[2],
             flexWrap: 'wrap',
             fontSize: typography.fontSize.sm,
-            color: themeColors.text.secondary
+            color: vars.text.secondary
           }}>
             <span>Frontend</span>
             <span>→</span>
@@ -659,16 +660,16 @@ export const About: React.FC = () => {
         </SectionTitle>
         
         <div style={{
-          backgroundColor: themeColors.background.secondary,
+          backgroundColor: vars.background.secondary,
           padding: spacing[4],
           borderRadius: spacing[2],
           marginBottom: spacing[4],
-          border: `1px solid ${themeColors.border.light}`
+          border: `1px solid ${vars.border.light}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[600], marginBottom: spacing[3] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[3] }}>
             Data Processing Pipeline
           </h3>
-          <ol style={{ paddingLeft: spacing[4], color: themeColors.text.primary }}>
+          <ol style={{ paddingLeft: spacing[4], color: vars.text.primary }}>
             <li style={{ marginBottom: spacing[2] }}>Raw data extracted from PHILGEPS XLSX files (2013-2025)</li>
             <li style={{ marginBottom: spacing[2] }}>Data cleaning, validation, and standardization</li>
             <li style={{ marginBottom: spacing[2] }}>Aggregation of multiple line items into single contracts</li>
@@ -680,15 +681,15 @@ export const About: React.FC = () => {
         </div>
 
         <div style={{
-          backgroundColor: themeColors.background.secondary,
+          backgroundColor: vars.background.secondary,
           padding: spacing[4],
           borderRadius: spacing[2],
-          border: `1px solid ${themeColors.border.light}`
+          border: `1px solid ${vars.border.light}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[3] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[3] }}>
             Search Optimization
           </h3>
-          <ul style={{ paddingLeft: spacing[4], color: themeColors.text.primary }}>
+          <ul style={{ paddingLeft: spacing[4], color: vars.text.primary }}>
             <li style={{ marginBottom: spacing[2] }}>Whole-word keyword matching (e.g., 'deo' won't match 'montevideo')</li>
             <li style={{ marginBottom: spacing[2] }}>Autocomplete with fuzzy matching for entity names</li>
             <li style={{ marginBottom: spacing[2] }}>Pre-computed aggregations for fast analytics</li>
@@ -712,15 +713,15 @@ export const About: React.FC = () => {
           gap: spacing[4]
         }}>
           <div style={{
-            backgroundColor: themeColors.error[50],
+            backgroundColor: vars.error[50],
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.error[600]}`
+            border: `1px solid ${vars.error[600]}`
           }}>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.error[600], marginBottom: spacing[3] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.error[600], marginBottom: spacing[3] }}>
               Known Issues
             </h3>
-            <ul style={{ color: themeColors.error[600] }}>
+            <ul style={{ color: vars.error[600] }}>
               <li style={{ marginBottom: spacing[1] }}>Inconsistent contractor name formatting</li>
               <li style={{ marginBottom: spacing[1] }}>Missing or incomplete contract dates</li>
               <li style={{ marginBottom: spacing[1] }}>Variations in business category classifications</li>
@@ -731,15 +732,15 @@ export const About: React.FC = () => {
           </div>
 
           <div style={{
-            backgroundColor: themeColors.success[50],
+            backgroundColor: vars.success[50],
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.success[600]}`
+            border: `1px solid ${vars.success[600]}`
           }}>
-            <h3 style={{ ...typography.textStyles.h3, color: themeColors.success[600], marginBottom: spacing[3] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[3] }}>
               Quality Improvements
             </h3>
-            <ul style={{ color: themeColors.success[600] }}>
+            <ul style={{ color: vars.success[600] }}>
               <li style={{ marginBottom: spacing[1] }}>Automated data validation and cleaning</li>
               <li style={{ marginBottom: spacing[1] }}>Standardization of entity names</li>
               <li style={{ marginBottom: spacing[1] }}>Deduplication of exact duplicates</li>
@@ -768,19 +769,19 @@ export const About: React.FC = () => {
         </SectionTitle>
         
         <div style={{
-          backgroundColor: themeColors.primary[50],
+          backgroundColor: vars.primary[50],
           padding: spacing[4],
           borderRadius: spacing[2],
           marginBottom: spacing[4],
-          border: `1px solid ${themeColors.primary[200]}`
+          border: `1px solid ${vars.primary[200]}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.primary[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[2] }}>
             Available Endpoints
           </h3>
-          <BodyText $isDark={isDark} style={{ color: themeColors.primary[600], marginBottom: spacing[3] }}>
+          <BodyText $isDark={isDark} style={{ color: vars.primary[600], marginBottom: spacing[3] }}>
             Complete REST API with interactive documentation and code examples
           </BodyText>
-          <ul style={{ color: themeColors.primary[600] }}>
+          <ul style={{ color: vars.primary[600] }}>
             <li style={{ marginBottom: spacing[1] }}><strong>Contract Search</strong> - Advanced multi-criteria contract filtering</li>
             <li style={{ marginBottom: spacing[1] }}><strong>Entity Lookup</strong> - Search contractors, organizations, areas, categories</li>
             <li style={{ marginBottom: spacing[1] }}><strong>Filter Options</strong> - Get available filter values for dropdowns</li>
@@ -790,15 +791,15 @@ export const About: React.FC = () => {
         </div>
 
         <div style={{
-          backgroundColor: themeColors.background.secondary,
+          backgroundColor: vars.background.secondary,
           padding: spacing[4],
           borderRadius: spacing[2],
-          border: `1px solid ${themeColors.border.light}`
+          border: `1px solid ${vars.border.light}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[3] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.text.primary, marginBottom: spacing[3] }}>
             Developer Features
           </h3>
-          <ul style={{ color: themeColors.text.primary }}>
+          <ul style={{ color: vars.text.primary }}>
             <li style={{ marginBottom: spacing[1] }}>Interactive code examples with copy-to-clipboard</li>
             <li style={{ marginBottom: spacing[1] }}>Live API testing with current domain</li>
             <li style={{ marginBottom: spacing[1] }}>JavaScript integration examples</li>
@@ -818,16 +819,16 @@ export const About: React.FC = () => {
         </SectionTitle>
         
         <div style={{
-          backgroundColor: themeColors.background.secondary,
+          backgroundColor: vars.background.secondary,
           padding: spacing[4],
           borderRadius: spacing[2],
           marginBottom: spacing[4],
-          border: `1px solid ${themeColors.border.light}`
+          border: `1px solid ${vars.border.light}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.text.primary, marginBottom: spacing[3] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.text.primary, marginBottom: spacing[3] }}>
             Available Resources
           </h3>
-          <ul style={{ color: themeColors.text.primary }}>
+          <ul style={{ color: vars.text.primary }}>
             <li style={{ marginBottom: spacing[2] }}><strong>Help Tab</strong> - Comprehensive user guide and examples</li>
             <li style={{ marginBottom: spacing[2] }}><strong>API Docs Tab</strong> - Developer resources and code examples</li>
             <li style={{ marginBottom: spacing[2] }}><strong>Official PHILGEPS</strong> - Source data and official information</li>
@@ -836,15 +837,15 @@ export const About: React.FC = () => {
         </div>
 
         <div style={{
-          backgroundColor: themeColors.warning[50],
+          backgroundColor: vars.warning[50],
           padding: spacing[4],
           borderRadius: spacing[2],
-          border: `1px solid ${themeColors.warning[600]}`
+          border: `1px solid ${vars.warning[600]}`
         }}>
-          <h3 style={{ ...typography.textStyles.h3, color: themeColors.warning[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.warning[600], marginBottom: spacing[2] }}>
             Purpose & Disclaimer
           </h3>
-          <BodyText $isDark={isDark} style={{ color: themeColors.warning[600] }}>
+          <BodyText $isDark={isDark} style={{ color: vars.warning[600] }}>
             This dashboard is designed for public transparency and educational purposes. 
             For questions about the data or technical issues, please refer to the 
             official PHILGEPS documentation or contact the relevant government agencies.

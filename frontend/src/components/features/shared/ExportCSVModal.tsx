@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Modal } from './Modal'
 import { AccessibleButton } from './AccessibleButton'
 import { useTheme } from '../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
 
 interface ExportCSVModalProps {
@@ -37,7 +37,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
 }) => {
   const { isDark: themeIsDark } = useTheme()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
-  const theme = getThemeColors(darkMode)
+  const vars = getThemeVars(darkMode)
   
   const [startRank, setStartRank] = useState(1)
   const [endRank, setEndRank] = useState(totalCount)
@@ -160,7 +160,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
       isDark={darkMode}
       size="medium"
     >
-      <div style={{ padding: spacing[4], color: theme.text.primary }}>
+      <div style={{ padding: spacing[4], color: vars.text.primary }}>
         <p style={{ marginBottom: spacing[4], fontSize: typography.fontSize.sm }}>
           Select the range of entries you wish to export as CSV.
         </p>
@@ -168,7 +168,7 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
         {/* Range Inputs */}
         <div style={{ display: 'flex', gap: spacing[4], marginBottom: spacing[4] }}>
           <div style={{ flex: 1 }}>
-            <label htmlFor="startRank" style={{ display: 'block', marginBottom: spacing[1], fontSize: typography.fontSize.xs, color: theme.text.secondary }}>
+            <label htmlFor="startRank" style={{ display: 'block', marginBottom: spacing[1], fontSize: typography.fontSize.xs, color: vars.text.secondary }}>
               Start Rank (1 to {totalCount})
             </label>
             <input
@@ -183,16 +183,16 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
                 width: '100%',
                 padding: spacing[2],
                 borderRadius: spacing[1],
-                border: `1px solid ${theme.border.light}`,
-                backgroundColor: theme.background.secondary,
-                color: theme.text.primary,
+                border: `1px solid ${vars.border.light}`,
+                backgroundColor: vars.background.secondary,
+                color: vars.text.primary,
                 fontSize: typography.fontSize.sm,
                 opacity: isExporting ? 0.6 : 1
               }}
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label htmlFor="endRank" style={{ display: 'block', marginBottom: spacing[1], fontSize: typography.fontSize.xs, color: theme.text.secondary }}>
+            <label htmlFor="endRank" style={{ display: 'block', marginBottom: spacing[1], fontSize: typography.fontSize.xs, color: vars.text.secondary }}>
               End Rank (1 to {totalCount})
             </label>
             <input
@@ -207,9 +207,9 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
                 width: '100%',
                 padding: spacing[2],
                 borderRadius: spacing[1],
-                border: `1px solid ${theme.border.light}`,
-                backgroundColor: theme.background.secondary,
-                color: theme.text.primary,
+                border: `1px solid ${vars.border.light}`,
+                backgroundColor: vars.background.secondary,
+                color: vars.text.primary,
                 fontSize: typography.fontSize.sm,
                 opacity: isExporting ? 0.6 : 1
               }}
@@ -221,28 +221,28 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
         <div style={{ 
           marginBottom: spacing[4], 
           padding: spacing[3], 
-          backgroundColor: theme.background.secondary, 
+          backgroundColor: vars.background.secondary, 
           borderRadius: spacing[1],
-          border: `1px solid ${theme.border.light}`
+          border: `1px solid ${vars.border.light}`
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: spacing[2] }}>
-            <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+            <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
               Entries to export:
             </span>
-            <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: theme.text.primary }}>
+            <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: vars.text.primary }}>
               {entriesToExport.toLocaleString()}
             </span>
           </div>
           {showFileSize && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+                <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
                   Estimated file size:
                 </span>
                 <span style={{ 
                   fontSize: typography.fontSize.sm, 
                   fontWeight: typography.fontWeight.semibold, 
-                  color: theme.text.primary
+                  color: vars.text.primary
                 }}>
                   {formatFileSize(estimatedSize)}
                 </span>
@@ -256,10 +256,10 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
           <div style={{ 
             marginBottom: spacing[4], 
             padding: spacing[2], 
-            backgroundColor: theme.error[500] + '20', 
-            border: `1px solid ${theme.error[500]}`,
+            backgroundColor: vars.error[500] + '20', 
+            border: `1px solid ${vars.error[500]}`,
             borderRadius: spacing[1],
-            color: theme.error[500], 
+            color: vars.error[500], 
             fontSize: typography.fontSize.sm 
           }}>
             {error}
@@ -270,24 +270,24 @@ export const ExportCSVModal: React.FC<ExportCSVModalProps> = ({
         {isExporting && showProgress && (
           <div style={{ marginBottom: spacing[4] }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: spacing[1] }}>
-              <span style={{ fontSize: typography.fontSize.sm, color: theme.text.secondary }}>
+              <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
                 Exporting...
               </span>
-              <span style={{ fontSize: typography.fontSize.sm, color: theme.text.primary, fontWeight: typography.fontWeight.semibold }}>
+              <span style={{ fontSize: typography.fontSize.sm, color: vars.text.primary, fontWeight: typography.fontWeight.semibold }}>
                 {(Math.max(0, Math.min(100, progress))).toFixed(4)}%
               </span>
             </div>
             <div style={{
               width: '100%',
               height: '8px',
-              backgroundColor: theme.background.secondary,
+              backgroundColor: vars.background.secondary,
               borderRadius: spacing[1],
               overflow: 'hidden'
             }}>
               <div style={{
                 width: `${Math.max(0, Math.min(100, progress))}%`,
                 height: '100%',
-                backgroundColor: theme.primary[500],
+                backgroundColor: vars.primary[500],
                 borderRadius: spacing[1],
                 transition: 'width 0.3s ease'
               }} />

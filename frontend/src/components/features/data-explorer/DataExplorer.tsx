@@ -5,7 +5,7 @@ import { useAccessibility } from '../../../hooks/useAccessibility'
 import { ErrorBoundary } from '../shared/ErrorBoundary'
 import { LoadingSpinner } from '../shared/LoadingSpinner'
 import { ErrorDisplay } from '../shared/ErrorDisplay'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing } from '../../../design-system'
 import {
   PageContainer,
@@ -46,7 +46,7 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
   const { isDark: themeIsDark } = useTheme()
   const { announce, isHighContrast } = useAccessibility()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
-  const theme = getThemeColors(darkMode)
+  const vars = getThemeVars(darkMode)
 
   // Performance monitoring
   usePerformanceMonitoring('DataExplorer')

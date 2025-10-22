@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useTheme } from '../../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { typography, spacing } from '../../../../design-system'
 import type { FilterState, DateRangeState } from '../../../../hooks/advanced-search/useAdvancedSearchFilters'
 import { FilterPersistence } from '../../../../utils/filterPersistence'
@@ -29,7 +29,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
   loading = false
 }) => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'predefined' | 'saved'>('predefined')
@@ -249,8 +249,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
         disabled={loading}
         style={{
           padding: `${spacing[2]} ${spacing[4]}`,
-          backgroundColor: themeColors.primary[600],
-          color: themeColors.text.inverse,
+          backgroundColor: vars.primary[600],
+          color: vars.text.inverse,
           border: 'none',
           borderRadius: spacing[1],
           cursor: loading ? 'not-allowed' : 'pointer',
@@ -274,8 +274,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
           top: '100%',
           left: 0,
           right: 0,
-          backgroundColor: themeColors.background.primary,
-          border: `1px solid ${themeColors.border.medium}`,
+          backgroundColor: vars.background.primary,
+          border: `1px solid ${vars.border.medium}`,
           borderRadius: spacing[2],
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
           zIndex: 1000,
@@ -285,7 +285,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
           {/* Header with Tabs */}
           <div style={{
             display: 'flex',
-            borderBottom: `1px solid ${themeColors.border.light}`,
+            borderBottom: `1px solid ${vars.border.light}`,
             padding: spacing[3]
           }}>
             <button
@@ -293,8 +293,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
               style={{
                 flex: 1,
                 padding: `${spacing[2]} ${spacing[3]}`,
-                backgroundColor: activeTab === 'predefined' ? themeColors.primary[50] : 'transparent',
-                color: activeTab === 'predefined' ? themeColors.primary[700] : themeColors.text.secondary,
+                backgroundColor: activeTab === 'predefined' ? vars.primary[50] : 'transparent',
+                color: activeTab === 'predefined' ? vars.primary[700] : vars.text.secondary,
                 border: 'none',
                 borderRadius: spacing[1],
                 cursor: 'pointer',
@@ -309,8 +309,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
               style={{
                 flex: 1,
                 padding: `${spacing[2]} ${spacing[3]}`,
-                backgroundColor: activeTab === 'saved' ? themeColors.primary[50] : 'transparent',
-                color: activeTab === 'saved' ? themeColors.primary[700] : themeColors.text.secondary,
+                backgroundColor: activeTab === 'saved' ? vars.primary[50] : 'transparent',
+                color: activeTab === 'saved' ? vars.primary[700] : vars.text.secondary,
                 border: 'none',
                 borderRadius: spacing[1],
                 cursor: 'pointer',
@@ -332,31 +332,31 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                     onClick={() => handleApplyPredefinedFilter(filter)}
                     style={{
                       padding: spacing[3],
-                      backgroundColor: themeColors.background.secondary,
-                      border: `1px solid ${themeColors.border.light}`,
+                      backgroundColor: vars.background.secondary,
+                      border: `1px solid ${vars.border.light}`,
                       borderRadius: spacing[1],
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = themeColors.primary[50]
-                      e.currentTarget.style.borderColor = themeColors.primary[200]
+                      e.currentTarget.style.backgroundColor = vars.primary[50]
+                      e.currentTarget.style.borderColor = vars.primary[200]
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = themeColors.background.secondary
-                      e.currentTarget.style.borderColor = themeColors.border.light
+                      e.currentTarget.style.backgroundColor = vars.background.secondary
+                      e.currentTarget.style.borderColor = vars.border.light
                     }}
                   >
                     <div style={{
                       fontWeight: typography.fontWeight.medium,
-                      color: themeColors.text.primary,
+                      color: vars.text.primary,
                       marginBottom: spacing[1]
                     }}>
                       {filter.name}
                     </div>
                     <div style={{
                       fontSize: typography.fontSize.xs,
-                      color: themeColors.text.secondary,
+                      color: vars.text.secondary,
                       lineHeight: 1.4
                     }}>
                       {filter.description}
@@ -369,7 +369,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 {savedFilters.length === 0 ? (
                   <div style={{
                     textAlign: 'center',
-                    color: themeColors.text.secondary,
+                    color: vars.text.secondary,
                     padding: spacing[4],
                     fontStyle: 'italic'
                   }}>
@@ -381,8 +381,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                       key={filter.id}
                       style={{
                         padding: spacing[3],
-                        backgroundColor: themeColors.background.secondary,
-                        border: `1px solid ${themeColors.border.light}`,
+                        backgroundColor: vars.background.secondary,
+                        border: `1px solid ${vars.border.light}`,
                         borderRadius: spacing[1],
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -398,7 +398,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                       >
                         <div style={{
                           fontWeight: typography.fontWeight.medium,
-                          color: themeColors.text.primary,
+                          color: vars.text.primary,
                           marginBottom: spacing[1]
                         }}>
                           {filter.name}
@@ -406,7 +406,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                         {filter.description && (
                           <div style={{
                             fontSize: typography.fontSize.xs,
-                            color: themeColors.text.secondary,
+                            color: vars.text.secondary,
                             marginBottom: spacing[1]
                           }}>
                             {filter.description}
@@ -414,7 +414,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                         )}
                         <div style={{
                           fontSize: typography.fontSize.xs,
-                          color: themeColors.text.tertiary
+                          color: vars.text.tertiary
                         }}>
                           Updated: {new Date(filter.updatedAt).toLocaleDateString()}
                         </div>
@@ -428,7 +428,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                           style={{
                             padding: spacing[1],
                             backgroundColor: 'transparent',
-                            color: themeColors.primary[600],
+                            color: vars.primary[600],
                             border: 'none',
                             cursor: 'pointer',
                             fontSize: '16px'
@@ -445,7 +445,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                           style={{
                             padding: spacing[1],
                             backgroundColor: 'transparent',
-                            color: themeColors.text.secondary,
+                            color: vars.text.secondary,
                             border: 'none',
                             cursor: 'pointer',
                             fontSize: '16px'
@@ -465,14 +465,14 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
           {/* Footer with Export and Save Buttons */}
           <div style={{
             padding: spacing[3],
-            borderTop: `1px solid ${themeColors.border.light}`,
+            borderTop: `1px solid ${vars.border.light}`,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
             <div style={{
               fontSize: typography.fontSize.xs,
-              color: themeColors.text.secondary
+              color: vars.text.secondary
             }}>
               {hasActiveFilters() ? 'Current filters can be saved' : 'No active filters to save'}
             </div>
@@ -482,8 +482,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 disabled={loading}
                 style={{
                   padding: `${spacing[2]} ${spacing[3]}`,
-                  backgroundColor: themeColors.primary[600],
-                  color: themeColors.text.inverse,
+                  backgroundColor: vars.primary[600],
+                  color: vars.text.inverse,
                   border: 'none',
                   borderRadius: spacing[1],
                   cursor: 'pointer',
@@ -502,8 +502,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 disabled={savedFilters.length === 0 || loading}
                 style={{
                   padding: `${spacing[2]} ${spacing[3]}`,
-                  backgroundColor: savedFilters.length > 0 ? themeColors.success[600] : themeColors.border.medium,
-                  color: savedFilters.length > 0 ? themeColors.text.inverse : themeColors.text.secondary,
+                  backgroundColor: savedFilters.length > 0 ? vars.success[600] : vars.border.medium,
+                  color: savedFilters.length > 0 ? vars.text.inverse : vars.text.secondary,
                   border: 'none',
                   borderRadius: spacing[1],
                   cursor: savedFilters.length > 0 ? 'pointer' : 'not-allowed',
@@ -523,8 +523,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 disabled={!hasActiveFilters() || loading}
                 style={{
                   padding: `${spacing[2]} ${spacing[3]}`,
-                  backgroundColor: hasActiveFilters() ? themeColors.primary[600] : themeColors.border.medium,
-                  color: hasActiveFilters() ? themeColors.text.inverse : themeColors.text.secondary,
+                  backgroundColor: hasActiveFilters() ? vars.primary[600] : vars.border.medium,
+                  color: hasActiveFilters() ? vars.text.inverse : vars.text.secondary,
                   border: 'none',
                   borderRadius: spacing[1],
                   cursor: hasActiveFilters() ? 'pointer' : 'not-allowed',
@@ -558,16 +558,16 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
           zIndex: 2000
         }}>
           <div style={{
-            backgroundColor: themeColors.background.primary,
+            backgroundColor: vars.background.primary,
             padding: spacing[4],
             borderRadius: spacing[2],
-            border: `1px solid ${themeColors.border.medium}`,
+            border: `1px solid ${vars.border.medium}`,
             minWidth: '400px',
             maxWidth: '500px'
           }}>
             <h3 style={{
               margin: `0 0 ${spacing[3]} 0`,
-              color: themeColors.text.primary,
+              color: vars.text.primary,
               fontSize: typography.fontSize.lg,
               fontWeight: typography.fontWeight.semibold
             }}>
@@ -578,7 +578,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
               <label style={{
                 display: 'block',
                 marginBottom: spacing[1],
-                color: themeColors.text.primary,
+                color: vars.text.primary,
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium
               }}>
@@ -592,11 +592,11 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 style={{
                   width: '100%',
                   padding: `${spacing[2]} ${spacing[3]}`,
-                  border: `1px solid ${themeColors.border.medium}`,
+                  border: `1px solid ${vars.border.medium}`,
                   borderRadius: spacing[1],
                   fontSize: typography.fontSize.sm,
-                  backgroundColor: themeColors.background.primary,
-                  color: themeColors.text.primary
+                  backgroundColor: vars.background.primary,
+                  color: vars.text.primary
                 }}
                 autoFocus
               />
@@ -606,7 +606,7 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
               <label style={{
                 display: 'block',
                 marginBottom: spacing[1],
-                color: themeColors.text.primary,
+                color: vars.text.primary,
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium
               }}>
@@ -620,11 +620,11 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 style={{
                   width: '100%',
                   padding: `${spacing[2]} ${spacing[3]}`,
-                  border: `1px solid ${themeColors.border.medium}`,
+                  border: `1px solid ${vars.border.medium}`,
                   borderRadius: spacing[1],
                   fontSize: typography.fontSize.sm,
-                  backgroundColor: themeColors.background.primary,
-                  color: themeColors.text.primary,
+                  backgroundColor: vars.background.primary,
+                  color: vars.text.primary,
                   resize: 'vertical'
                 }}
               />
@@ -645,8 +645,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
                   backgroundColor: 'transparent',
-                  color: themeColors.text.secondary,
-                  border: `1px solid ${themeColors.border.medium}`,
+                  color: vars.text.secondary,
+                  border: `1px solid ${vars.border.medium}`,
                   borderRadius: spacing[1],
                   cursor: 'pointer',
                   fontSize: typography.fontSize.sm
@@ -659,8 +659,8 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
                 disabled={!saveFilterName.trim()}
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
-                  backgroundColor: saveFilterName.trim() ? themeColors.primary[600] : themeColors.border.medium,
-                  color: saveFilterName.trim() ? themeColors.text.inverse : themeColors.text.secondary,
+                  backgroundColor: saveFilterName.trim() ? vars.primary[600] : vars.border.medium,
+                  color: saveFilterName.trim() ? vars.text.inverse : vars.text.secondary,
                   border: 'none',
                   borderRadius: spacing[1],
                   cursor: saveFilterName.trim() ? 'pointer' : 'not-allowed',
@@ -691,9 +691,9 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
           top: '20px',
           right: '20px',
           padding: `${spacing[3]} ${spacing[4]}`,
-          backgroundColor: themeColors.success[50],
-          color: themeColors.success[600],
-          border: `1px solid ${themeColors.success[500]}`,
+          backgroundColor: vars.success[50],
+          color: vars.success[600],
+          border: `1px solid ${vars.success[500]}`,
           borderRadius: spacing[1],
           fontSize: typography.fontSize.sm,
           fontWeight: typography.fontWeight.medium,
@@ -711,9 +711,9 @@ export const PredefinedFilterSelector: React.FC<PredefinedFilterSelectorProps> =
           top: '20px',
           right: '20px',
           padding: `${spacing[3]} ${spacing[4]}`,
-          backgroundColor: themeColors.error[50],
-          color: themeColors.error[600],
-          border: `1px solid ${themeColors.error[500]}`,
+          backgroundColor: vars.error[50],
+          color: vars.error[600],
+          border: `1px solid ${vars.error[500]}`,
           borderRadius: spacing[1],
           fontSize: typography.fontSize.sm,
           fontWeight: typography.fontWeight.medium,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing, commonStyles } from '../../../design-system'
 
 export interface SearchableSelectProps {
@@ -30,7 +30,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   exactWord = false,
   supportAndLogic = false
 }) => {
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
@@ -172,10 +172,10 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     display: 'flex',
     alignItems: 'center',
     padding: `${spacing[2]} ${spacing[3]}`,
-    border: `1px solid ${themeColors.border.medium}`,
+    border: `1px solid ${vars.border.medium}`,
     borderRadius: commonStyles.borderRadius.sm,
-    backgroundColor: disabled ? themeColors.background.tertiary : themeColors.background.primary,
-    color: disabled ? themeColors.text.tertiary : themeColors.text.primary,
+    backgroundColor: disabled ? vars.background.tertiary : vars.background.primary,
+    color: disabled ? vars.text.tertiary : vars.text.primary,
     cursor: disabled ? 'not-allowed' : 'pointer',
     fontSize: typography.fontSize.sm,
     transition: commonStyles.transition.base,
@@ -187,8 +187,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     top: '100%',
     left: 0,
     right: 0,
-    backgroundColor: themeColors.background.primary,
-    border: `1px solid ${themeColors.border.medium}`,
+    backgroundColor: vars.background.primary,
+    border: `1px solid ${vars.border.medium}`,
     borderRadius: commonStyles.borderRadius.sm,
     boxShadow: commonStyles.shadow.lg,
     zIndex: commonStyles.zIndex.dropdown,
@@ -200,9 +200,9 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     width: '100%',
     padding: `${spacing[2]} ${spacing[3]}`,
     border: 'none',
-    borderBottom: `1px solid ${themeColors.border.light}`,
+    borderBottom: `1px solid ${vars.border.light}`,
     backgroundColor: 'transparent',
-    color: themeColors.text.primary,
+    color: vars.text.primary,
     fontSize: typography.fontSize.sm,
     outline: 'none'
   }
@@ -211,20 +211,20 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     padding: `${spacing[2]} ${spacing[3]}`,
     cursor: 'pointer',
     fontSize: typography.fontSize.sm,
-    color: themeColors.text.primary,
-    backgroundColor: themeColors.background.primary,
-    borderBottom: `1px solid ${themeColors.border.light}`,
+    color: vars.text.primary,
+    backgroundColor: vars.background.primary,
+    borderBottom: `1px solid ${vars.border.light}`,
     transition: commonStyles.transition.fast
   }
 
   const optionHoverStyle = {
-    backgroundColor: themeColors.background.secondary
+    backgroundColor: vars.background.secondary
   }
 
   const noResultsStyle = {
     padding: `${spacing[3]}`,
     textAlign: 'center' as const,
-    color: themeColors.text.secondary,
+    color: vars.text.secondary,
     fontSize: typography.fontSize.sm,
     fontStyle: 'italic'
   }
@@ -233,27 +233,27 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     padding: `${spacing[2]} ${spacing[3]}`,
     cursor: 'pointer',
     fontSize: typography.fontSize.sm,
-    color: themeColors.primary[700]
+    color: vars.primary[700]
   }
 
   const andLogicHintStyle = {
     padding: `${spacing[1]} ${spacing[3]}`,
     fontSize: typography.fontSize.xs,
-    color: themeColors.text.secondary,
+    color: vars.text.secondary,
     fontStyle: 'italic',
-    backgroundColor: themeColors.background.secondary,
-    borderTop: `1px solid ${themeColors.border.light}`
+    backgroundColor: vars.background.secondary,
+    borderTop: `1px solid ${vars.border.light}`
   }
 
   const keywordChipStyle = {
     display: 'inline-block',
     padding: `${spacing[1]} ${spacing[2]}`,
     margin: `${spacing[1]} ${spacing[1]} 0 0`,
-    backgroundColor: themeColors.primary[100],
-    color: themeColors.primary[800],
+    backgroundColor: vars.primary[100],
+    color: vars.primary[800],
     borderRadius: commonStyles.borderRadius.sm,
     fontSize: typography.fontSize.xs,
-    border: `1px solid ${themeColors.primary[300]}`
+    border: `1px solid ${vars.primary[300]}`
   }
 
   return (
@@ -288,7 +288,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
           {/* Show AND logic keywords if supportAndLogic is enabled and searchTerm contains && */}
           {supportAndLogic && searchTerm.includes('&&') && (
             <div style={{ padding: `${spacing[2]} ${spacing[3]}` }}>
-              <div style={{ fontSize: typography.fontSize.xs, color: themeColors.text.secondary, marginBottom: spacing[1] }}>
+              <div style={{ fontSize: typography.fontSize.xs, color: vars.text.secondary, marginBottom: spacing[1] }}>
                 AND Logic Keywords:
               </div>
               {parseAndKeywords(searchTerm).map((keyword, index) => (

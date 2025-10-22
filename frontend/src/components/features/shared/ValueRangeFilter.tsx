@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
 
 export interface ValueRange {
@@ -77,7 +77,7 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
   showInputs = true,
   minHeight
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   
   // Local state for input values
   const [minInput, setMinInput] = useState('')
@@ -133,9 +133,9 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
     flexDirection: 'column' as const,
     gap: spacing[2],
     padding: spacing[3],
-    backgroundColor: theme.background.secondary,
+    backgroundColor: vars.background.secondary,
     borderRadius: spacing[2],
-    border: `1px solid ${theme.border.light}`,
+    border: `1px solid ${vars.border.light}`,
     ...(disabled && { opacity: 0.6 }),
     ...(minHeight && { minHeight })
   }
@@ -143,9 +143,9 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
   
   const inputStyle = {
     padding: `${spacing[1]} ${spacing[2]}`,
-    backgroundColor: theme.background.primary,
-    color: theme.text.primary,
-    border: `1px solid ${theme.border.medium}`,
+    backgroundColor: vars.background.primary,
+    color: vars.text.primary,
+    border: `1px solid ${vars.border.medium}`,
     borderRadius: spacing[1],
     fontSize: typography.fontSize.sm,
     width: '80px',
@@ -166,7 +166,7 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
         <span style={{
           fontSize: typography.fontSize.sm,
           fontWeight: typography.fontWeight.medium,
-          color: theme.text.primary
+          color: vars.text.primary
         }}>
           Contract Value Range
         </span>
@@ -180,7 +180,7 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1] }}>
               <label style={{
                 fontSize: typography.fontSize.sm,
-                color: theme.text.secondary,
+                color: vars.text.secondary,
                 whiteSpace: 'nowrap'
               }}>
                 Min:
@@ -198,14 +198,14 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
               />
             </div>
             
-            <div style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
+            <div style={{ color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
               to
             </div>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1] }}>
               <label style={{
                 fontSize: typography.fontSize.sm,
-                color: theme.text.secondary,
+                color: vars.text.secondary,
                 whiteSpace: 'nowrap'
               }}>
                 Max:
@@ -228,11 +228,11 @@ export const ValueRangeFilter: React.FC<ValueRangeFilterProps> = ({
           {(value.min || value.max) && (
             <div style={{
               fontSize: typography.fontSize.sm,
-              color: theme.text.secondary,
+              color: vars.text.secondary,
               padding: `${spacing[1]} ${spacing[2]}`,
-              backgroundColor: theme.background.primary,
+              backgroundColor: vars.background.primary,
               borderRadius: spacing[1],
-              border: `1px solid ${theme.border.light}`,
+              border: `1px solid ${vars.border.light}`,
               whiteSpace: 'nowrap',
               minWidth: '120px',
               textAlign: 'center'

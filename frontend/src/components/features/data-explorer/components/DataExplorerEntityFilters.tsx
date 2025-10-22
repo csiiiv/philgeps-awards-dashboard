@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { spacing, typography } from '../../../../design-system'
 import { Card } from '../../../styled/Common.styled'
 import { FilterSection } from '../../advanced-search/FilterSection'
@@ -38,7 +38,7 @@ export const DataExplorerEntityFilters: React.FC<DataExplorerEntityFiltersProps>
   onClearSearch,
   isDark
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   return (
     <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
@@ -132,7 +132,7 @@ export const DataExplorerEntityFilters: React.FC<DataExplorerEntityFiltersProps>
           alignItems: 'center',
           gap: spacing[2],
           cursor: 'pointer',
-          color: theme.text.primary
+          color: vars.text.primary
         }}>
           <input
             type="checkbox"
@@ -141,7 +141,7 @@ export const DataExplorerEntityFilters: React.FC<DataExplorerEntityFiltersProps>
             style={{
               width: '16px',
               height: '16px',
-              accentColor: theme.primary[500]
+              accentColor: vars.primary[500]
             }}
           />
           <span style={{ fontSize: typography.fontSize.sm }}>

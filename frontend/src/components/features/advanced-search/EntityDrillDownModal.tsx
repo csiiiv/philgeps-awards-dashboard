@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
 import { advancedSearchService } from '../../../services/AdvancedSearchService'
 import { ContractsTable } from '../shared/ContractsTable'
@@ -52,7 +52,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
   currentFilters,
   isDark = false
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
   const [pagination, setPagination] = useState({
@@ -577,7 +577,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
 
   const headerStyle = {
     padding: spacing[4],
-    borderBottom: `1px solid ${theme.border.light}`,
+    borderBottom: `1px solid ${vars.border.light}`,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -586,7 +586,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
   const titleStyle = {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.semibold,
-    color: theme.text.primary
+    color: vars.text.primary
   }
 
   const closeBtnStyle = {
@@ -594,7 +594,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     border: 'none',
     fontSize: '24px',
     cursor: 'pointer',
-    color: theme.text.secondary,
+    color: vars.text.secondary,
     padding: spacing[1]
   }
 
@@ -614,17 +614,17 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     padding: spacing[3],
     textAlign: 'left' as const,
     fontWeight: typography.fontWeight.semibold,
-    color: theme.text.primary,
+    color: vars.text.primary,
     backgroundColor: isDark ? '#1e293b' : '#f8fafc',
-    borderBottom: `2px solid ${theme.border.primary}`,
+    borderBottom: `2px solid ${vars.border.primary}`,
     cursor: 'pointer',
     userSelect: 'none' as const
   }
 
   const tdStyle = {
     padding: spacing[3],
-    borderBottom: `1px solid ${theme.border.light}`,
-    color: theme.text.primary
+    borderBottom: `1px solid ${vars.border.light}`,
+    color: vars.text.primary
   }
 
   const loadingStyle = {
@@ -632,7 +632,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing[8],
-    color: theme.text.secondary
+    color: vars.text.secondary
   }
 
   const paginationStyle = {
@@ -642,38 +642,38 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     gap: spacing[2],
     marginTop: spacing[4],
     padding: spacing[4],
-    borderTop: `1px solid ${theme.border.light}`
+    borderTop: `1px solid ${vars.border.light}`
   }
 
   const pageBtnStyle = {
     padding: `${spacing[2]} ${spacing[3]}`,
-    border: `1px solid ${theme.border.primary}`,
+    border: `1px solid ${vars.border.primary}`,
     borderRadius: spacing[1],
     background: 'none',
-    color: theme.text.primary,
+    color: vars.text.primary,
     cursor: 'pointer',
     fontSize: typography.fontSize.sm
   }
 
   const activePageBtnStyle = {
     ...pageBtnStyle,
-    backgroundColor: theme.primary[500],
+    backgroundColor: vars.primary[500],
     color: '#ffffff',
-    borderColor: theme.primary[500]
+    borderColor: vars.primary[500]
   }
 
   const tabsBarStyle = {
     display: 'flex',
     gap: spacing[2],
-    borderBottom: `1px solid ${theme.border.light}`,
+    borderBottom: `1px solid ${vars.border.light}`,
     marginBottom: spacing[4]
   }
   const tabBtnStyle = (tab: DrillTab) => ({
     padding: `${spacing[2]} ${spacing[3]}`,
     border: 'none',
-    borderBottom: `2px solid ${activeTab === tab ? theme.primary[500] : 'transparent'}`,
+    borderBottom: `2px solid ${activeTab === tab ? vars.primary[500] : 'transparent'}`,
     background: 'none',
-    color: activeTab === tab ? theme.primary[600] : theme.text.secondary,
+    color: activeTab === tab ? vars.primary[600] : vars.text.secondary,
     cursor: 'pointer',
     fontSize: typography.fontSize.sm
   })
@@ -703,12 +703,12 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
           backgroundColor: isDark ? '#1e293b' : '#f8fafc',
           borderRadius: spacing[1]
         }}>
-          <div style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
+          <div style={{ color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
             Showing {entityPageIndex * entityPageSize + 1} to {Math.min((entityPageIndex + 1) * entityPageSize, totalCount)} of {totalCount.toLocaleString()} {labelHeader.toLowerCase()}s
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
-            <label style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
+            <label style={{ color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
               Per page:
             </label>
             <select
@@ -721,10 +721,10 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
               }}
               style={{
                 padding: `${spacing[1]} ${spacing[2]}`,
-                border: `1px solid ${theme.border.medium}`,
+                border: `1px solid ${vars.border.medium}`,
                 borderRadius: spacing[1],
                 backgroundColor: isDark ? '#0b1220' : '#ffffff',
-                color: theme.text.primary,
+                color: vars.text.primary,
                 fontSize: typography.fontSize.sm
               }}
             >
@@ -753,7 +753,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
                   <td style={tdStyle}>
                     <button
                       onClick={() => handleNestedOpen(r.label)}
-                      style={{ background: 'none', border: 'none', color: theme.primary[500], cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                      style={{ background: 'none', border: 'none', color: vars.primary[500], cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                       title={`View contracts for ${r.label}`}
                     >
                       {r.label}
@@ -791,7 +791,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
             gap: spacing[2],
             marginTop: spacing[3],
             padding: `${spacing[2]} ${spacing[3]}`,
-            borderTop: `1px solid ${theme.border.light}`
+            borderTop: `1px solid ${vars.border.light}`
           }}>
             <button
               onClick={() => {
@@ -802,10 +802,10 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
               disabled={entityPageIndex <= 0}
               style={{
                 padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${theme.border.primary}`,
+                border: `1px solid ${vars.border.primary}`,
                 borderRadius: spacing[1],
                 background: entityPageIndex <= 0 ? (isDark ? '#374151' : '#f3f4f6') : 'none',
-                color: entityPageIndex <= 0 ? theme.text.secondary : theme.text.primary,
+                color: entityPageIndex <= 0 ? vars.text.secondary : vars.text.primary,
                 cursor: entityPageIndex <= 0 ? 'not-allowed' : 'pointer',
                 fontSize: typography.fontSize.sm
               }}
@@ -813,7 +813,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
               Previous
             </button>
             
-            <span style={{ color: theme.text.secondary, fontSize: typography.fontSize.sm }}>
+            <span style={{ color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
               Page {currentPage} of {totalPages}
             </span>
             
@@ -826,10 +826,10 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
               disabled={entityPageIndex >= totalPages - 1}
               style={{
                 padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${theme.border.primary}`,
+                border: `1px solid ${vars.border.primary}`,
                 borderRadius: spacing[1],
                 background: entityPageIndex >= totalPages - 1 ? (isDark ? '#374151' : '#f3f4f6') : 'none',
-                color: entityPageIndex >= totalPages - 1 ? theme.text.secondary : theme.text.primary,
+                color: entityPageIndex >= totalPages - 1 ? vars.text.secondary : vars.text.primary,
                 cursor: entityPageIndex >= totalPages - 1 ? 'not-allowed' : 'pointer',
                 fontSize: typography.fontSize.sm
               }}
@@ -884,7 +884,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
               <div style={{ marginBottom: spacing[4] }}>
                 <div style={{ 
                   marginBottom: spacing[2], 
-                  color: theme.text.secondary, 
+                  color: vars.text.secondary, 
                   fontSize: typography.fontSize.sm,
                   fontWeight: typography.fontWeight.medium
                 }}>
@@ -892,9 +892,9 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
                 </div>
                 <div style={{ 
                   padding: spacing[4], 
-                  backgroundColor: theme.background.primary, 
+                  backgroundColor: vars.background.primary, 
                   borderRadius: spacing[2], 
-                  border: `1px solid ${theme.border.light}` 
+                  border: `1px solid ${vars.border.light}` 
                 }}>
                   {trendDataLoading ? (
                     <div style={{
@@ -902,9 +902,9 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: theme.background.secondary,
+                      backgroundColor: vars.background.secondary,
                       borderRadius: spacing[2],
-                      color: theme.text.secondary,
+                      color: vars.text.secondary,
                       fontSize: typography.fontSize.sm,
                     }}>
                       Loading trend data...
@@ -1027,7 +1027,7 @@ const NestedContractsModal: React.FC<{
   nested: { open: boolean, entityName: string, entityType: 'contractor' | 'organization' | 'area' | 'category' },
   onClose: () => void
 }> = ({ isDark = false, parentFilters, parentEntity, nested, onClose }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
   const [pagination, setPagination] = useState({ page: 1, pageSize: 20, totalCount: 0, totalPages: 0 })
@@ -1035,13 +1035,13 @@ const NestedContractsModal: React.FC<{
 
   const modalStyle = { position: 'fixed' as const, inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 11000 }
   const panelStyle = { backgroundColor: isDark ? '#0b1220' : '#ffffff', borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', maxWidth: '90vw', maxHeight: '90vh', width: '1200px', display: 'flex', flexDirection: 'column' as const }
-  const headerStyle = { padding: spacing[4], borderBottom: `1px solid ${theme.border.light}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
-  const titleStyle = { fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: theme.text.primary }
-  const closeBtnStyle = { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: theme.text.secondary, padding: spacing[1] }
+  const headerStyle = { padding: spacing[4], borderBottom: `1px solid ${vars.border.light}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
+  const titleStyle = { fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: vars.text.primary }
+  const closeBtnStyle = { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: vars.text.secondary, padding: spacing[1] }
   const contentStyle = { flex: 1, overflow: 'auto', padding: spacing[4] }
   const tableStyle = { width: '100%', borderCollapse: 'collapse' as const, fontSize: typography.fontSize.sm }
-  const thStyle = { padding: spacing[3], textAlign: 'left' as const, fontWeight: typography.fontWeight.semibold, color: theme.text.primary, backgroundColor: theme.background.secondary, borderBottom: `2px solid ${theme.border.medium}`, cursor: 'pointer', userSelect: 'none' as const }
-  const tdStyle = { padding: spacing[3], borderBottom: `1px solid ${theme.border.light}`, color: theme.text.primary }
+  const thStyle = { padding: spacing[3], textAlign: 'left' as const, fontWeight: typography.fontWeight.semibold, color: vars.text.primary, backgroundColor: vars.background.secondary, borderBottom: `2px solid ${vars.border.medium}`, cursor: 'pointer', userSelect: 'none' as const }
+  const tdStyle = { padding: spacing[3], borderBottom: `1px solid ${vars.border.light}`, color: vars.text.primary }
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount || 0)
   const formatDate = (dateString: string) => { try { return new Date(dateString).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) } catch { return String(dateString) } }

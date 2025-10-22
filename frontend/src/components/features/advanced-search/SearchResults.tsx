@@ -1,5 +1,5 @@
 import React from 'react'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
 
 export interface SearchResult {
@@ -41,7 +41,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   sortConfig,
   isDark = false
 }) => {
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   const formatCurrency = (amount: any): string => {
     if (amount === null || amount === undefined || amount === '' || isNaN(Number(amount))) {
@@ -84,16 +84,16 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }
 
   const containerStyle = {
-    backgroundColor: themeColors.background.primary,
+    backgroundColor: vars.background.primary,
     borderRadius: spacing[2],
-    border: `1px solid ${themeColors.border.light}`,
+    border: `1px solid ${vars.border.light}`,
     overflow: 'hidden'
   }
 
   const headerStyle = {
-    backgroundColor: themeColors.background.secondary,
+    backgroundColor: vars.background.secondary,
     padding: `${spacing[3]} ${spacing[4]}`,
-    borderBottom: `1px solid ${themeColors.border.light}`,
+    borderBottom: `1px solid ${vars.border.light}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
@@ -102,12 +102,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const titleStyle = {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.semibold,
-    color: themeColors.text.primary
+    color: vars.text.primary
   }
 
   const countStyle = {
     fontSize: typography.fontSize.sm,
-    color: themeColors.text.secondary
+    color: vars.text.secondary
   }
 
   const tableStyle = {
@@ -120,9 +120,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     textAlign: 'left' as const,
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: themeColors.text.primary,
-    backgroundColor: themeColors.background.secondary,
-    borderBottom: `1px solid ${themeColors.border.medium}`,
+    color: vars.text.primary,
+    backgroundColor: vars.background.secondary,
+    borderBottom: `1px solid ${vars.border.medium}`,
     cursor: 'pointer',
     userSelect: 'none' as const,
     transition: 'background-color 0.2s ease'
@@ -131,8 +131,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const tdStyle = {
     padding: `${spacing[3]} ${spacing[4]}`,
     fontSize: typography.fontSize.sm,
-    color: themeColors.text.primary,
-    borderBottom: `1px solid ${themeColors.border.light}`,
+    color: vars.text.primary,
+    borderBottom: `1px solid ${vars.border.light}`,
     verticalAlign: 'top' as const,
     wordWrap: 'break-word' as const,
     wordBreak: 'break-word' as const,
@@ -144,8 +144,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const tdAmountStyle = {
     padding: `${spacing[3]} ${spacing[4]}`,
     fontSize: typography.fontSize.sm,
-    color: themeColors.text.primary,
-    borderBottom: `1px solid ${themeColors.border.light}`,
+    color: vars.text.primary,
+    borderBottom: `1px solid ${vars.border.light}`,
     verticalAlign: 'top' as const,
     whiteSpace: 'nowrap' as const,
     textAlign: 'right' as const,
@@ -154,21 +154,21 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }
 
   const trHoverStyle = {
-    backgroundColor: themeColors.background.tertiary
+    backgroundColor: vars.background.tertiary
   }
 
   const loadingStyle = {
     padding: spacing[8],
     textAlign: 'center' as const,
-    color: themeColors.text.secondary
+    color: vars.text.secondary
   }
 
   const errorStyle = {
     padding: spacing[8],
     textAlign: 'center' as const,
-    color: themeColors.error[600],
-    backgroundColor: themeColors.error[50],
-    border: `1px solid ${themeColors.error[200]}`,
+    color: vars.error[600],
+    backgroundColor: vars.error[50],
+    border: `1px solid ${vars.error[200]}`,
     borderRadius: spacing[2],
     margin: spacing[4]
   }
@@ -176,7 +176,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const emptyStyle = {
     padding: spacing[8],
     textAlign: 'center' as const,
-    color: themeColors.text.secondary
+    color: vars.text.secondary
   }
 
   if (loading) {
@@ -227,10 +227,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('contract_no')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Contract No {getSortIcon('contract_no')}
@@ -239,10 +239,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('award_title')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Award Title {getSortIcon('award_title')}
@@ -251,10 +251,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('notice_title')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Notice Title {getSortIcon('notice_title')}
@@ -263,10 +263,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('awardee_name')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Contractor {getSortIcon('awardee_name')}
@@ -275,10 +275,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('organization_name')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Organization {getSortIcon('organization_name')}
@@ -287,10 +287,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('area_of_delivery')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Area {getSortIcon('area_of_delivery')}
@@ -299,10 +299,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('business_category')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Category {getSortIcon('business_category')}
@@ -311,10 +311,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('contract_amount')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Amount {getSortIcon('contract_amount')}
@@ -323,10 +323,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 style={thStyle}
                 onClick={() => onSort('award_date')}
                 onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[100] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
                 }}
                 onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: themeColors.gray[50] })
+                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
                 }}
               >
                 Date {getSortIcon('award_date')}
@@ -382,7 +382,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 <td style={tdAmountStyle}>
                   <div style={{ 
                     fontWeight: typography.fontWeight.medium,
-                    color: themeColors.success[600]
+                    color: vars.success[600]
                   }}>
                     {formatCurrency(result.contract_amount)}
                   </div>

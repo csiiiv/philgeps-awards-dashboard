@@ -1,5 +1,5 @@
 import { spacing, typography } from '../../../design-system'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 
 export interface ModalStyles {
   modal: React.CSSProperties
@@ -33,7 +33,7 @@ export const createModalStyles = (
   isDark: boolean = false,
   config: ModalConfig = {}
 ): ModalStyles => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const {
     size = {
       width: '1000px',
@@ -68,7 +68,7 @@ export const createModalStyles = (
     },
     header: {
       padding: spacing[4],
-      borderBottom: `1px solid ${theme.border.light}`,
+      borderBottom: `1px solid ${vars.border.light}`,
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -78,7 +78,7 @@ export const createModalStyles = (
     title: {
       fontSize: typography.fontSize.lg,
       fontWeight: typography.fontWeight.semibold,
-      color: theme.text.primary,
+      color: vars.text.primary,
       margin: 0
     },
     closeButton: {
@@ -86,7 +86,7 @@ export const createModalStyles = (
       border: 'none',
       fontSize: '24px',
       cursor: 'pointer',
-      color: theme.text.secondary,
+      color: vars.text.secondary,
       padding: spacing[1],
       borderRadius: spacing[1],
       display: 'flex',
@@ -94,7 +94,7 @@ export const createModalStyles = (
       justifyContent: 'center',
       transition: 'background-color 0.2s ease',
       ':hover': {
-        backgroundColor: theme.background.tertiary
+        backgroundColor: vars.background.tertiary
       }
     },
     content: {
@@ -105,7 +105,7 @@ export const createModalStyles = (
     ...(showFooter && {
       footer: {
         padding: spacing[4],
-        borderTop: `1px solid ${theme.border.light}`,
+        borderTop: `1px solid ${vars.border.light}`,
         backgroundColor: isDark ? '#374151' : '#f9fafb',
         borderRadius: '0 0 12px 12px',
         display: 'flex',
@@ -227,7 +227,7 @@ export const createTableStyles = (
   isDark: boolean = false,
   config: TableConfig = {}
 ): TableStyles => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const {
     striped = true,
     hoverable = true,
@@ -241,9 +241,9 @@ export const createTableStyles = (
 
   return {
     container: {
-      backgroundColor: theme.background.primary,
+      backgroundColor: vars.background.primary,
       borderRadius: spacing[2],
-      border: bordered ? `1px solid ${theme.border.light}` : 'none',
+      border: bordered ? `1px solid ${vars.border.light}` : 'none',
       overflow: 'hidden',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
     },
@@ -251,40 +251,40 @@ export const createTableStyles = (
       width: '100%',
       borderCollapse: 'collapse' as const,
       fontSize,
-      color: theme.text.primary
+      color: vars.text.primary
     },
     header: {
-      backgroundColor: isDark ? theme.background.secondary : theme.background.tertiary,
-      borderBottom: `1px solid ${theme.border.medium}`
+      backgroundColor: isDark ? vars.background.secondary : vars.background.tertiary,
+      borderBottom: `1px solid ${vars.border.medium}`
     },
     headerCell: {
       padding: `${padding} ${spacing[4]}`,
       textAlign: 'left' as const,
       fontSize,
       fontWeight: typography.fontWeight.medium,
-      color: theme.text.primary,
-      backgroundColor: isDark ? theme.background.secondary : theme.background.tertiary,
-      borderBottom: `1px solid ${theme.border.medium}`,
+      color: vars.text.primary,
+      backgroundColor: isDark ? vars.background.secondary : vars.background.tertiary,
+      borderBottom: `1px solid ${vars.border.medium}`,
       cursor: sortable ? 'pointer' : 'default',
       userSelect: 'none' as const,
       transition: 'background-color 0.2s ease',
       whiteSpace: 'nowrap' as const
     },
     body: {
-      backgroundColor: theme.background.primary
+      backgroundColor: vars.background.primary
     },
     row: {
-      borderBottom: `1px solid ${theme.border.light}`,
+      borderBottom: `1px solid ${vars.border.light}`,
       transition: hoverable ? 'background-color 0.2s ease' : 'none',
       ':hover': hoverable ? {
-        backgroundColor: isDark ? theme.background.secondary : theme.background.tertiary
+        backgroundColor: isDark ? vars.background.secondary : vars.background.tertiary
       } : {}
     },
     cell: {
       padding: `${padding} ${spacing[4]}`,
       fontSize,
-      color: theme.text.primary,
-      borderBottom: `1px solid ${theme.border.light}`,
+      color: vars.text.primary,
+      borderBottom: `1px solid ${vars.border.light}`,
       verticalAlign: 'top' as const,
       wordWrap: 'break-word' as const,
       wordBreak: 'break-word' as const,
@@ -294,8 +294,8 @@ export const createTableStyles = (
     cellAmount: {
       padding: `${padding} ${spacing[4]}`,
       fontSize,
-      color: theme.text.primary,
-      borderBottom: `1px solid ${theme.border.light}`,
+      color: vars.text.primary,
+      borderBottom: `1px solid ${vars.border.light}`,
       verticalAlign: 'top' as const,
       whiteSpace: 'nowrap' as const,
       textAlign: 'right' as const,
@@ -305,8 +305,8 @@ export const createTableStyles = (
     cellNumber: {
       padding: `${padding} ${spacing[4]}`,
       fontSize,
-      color: theme.text.secondary,
-      borderBottom: `1px solid ${theme.border.light}`,
+      color: vars.text.secondary,
+      borderBottom: `1px solid ${vars.border.light}`,
       verticalAlign: 'top' as const,
       whiteSpace: 'nowrap' as const,
       textAlign: 'right' as const,
@@ -316,8 +316,8 @@ export const createTableStyles = (
     cellCenter: {
       padding: `${padding} ${spacing[4]}`,
       fontSize,
-      color: theme.text.secondary,
-      borderBottom: `1px solid ${theme.border.light}`,
+      color: vars.text.secondary,
+      borderBottom: `1px solid ${vars.border.light}`,
       verticalAlign: 'top' as const,
       whiteSpace: 'nowrap' as const,
       textAlign: 'center' as const,
@@ -327,18 +327,18 @@ export const createTableStyles = (
     loading: {
       padding: spacing[8],
       textAlign: 'center' as const,
-      color: theme.text.secondary,
+      color: vars.text.secondary,
       fontSize: typography.fontSize.sm
     },
     empty: {
       padding: spacing[8],
       textAlign: 'center' as const,
-      color: theme.text.secondary,
+      color: vars.text.secondary,
       fontStyle: 'italic' as const,
       fontSize: typography.fontSize.sm
     },
     hover: {
-      backgroundColor: isDark ? theme.background.secondary : theme.background.tertiary
+      backgroundColor: isDark ? vars.background.secondary : vars.background.tertiary
     }
   }
 }

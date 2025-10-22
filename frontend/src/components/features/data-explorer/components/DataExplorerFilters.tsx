@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { spacing, typography } from '../../../../design-system'
 import { Card, SectionTitle } from '../../../styled/Common.styled'
 import { AnalyticsControls } from '../../analytics/AnalyticsControls'
@@ -63,7 +63,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
   
   isDark
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   return (
     <Card $isDark={isDark} style={{ marginBottom: spacing[4] }}>
@@ -179,7 +179,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
         display: 'flex', 
         justifyContent: 'center',
         paddingTop: spacing[2],
-        borderTop: `1px solid ${theme.border.primary}`,
+        borderTop: `1px solid ${vars.border.primary}`,
         opacity: 0.7
       }}>
         <label style={{
@@ -187,7 +187,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
           alignItems: 'center',
           gap: spacing[2],
           cursor: 'pointer',
-          color: theme.text.primary
+          color: vars.text.primary
         }}>
           <input
             type="checkbox"
@@ -196,7 +196,7 @@ export const DataExplorerFilters: React.FC<DataExplorerFiltersProps> = memo(({
             style={{
               width: '14px',
               height: '14px',
-              accentColor: theme.primary[500]
+              accentColor: vars.primary[500]
             }}
           />
           <span style={{ fontSize: typography.fontSize.sm }}>

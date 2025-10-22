@@ -1,7 +1,7 @@
 import React from 'react'
 import { createTableStyles, TableConfigs, TableUtils, TableStyles } from './ModalStyles'
 import { spacing } from '../../../design-system'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 
 interface Column {
   key: string
@@ -38,7 +38,7 @@ export const Table: React.FC<TableProps> = ({
   onRowClick,
   className
 }) => {
-  const theme = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
   const tableConfig = typeof config === 'string' ? TableConfigs[config] : { ...TableConfigs.default, ...config }
   const styles: TableStyles = createTableStyles(isDark, tableConfig)
 
@@ -160,7 +160,7 @@ export const Table: React.FC<TableProps> = ({
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: theme.primary[600],
+                        color: vars.primary[600],
                         textDecoration: 'underline',
                         cursor: 'pointer',
                         padding: 0,
@@ -173,10 +173,10 @@ export const Table: React.FC<TableProps> = ({
                         whiteSpace: 'nowrap'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.color = theme.primary[700]
+                        e.currentTarget.style.color = vars.primary[700]
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.color = theme.primary[600]
+                        e.currentTarget.style.color = vars.primary[600]
                       }}
                     >
                       {formatCellValue(row[column.key], column)}

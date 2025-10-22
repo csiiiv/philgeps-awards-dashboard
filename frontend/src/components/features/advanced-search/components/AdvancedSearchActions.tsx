@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../../design-system/theme'
+import { getThemeVars } from '../../../../design-system/theme'
 import { typography, spacing } from '../../../../design-system'
 
 export interface AdvancedSearchActionsProps {
@@ -32,7 +32,7 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
   disabled = false
 }) => {
   const { isDark } = useTheme()
-  const themeColors = getThemeColors(isDark)
+  const vars = getThemeVars(isDark)
 
   // Button styles
   const baseButtonStyle = {
@@ -50,44 +50,44 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
 
   const searchButtonStyle = {
     ...baseButtonStyle,
-    backgroundColor: themeColors.primary[600],
-    color: themeColors.text.inverse,
+    backgroundColor: vars.primary[600],
+    color: vars.text.inverse,
     cursor: loading || disabled ? 'not-allowed' : 'pointer',
     opacity: loading || disabled ? 0.6 : 1
   }
 
   const searchButtonHoverStyle = {
-    backgroundColor: themeColors.primary[700],
+    backgroundColor: vars.primary[700],
     transform: 'translateY(-1px)',
     boxShadow: `0 4px 8px rgba(0, 123, 255, 0.3)`
   }
 
   const searchButtonDisabledStyle = {
     ...searchButtonStyle,
-    backgroundColor: themeColors.gray[300],
-    color: themeColors.text.secondary,
+    backgroundColor: vars.gray[300],
+    color: vars.text.secondary,
     cursor: 'not-allowed'
   }
 
   const exportButtonStyle = {
     ...baseButtonStyle,
-    backgroundColor: themeColors.primary[600],
-    color: themeColors.text.inverse,
+    backgroundColor: vars.primary[600],
+    color: vars.text.inverse,
     cursor: disabled ? 'not-allowed' : 'pointer',
     opacity: disabled ? 0.6 : 1
   }
 
   const analyticsButtonStyle = {
     ...baseButtonStyle,
-    backgroundColor: hasAggregates ? themeColors.gray[100] : themeColors.gray[300],
-    color: themeColors.text.primary,
-    border: `1px solid ${themeColors.border.medium}`,
+    backgroundColor: hasAggregates ? vars.gray[100] : vars.gray[300],
+    color: vars.text.primary,
+    border: `1px solid ${vars.border.medium}`,
     cursor: hasAggregates && !disabled ? 'pointer' : 'not-allowed',
     opacity: hasAggregates && !disabled ? 1 : 0.6
   }
 
   const analyticsButtonHoverStyle = {
-    backgroundColor: themeColors.gray[200],
+    backgroundColor: vars.gray[200],
     transform: 'translateY(-1px)',
     boxShadow: `0 2px 4px rgba(0, 0, 0, 0.1)`
   }
@@ -121,7 +121,7 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
             <div style={{
               width: 16,
               height: 16,
-              border: `2px solid ${themeColors.text.inverse}`,
+              border: `2px solid ${vars.text.inverse}`,
               borderTop: `2px solid transparent`,
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
@@ -144,7 +144,7 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
         onMouseEnter={(e) => {
           if (!disabled) {
             Object.assign(e.currentTarget.style, {
-              backgroundColor: themeColors.primary[700],
+              backgroundColor: vars.primary[700],
               transform: 'translateY(-1px)',
               boxShadow: `0 4px 8px rgba(0, 123, 255, 0.3)`
             })
@@ -188,14 +188,14 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
           display: 'flex',
           alignItems: 'center',
           gap: spacing[2],
-          color: themeColors.text.secondary,
+          color: vars.text.secondary,
           fontSize: typography.fontSize.sm
         }}>
           <div style={{
             width: 16,
             height: 16,
-            border: `2px solid ${themeColors.border.light}`,
-            borderTop: `2px solid ${themeColors.primary[600]}`,
+            border: `2px solid ${vars.border.light}`,
+            borderTop: `2px solid ${vars.primary[600]}`,
             borderRadius: '50%',
             animation: 'spin 1s linear infinite'
           }} />

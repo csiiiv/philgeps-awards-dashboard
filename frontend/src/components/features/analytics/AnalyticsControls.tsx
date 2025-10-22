@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
-import { getThemeColors } from '../../../design-system/theme'
+import { getThemeVars } from '../../../design-system/theme'
 import { spacing, typography } from '../../../design-system'
 import { 
   FiltersContainer,
@@ -31,7 +31,7 @@ export const AnalyticsControls: React.FC<AnalyticsControlsProps> = ({
 }) => {
   const { isDark: themeIsDark } = useTheme()
   const darkMode = isDark !== undefined ? isDark : themeIsDark
-  const theme = getThemeColors(darkMode)
+  const vars = getThemeVars(darkMode)
 
   const currentYear = new Date().getFullYear()
   // Generate years from 2013 to 2027 (15 years total)
