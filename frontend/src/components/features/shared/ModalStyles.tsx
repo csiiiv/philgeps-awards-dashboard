@@ -56,7 +56,7 @@ export const createModalStyles = (
       padding: spacing[4]
     },
     panel: {
-      backgroundColor: isDark ? '#0b1220' : '#ffffff',
+      backgroundColor: vars.background.primary,
       borderRadius: '12px',
       boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
       width: size.width,
@@ -72,7 +72,7 @@ export const createModalStyles = (
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: isDark ? '#374151' : '#f9fafb',
+      backgroundColor: vars.background.secondary,
       borderRadius: '12px 12px 0 0'
     },
     title: {
@@ -106,7 +106,7 @@ export const createModalStyles = (
       footer: {
         padding: spacing[4],
         borderTop: `1px solid ${vars.border.light}`,
-        backgroundColor: isDark ? '#374151' : '#f9fafb',
+        backgroundColor: vars.background.secondary,
         borderRadius: '0 0 12px 12px',
         display: 'flex',
         justifyContent: 'flex-end',
