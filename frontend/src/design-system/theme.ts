@@ -112,6 +112,17 @@ export const getThemeCSSVariables = (isDark: boolean) => {
     '--color-border-light': colors.border.light,
     '--color-border-medium': colors.border.medium,
     '--color-border-dark': colors.border.dark,
+    
+    // semantic colors (provide distinct shades for proper contrast)
+    '--color-success-50': colors.success[50],
+    '--color-success-500': colors.success[500],
+    '--color-success-600': colors.success[600],
+    '--color-warning-50': colors.warning[50],
+    '--color-warning-500': colors.warning[500],
+    '--color-warning-600': colors.warning[600],
+    '--color-error-50': colors.error[50],
+    '--color-error-500': colors.error[500],
+    '--color-error-600': colors.error[600],
   }
 }
 
@@ -149,9 +160,21 @@ export const getThemeVars = (/* isDark: boolean */) => {
       dark: 'var(--color-border-dark)'
     },
     // semantic tokens
-    success: { 50: 'var(--color-success, #22c55e)', 500: 'var(--color-success, #22c55e)', 600: 'var(--color-success, #22c55e)' },
-    warning: { 50: 'var(--color-warning, #f59e0b)', 500: 'var(--color-warning, #f59e0b)', 600: 'var(--color-warning, #f59e0b)' },
-    error: { 50: 'var(--color-error, #ef4444)', 500: 'var(--color-error, #ef4444)', 600: 'var(--color-error, #ef4444)' }
+    success: {
+      50: 'var(--color-success-50)',
+      500: 'var(--color-success-500)',
+      600: 'var(--color-success-600)'
+    },
+    warning: {
+      50: 'var(--color-warning-50)',
+      500: 'var(--color-warning-500)',
+      600: 'var(--color-warning-600)'
+    },
+    error: {
+      50: 'var(--color-error-50)',
+      500: 'var(--color-error-500)',
+      600: 'var(--color-error-600)'
+    }
   }
 }
 
@@ -206,15 +229,15 @@ export const themeVar = (token: ThemeToken): string => {
     'primary.700': 'var(--color-primary-700)',
     'primary.800': 'var(--color-primary-800)',
     'primary.900': 'var(--color-primary-900)',
-    'success.50': 'var(--color-success)',
-    'success.500': 'var(--color-success)',
-    'success.600': 'var(--color-success)',
-    'warning.50': 'var(--color-warning)',
-    'warning.500': 'var(--color-warning)',
-    'warning.600': 'var(--color-warning)',
-    'error.50': 'var(--color-error)',
-    'error.500': 'var(--color-error)',
-    'error.600': 'var(--color-error)'
+    'success.50': 'var(--color-success-50)',
+    'success.500': 'var(--color-success-500)',
+    'success.600': 'var(--color-success-600)',
+    'warning.50': 'var(--color-warning-50)',
+    'warning.500': 'var(--color-warning-500)',
+    'warning.600': 'var(--color-warning-600)',
+    'error.50': 'var(--color-error-50)',
+    'error.500': 'var(--color-error-500)',
+    'error.600': 'var(--color-error-600)'
   }
   return map[token]
 }
