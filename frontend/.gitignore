@@ -80,7 +80,8 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# NOTE: We intentionally track `frontend/public` in this repo for static assets used by the frontend app.
+# Keep 'public' out of gitignore so frontend/public files are committed.
 
 # Storybook build outputs
 .out
