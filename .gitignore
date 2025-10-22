@@ -129,7 +129,11 @@ dist
 
 # Gatsby files
 .cache/
+# Ignore generic 'public' folders created by static site builds, but allow our frontend/public
+# directory which contains hand-managed static assets we want in the repo.
 public
+!frontend/public/
+!frontend/public/**
 
 # Storybook build outputs
 .out
