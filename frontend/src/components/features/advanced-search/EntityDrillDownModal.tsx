@@ -565,7 +565,8 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
   }
 
   const panelStyle = {
-    backgroundColor: isDark ? '#0b1220' : '#ffffff',
+    // Use theme CSS variables so the modal updates when the ThemeProvider changes CSS vars
+    backgroundColor: vars.background.primary,
     borderRadius: '12px',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     maxWidth: '90vw',
@@ -615,8 +616,8 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     textAlign: 'left' as const,
     fontWeight: typography.fontWeight.semibold,
     color: vars.text.primary,
-    backgroundColor: isDark ? '#1e293b' : '#f8fafc',
-    borderBottom: `2px solid ${vars.border.primary}`,
+    backgroundColor: vars.background.secondary,
+    borderBottom: `2px solid ${vars.border.medium}`,
     cursor: 'pointer',
     userSelect: 'none' as const
   }
@@ -647,7 +648,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
 
   const pageBtnStyle = {
     padding: `${spacing[2]} ${spacing[3]}`,
-    border: `1px solid ${vars.border.primary}`,
+    border: `1px solid ${vars.border.medium}`,
     borderRadius: spacing[1],
     background: 'none',
     color: vars.text.primary,
@@ -694,13 +695,13 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
     return (
       <div>
         {/* Pagination controls */}
-        <div style={{ 
+          <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
           marginBottom: spacing[3],
           padding: `${spacing[2]} ${spacing[3]}`,
-          backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+          backgroundColor: vars.background.secondary,
           borderRadius: spacing[1]
         }}>
           <div style={{ color: vars.text.secondary, fontSize: typography.fontSize.sm }}>
@@ -719,11 +720,11 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
                 setEntityPageIndex(0)
                 fetchRelatedAggregates(0, newPageSize, entitySortBy, entitySortDirection)
               }}
-              style={{
+                style={{
                 padding: `${spacing[1]} ${spacing[2]}`,
                 border: `1px solid ${vars.border.medium}`,
                 borderRadius: spacing[1],
-                backgroundColor: isDark ? '#0b1220' : '#ffffff',
+                backgroundColor: vars.background.primary,
                 color: vars.text.primary,
                 fontSize: typography.fontSize.sm
               }}
@@ -804,7 +805,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
                 padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${vars.border.primary}`,
                 borderRadius: spacing[1],
-                background: entityPageIndex <= 0 ? (isDark ? '#374151' : '#f3f4f6') : 'none',
+                background: entityPageIndex <= 0 ? vars.background.secondary : 'none',
                 color: entityPageIndex <= 0 ? vars.text.secondary : vars.text.primary,
                 cursor: entityPageIndex <= 0 ? 'not-allowed' : 'pointer',
                 fontSize: typography.fontSize.sm
@@ -828,7 +829,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
                 padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${vars.border.primary}`,
                 borderRadius: spacing[1],
-                background: entityPageIndex >= totalPages - 1 ? (isDark ? '#374151' : '#f3f4f6') : 'none',
+                background: entityPageIndex >= totalPages - 1 ? vars.background.secondary : 'none',
                 color: entityPageIndex >= totalPages - 1 ? vars.text.secondary : vars.text.primary,
                 cursor: entityPageIndex >= totalPages - 1 ? 'not-allowed' : 'pointer',
                 fontSize: typography.fontSize.sm
