@@ -1,4 +1,4 @@
-# PhilGEPS Dashboard
+# Open PhilGEPS by BetterGov.ph
 
 [![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -6,7 +6,7 @@
 [![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-compliant-brightgreen.svg)](docs/ACTIVE_API_DOCUMENTATION.md)
 
-A comprehensive government procurement analytics dashboard for the Philippines Government Electronic Procurement System (PhilGEPS). This application provides detailed insights into government contracts, spending patterns, and procurement analytics with modern microservices architecture.
+A comprehensive, open-source government procurement analytics dashboard for the Philippines Government Electronic Procurement System (PhilGEPS). Built by [BetterGov.ph](https://bettergov.ph), this application provides detailed insights into government contracts, spending patterns, and procurement analytics with modern microservices architecture and complete dark mode support.
 
 ---
 
@@ -65,9 +65,15 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 - **Live Testing**: Test API endpoints directly from the documentation
 
 ### 🎨 User Experience
-- **Dark/Light Mode**: Toggle between themes
-- **Responsive Design**: Works on desktop and mobile devices
+- **Complete Dark Mode**: Seamless dark/light theme toggle across all components
+  - Theme-aware header with proper styling
+  - Dark mode modals and drill-down panels
+  - Pagination and table components with theme support
+  - CSS variable-based theming system
+- **Modern UI Components**: shadcn/ui integration for enhanced patterns
+- **Responsive Design**: Works flawlessly on desktop and mobile devices
 - **Performance Optimized**: Lazy loading and efficient rendering
+- **Accessibility**: WCAG compliant with keyboard navigation
 
 ---
 
@@ -247,14 +253,36 @@ docker run --env-file backend/django/.env -d -p 3200:3200 --name philgeps-backen
 
 ---
 
-## � Recent Updates
+## 📋 Recent Updates
 
 ### v4.0.0 - Open PhilGEPS by BetterGov.ph (October 2025)
-- **Rebranded**: Now "Open PhilGEPS by BetterGov.ph" with new logo and branding
-- **Complete Dark Mode**: Full theme support across all components (header, modals, pagination)
-- **CSS Variable Theming**: Migrated to centralized CSS variable-based theme system
-- **shadcn/ui Integration**: Modern UI component library with enhanced patterns
-- **Service Worker Updates**: Force client refresh mechanism for deployments
+- **🎨 Complete Rebrand**: Now "Open PhilGEPS by BetterGov.ph"
+  - New BetterGov.ph logo with circular white background (128×128px) and black border
+  - Updated site title and subtitle throughout the application
+  - Inter font family for modern, accessible typography
+  - Public domain license integration in footer
+- **🌙 Complete Dark Mode**: Full theme support across the entire application
+  - Header component with proper dark mode styling
+  - All modals and drill-down panels respond to theme changes
+  - Pagination components with theme-aware backgrounds and button colors
+  - Advanced Search components migrated to CSS variable theming
+  - Fixed all runtime theme errors and undefined token access
+- **🎨 CSS Variable Theming**: Migrated to centralized theme system
+  - New `getThemeVars()` and `themeVar()` helpers for CSS variable-based theming
+  - Replaced direct color references with CSS variable tokens
+  - Centralized theme management through `ThemeProvider`
+  - Proper `data-theme` attribute and `dark` class toggling
+- **🧩 shadcn/ui Integration**: Modern UI component library
+  - shadcn/ui initialized with proper configuration
+  - Import alias `@/*` → `src/*` for shadcn components
+  - Enhanced component patterns and accessibility
+- **🔄 Service Worker Improvements**: Force client refresh mechanism
+  - Self-unregistering service worker for deployments
+  - Clears all caches on activation
+  - Ensures users always get fresh bundles after updates
+- **🐳 Docker Improvements**: Enhanced container reliability
+  - Healthcheck fix using IPv4 loopback (127.0.0.1) instead of localhost
+  - Prevents healthcheck failures due to IPv6 resolution issues
 
 ### v3.3.0 - Pure API & Docker Support (October 2025)
 - **🔄 Microservices Architecture**: Converted to pure API backend with separate frontend service
@@ -287,7 +315,9 @@ docker run --env-file backend/django/.env -d -p 3200:3200 --name philgeps-backen
 
 ### Architecture
 - **Backend**: Django REST Framework with DuckDB analytics
-- **Frontend**: React + Vite with TypeScript
+- **Frontend**: React 19 + Vite with TypeScript
+- **Theming**: CSS variable-based theme system with dark/light mode support
+- **UI Components**: shadcn/ui for modern, accessible components
 - **Data**: Parquet files with optimized aggregations
 - **Containerization**: Docker with multi-stage builds
 - **Deployment**: Microservices pattern for cloud platforms
@@ -370,11 +400,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- **BetterGov.ph**: For supporting open data and government transparency initiatives
 - **PhilGEPS**: For providing procurement data transparency
 - **Django Community**: For the excellent web framework
 - **React Team**: For the powerful frontend library
+- **shadcn/ui**: For the beautiful, accessible component library
 - **Open Source Contributors**: For amazing tools and libraries
 
 ---
 
-**Built with ❤️ for transparent government procurement**
+**Built with ❤️ by BetterGov.ph for transparent government procurement**
