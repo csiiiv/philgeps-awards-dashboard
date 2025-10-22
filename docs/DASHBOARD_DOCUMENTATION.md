@@ -4,7 +4,7 @@
 
 The PHILGEPS Awards Data Explorer is a comprehensive transparency dashboard that provides access to Philippine government procurement data from 2013-2025. The dashboard is built as a single-page application with a tabbed interface, featuring advanced search, analytics, and export capabilities with complete OpenAPI 3.0 compliance.
 
-**Version**: v3.3.0 - Docker Support & Unified Export System  
+**Version**: v4.0.0 - Open PhilGEPS by BetterGov.ph  
 **Last Updated**: October 12, 2025
 
 ## 🏗️ Current Dashboard Architecture
@@ -31,7 +31,15 @@ The dashboard consists of five main tabs:
 
 ---
 
-## 🆕 Latest Updates - v3.3.0
+## 🆕 Latest Updates - v4.0.0
+
+- **Rebranded as Open PhilGEPS by BetterGov.ph**: New logo, branding, and public domain focus
+- **Complete Dark Mode Support**: All components (header, modals, pagination, tables) now theme-aware
+- **CSS Variable Theming**: Centralized theme management with CSS custom properties
+- **shadcn/ui Integration**: Modern component library for enhanced UI patterns
+- **Service Worker Improvements**: Force refresh mechanism for seamless updates
+
+## Previous Updates - v3.3.0
 
 ### Docker Support & Unified Export System
 

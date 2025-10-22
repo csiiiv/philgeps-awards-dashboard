@@ -240,7 +240,7 @@ A comprehensive government procurement analytics dashboard for the Philippines G
 
 ## ✨ Recent Updates
 
-### **v3.3.0 - Docker Support & Production Readiness (October 2025)**
+### **v4.0.0 - Open PhilGEPS by BetterGov.ph (October 2025)**
 - **🐳 Docker Containerization**: Complete Docker Compose setup for local development with backend + frontend services
 - **🏗️ Multi-Stage Builds**: Optimized frontend build (Node.js → Nginx) with production-ready static serving
 - **📊 Data Handling**: Flexible Parquet data management - bake into image or mount at runtime with configurable `PARQUET_DIR`

@@ -72,7 +72,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 - **[`scripts/`](scripts/README.md)** - Data processing utilities
 
 ### Version Information
-- **Current Version**: v3.3.0 (Docker Support & Unified Export System)
+- **Current Version**: v4.0.0 - Open PhilGEPS by BetterGov.ph
 - **API Version**: 1.1.0 (OpenAPI 3.0 compliant)
 - **Last Updated**: October 12, 2025
 

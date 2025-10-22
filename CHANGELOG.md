@@ -5,6 +5,85 @@ All notable changes to the PHILGEPS Awards Data Explorer will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - Open PhilGEPS by BetterGov.ph - 2025-10-23
+
+### Added
+- **BetterGov.ph Branding**: Rebranded as "Open PhilGEPS by BetterGov.ph"
+  - New BetterGov.ph logo with circular white background (128×128px) and black border
+  - Updated site title and subtitle throughout the application
+  - Inter font family for modern, accessible typography
+  - Public domain license integration in footer
+- **Complete Dark Mode Support**: Full theme-aware UI implementation
+  - Header component with proper dark mode styling (`dark:bg-[#0f172a]`, `dark:text-gray-200`)
+  - All modals and drill-down panels now respond to theme changes
+  - Pagination components with theme-aware backgrounds and button colors
+  - Advanced Search components migrated to CSS variable theming
+- **CSS Variable Theming System**: Comprehensive theme architecture
+  - New `getThemeVars()` and `themeVar()` helpers for CSS variable-based theming
+  - Centralized theme management through `ThemeProvider` with CSS custom properties
+  - Migration from `getThemeColors()` to CSS variables across all components
+  - Proper `data-theme` attribute and `dark` class toggling on document root
+- **shadcn/ui Integration**: Modern UI component library setup
+  - shadcn/ui initialized with proper configuration (`components.json`)
+  - Import alias `@/*` → `src/*` for shadcn components
+  - Enhanced Header component with shadcn patterns
+- **Frontend Public Assets**: Static assets now properly tracked
+  - Added `frontend/public` directory with logos, icons, and static files
+  - Service worker (`sw.js`) for cache management and update notifications
+  - Public domain license documentation
+
+### Changed
+- **Theme Architecture**: Complete refactor from color-based to CSS variable-based theming
+  - Replaced direct color references with CSS variable tokens (`vars.background.*`, `vars.text.*`, `vars.border.*`)
+  - Enhanced `ThemeProvider` to set CSS custom properties via `getThemeCSSVariables()`
+  - Fixed undefined token issues (replaced `vars.gray` with proper background tokens)
+  - Updated styled components to use CSS variable theming
+- **Component Styling Improvements**:
+  - `EntityDrillDownModal`: Full theme variable integration for panels, headers, tables, and nested modals
+  - `ModalStyles`: Centralized modal styling with theme variables for panel/header/footer
+  - `UnifiedPagination`: Container and button colors now use theme variables
+  - `AdvancedSearchActions`: Fixed undefined `vars.gray` with proper background tokens
+  - `Header`: Title and subtitle with Tailwind dark classes, logo in circular container
+- **Service Worker Update Mechanism**: Force client refresh for new deployments
+  - Replaced caching service worker with self-unregistering worker
+  - Clears all caches on activation and unregisters itself
+  - Posts `SW_UNREGISTERED` message to clients for reload prompts
+  - Ensures users always get fresh bundles after deployment
+- **Docker Healthcheck Fix**: Container health monitoring improvements
+  - Changed healthcheck from `localhost` to `127.0.0.1` to avoid IPv6 issues
+  - Frontend healthcheck now reliably reports healthy status
+  - Prevents healthcheck failures due to IPv6 localhost (::1) resolution
+
+### Fixed
+- **Runtime Theme Errors**: Resolved undefined property access in theme system
+  - Fixed `TypeError: Cannot read property '300' of undefined` in Advanced Search
+  - Replaced undefined `vars.gray` references with available theme tokens
+  - Corrected `vars.border.primary` (nonexistent) to `vars.border.medium`
+  - Fixed `vars.primary` access patterns in drill-down modals
+- **Dark Mode Coverage**: Complete theme responsiveness across all components
+  - Fixed modals not responding to dark mode toggle
+  - Fixed pagination component colors in both main and drill-down views
+  - Fixed table headers and cell styling in entity drill-downs
+  - Resolved hard-coded hex colors in various styled components
+- **Component Import Issues**: Resolved module reference errors
+  - Fixed `LogoImg` and `TextWrapper` imports in `App.tsx`
+  - Moved `ThemeProvider` to wrap `ErrorBoundary` for proper hook access
+  - Fixed styled component exports and imports across the application
+
+### Technical Improvements
+- **Type Safety**: Enhanced TypeScript interfaces for theme tokens and CSS variables
+- **Performance**: Optimized re-rendering with proper CSS variable updates
+- **Code Quality**: Migrated from inline ternary color logic to declarative CSS variables
+- **Maintainability**: Centralized theme management reduces duplication
+- **Build Optimization**: Multi-stage Docker builds with proper asset copying
+- **Container Health**: Reliable healthchecks for orchestration and monitoring
+
+### Migration Notes
+- **Theme Token Changes**: Components using `getThemeColors()` should migrate to `getThemeVars()`
+- **Color References**: Direct color hex values replaced with CSS variable tokens
+- **Service Worker**: Old service workers will self-unregister; users may see one-time reload prompt
+- **Docker**: Healthcheck now uses IPv4 loopback explicitly for reliability
+
 ## [Unreleased] - 2025-10-12
 
 ### Changed

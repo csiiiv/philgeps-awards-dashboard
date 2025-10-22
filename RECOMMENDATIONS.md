@@ -1,4 +1,4 @@
-# Recommendations for Cleanup & Improvements (v3.3.0)
+# Recommendations for Cleanup & Improvements (v4.0.0)
 
 This document lists prioritized, actionable recommendations for codebase, docs, and DevOps. Each item includes rationale, expected impact, and suggested owner.
 

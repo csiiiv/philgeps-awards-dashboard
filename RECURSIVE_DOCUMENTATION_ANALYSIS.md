@@ -1,7 +1,7 @@
 # Recursive Codebase Documentation Analysis
 
 **Analysis Date**: October 12, 2025  
-**Project**: PhilGEPS Awards Dashboard v3.3.0  
+**Project**: PhilGEPS Awards Dashboard v4.0.0 - Open PhilGEPS by BetterGov.ph  
 **Approach**: Deepest-directory-first recursive analysis with README.md generation
 
 ## 📋 Analysis Summary

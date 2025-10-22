@@ -116,5 +116,5 @@ Beyond this docs/ folder, the project maintains comprehensive README files throu
 ---
 
 **Last Updated**: October 12, 2025  
-**Version**: v3.3.0 - Docker Support & Unified Export System  
+**Version**: v4.0.0 - Open PhilGEPS by BetterGov.ph  
 **Documentation Coverage**: 29 README files across 67% of project directories

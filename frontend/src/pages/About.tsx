@@ -104,7 +104,7 @@ export const About: React.FC = () => {
             color: vars.primary[500],
             marginBottom: spacing[4]
           }}>
-            v3.2.0 - Value Range Filter & Enhanced UX
+            v4.0.0 - Open PhilGEPS by BetterGov.ph
           </p>
         <BodyText $isDark={isDark} style={{ fontSize: typography.fontSize.lg, lineHeight: 1.6 }}>
           A comprehensive transparency dashboard providing access to Philippine government procurement data 
@@ -315,7 +315,7 @@ export const About: React.FC = () => {
     <div>
       <Card $isDark={isDark} style={{ marginBottom: spacing[6] }}>
         <SectionTitle $isDark={isDark} style={{ marginBottom: spacing[4] }}>
-          🆕 Latest Updates - v3.2.0
+          🆕 Latest Updates - v4.0.0 - Open PhilGEPS by BetterGov.ph
         </SectionTitle>
         
         <div style={{
@@ -326,10 +326,10 @@ export const About: React.FC = () => {
           border: `1px solid ${vars.success[600]}`
         }}>
           <h3 style={{ ...typography.textStyles.h3, color: vars.success[600], marginBottom: spacing[2] }}>
-            ✅ Value Range Filter & Enhanced UX
+            ✅ Complete Dark Mode & BetterGov.ph Branding
           </h3>
           <BodyText $isDark={isDark} style={{ color: vars.success[600] }}>
-            New contract value range filtering with KMBT format support, enhanced pagination, and improved filter layout
+            Rebranded as Open PhilGEPS by BetterGov.ph with full dark mode support across all components, CSS variable theming, and shadcn/ui integration
           </BodyText>
         </div>
 

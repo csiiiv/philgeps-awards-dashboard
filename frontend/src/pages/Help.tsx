@@ -106,7 +106,7 @@ export const Help: React.FC = () => {
           marginBottom: spacing[4],
           fontWeight: typography.fontWeight.normal
         }}>
-          v3.2.0 - Value Range Filter & Enhanced UX
+          v4.0.0 - Open PhilGEPS by BetterGov.ph
         </div>
         <p style={{
           ...typography.textStyles.body,

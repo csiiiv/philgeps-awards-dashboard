@@ -1,6 +1,6 @@
 # PhilGEPS Dashboard
 
-[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/csiiiv/philgeps-awards-dashboard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Data](https://img.shields.io/badge/data-5M%20contracts-orange.svg)](data/)
 [![Coverage](https://img.shields.io/badge/coverage-2013--2025-brightgreen.svg)](data/)
@@ -247,7 +247,14 @@ docker run --env-file backend/django/.env -d -p 3200:3200 --name philgeps-backen
 
 ---
 
-## 📈 Recent Updates
+## � Recent Updates
+
+### v4.0.0 - Open PhilGEPS by BetterGov.ph (October 2025)
+- **Rebranded**: Now "Open PhilGEPS by BetterGov.ph" with new logo and branding
+- **Complete Dark Mode**: Full theme support across all components (header, modals, pagination)
+- **CSS Variable Theming**: Migrated to centralized CSS variable-based theme system
+- **shadcn/ui Integration**: Modern UI component library with enhanced patterns
+- **Service Worker Updates**: Force client refresh mechanism for deployments
 
 ### v3.3.0 - Pure API & Docker Support (October 2025)
 - **🔄 Microservices Architecture**: Converted to pure API backend with separate frontend service
