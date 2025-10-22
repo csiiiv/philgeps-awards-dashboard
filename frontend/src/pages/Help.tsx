@@ -13,7 +13,7 @@ import {
 
 export const Help: React.FC = () => {
   const { isDark } = useTheme()
-  const colors = getThemeColors(isDark)
+  const vars = getThemeVars()
   const [activeSection, setActiveSection] = useState('overview')
 
   const sections = [
@@ -21,12 +21,12 @@ export const Help: React.FC = () => {
   { id: 'quickstart', title: 'Quick Start', icon: '🚀', color: vars.success[600] },
   { id: 'search', title: 'Advanced Search', icon: '🔍', color: vars.primary[500] },
   { id: 'analytics', title: 'Analytics', icon: '📊', color: vars.warning[600] },
-  { id: 'drilldown', title: 'Drill-down', icon: '🔍', color: vars.secondary[600] },
-  { id: 'treemap', title: 'Treemap', icon: '�', color: vars.primary[400] },
+  { id: 'drilldown', title: 'Drill-down', icon: '🔍', color: vars.primary[600] },
+  { id: 'treemap', title: 'Treemap', icon: '🗺', color: vars.primary[400] },
   { id: 'presets', title: 'Filter Presets', icon: '💾', color: vars.warning[500] },
   { id: 'dataset', title: 'Sumbong sa Pangulo', icon: '🌊', color: vars.primary[400] },
   { id: 'examples', title: 'Examples', icon: '💡', color: vars.success[500] },
-  { id: 'tips', title: 'Tips & Best Practices', icon: '💡', color: vars.secondary[500] },
+  { id: 'tips', title: 'Tips & Best Practices', icon: '💡', color: vars.primary[500] },
   { id: 'troubleshooting', title: 'Troubleshooting', icon: '🔧', color: vars.error[600] }
   ]
 

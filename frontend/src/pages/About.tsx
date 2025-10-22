@@ -160,7 +160,7 @@ export const About: React.FC = () => {
         
         <Card $isDark={isDark} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2.5em', marginBottom: spacing[2] }}>📚</div>
-          <h3 style={{ ...typography.textStyles.h3, color: vars.secondary[600], marginBottom: spacing[2] }}>
+          <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[2] }}>
             API Documentation
           </h3>
           <BodyText $isDark={isDark}>
@@ -318,7 +318,7 @@ export const About: React.FC = () => {
         </SectionTitle>
         
         <div style={{
-          background: `linear-gradient(135deg, ${vars.success[50]} 0%, ${vars.success[100]} 100%)`,
+          background: `linear-gradient(135deg, ${vars.success[50]} 0%, ${vars.success[50]} 100%)`,
           borderRadius: spacing[2],
           padding: spacing[4],
           marginBottom: spacing[4],
@@ -398,7 +398,7 @@ export const About: React.FC = () => {
             borderRadius: spacing[2],
             border: `1px solid ${vars.border.light}`
           }}>
-            <h4 style={{ ...typography.textStyles.h4, color: vars.secondary[600], marginBottom: spacing[3] }}>
+            <h4 style={{ ...typography.textStyles.h4, color: vars.primary[600], marginBottom: spacing[3] }}>
               🔧 Technical Improvements
             </h4>
             <ul style={{ color: vars.text.primary }}>
@@ -501,7 +501,7 @@ export const About: React.FC = () => {
             border: `1px solid ${vars.border.light}`
           }}>
             <div style={{ fontSize: '2em', marginBottom: spacing[2] }}>🔌</div>
-            <h3 style={{ ...typography.textStyles.h3, color: vars.secondary[600], marginBottom: spacing[2] }}>
+            <h3 style={{ ...typography.textStyles.h3, color: vars.primary[600], marginBottom: spacing[2] }}>
               API Access
             </h3>
             <BodyText $isDark={isDark} style={{ marginBottom: spacing[2] }}>
