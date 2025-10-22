@@ -187,7 +187,8 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
       alignItems: 'center',
       marginTop: spacing[4],
       padding: `${spacing[4]} ${spacing[6]}`,
-      backgroundColor: darkMode ? '#1f2937' : '#f9fafb',
+      // Use theme variables so the container follows the current theme
+      backgroundColor: vars.background.secondary,
       borderRadius: spacing[2],
       border: `1px solid ${vars.border.light}`
     }
@@ -205,14 +206,14 @@ export const UnifiedPagination: React.FC<UnifiedPaginationProps> = ({
     return baseStyle
   }
 
-  const buttonStyle = (disabled: boolean, isActive = false) => ({
+    const buttonStyle = (disabled: boolean, isActive = false) => ({
     padding: `${spacing[2]} ${spacing[3]}`,
     backgroundColor: disabled 
       ? vars.background.tertiary 
       : isActive 
         ? vars.primary[600] 
         : vars.primary[500],
-    color: disabled ? vars.text.secondary : 'white',
+    color: disabled ? vars.text.secondary : vars.text.inverse,
     border: 'none',
     borderRadius: spacing[1],
     cursor: disabled ? 'not-allowed' : 'pointer',
