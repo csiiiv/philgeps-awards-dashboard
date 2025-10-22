@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTheme } from '../contexts/ThemeContext'
-import { getThemeVars, getThemeColors } from '../design-system/theme'
+import { getThemeVars } from '../design-system/theme'
 import { typography, spacing } from '../design-system'
 import {
   PageContainer,
@@ -14,19 +14,18 @@ import {
 export const About: React.FC = () => {
   const { isDark } = useTheme()
   const vars = getThemeVars()
-  const colors = getThemeColors(isDark) // Keep for section colors array
   const [activeSection, setActiveSection] = useState('overview')
 
   const sections = [
-    { id: 'overview', title: 'Overview', icon: '🏛️', color: colors.primary[600] },
-    { id: 'data', title: 'Data Sources', icon: '📊', color: colors.success[600] },
-    { id: 'features', title: 'Key Features', icon: '⚡', color: colors.warning[600] },
-    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: colors.primary[500] },
-    { id: 'architecture', title: 'Architecture', icon: '🏗️', color: colors.secondary[600] },
-    { id: 'methodology', title: 'Methodology', icon: '🔬', color: colors.primary[500] },
-    { id: 'quality', title: 'Data Quality', icon: '✅', color: colors.success[500] },
-    { id: 'api', title: 'API & Development', icon: '🔌', color: colors.warning[500] },
-    { id: 'contact', title: 'Support', icon: '📞', color: colors.error[600] }
+    { id: 'overview', title: 'Overview', icon: '🏛️', color: vars.primary[600] },
+    { id: 'data', title: 'Data Sources', icon: '📊', color: vars.primary[500] },
+    { id: 'features', title: 'Key Features', icon: '⚡', color: vars.primary[700] },
+    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: vars.primary[500] },
+    { id: 'architecture', title: 'Architecture', icon: '🏗️', color: vars.primary[600] },
+    { id: 'methodology', title: 'Methodology', icon: '🔬', color: vars.primary[500] },
+    { id: 'quality', title: 'Data Quality', icon: '✅', color: vars.primary[600] },
+    { id: 'api', title: 'API & Development', icon: '🔌', color: vars.primary[700] },
+    { id: 'contact', title: 'Support', icon: '📞', color: vars.primary[500] }
   ]
 
   const renderTableOfContents = () => (
