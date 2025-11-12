@@ -10,6 +10,7 @@ The frontend is built with modern React patterns, TypeScript for type safety, an
 
 - **React 18** - Component-based UI library with hooks and context
 - **TypeScript** - Type-safe JavaScript with comprehensive type definitions
+- **React Router** - Client-side routing with URL-based navigation
 - **Vite** - Fast build tool and development server
 - **Styled Components** - CSS-in-JS styling with theme support
 - **REST API** - Server-side data processing with Django backend
@@ -31,6 +32,8 @@ The frontend is built with modern React patterns, TypeScript for type safety, an
 - **`/utils/`** - Utility functions for common operations
 - **`/types/`** - TypeScript type definitions
 - **`/constants/`** - Application constants and configuration
+  - `tabs.ts` - Tab configurations and metadata
+  - `routes.ts` - Route paths and tab-to-route mappings
 
 ### Configuration Files
 
@@ -65,6 +68,20 @@ npm run preview
 
 - **Development**: `http://localhost:3000`
 - **Production**: `https://philgeps.simple-systems.dev`
+
+## 🛣️ Routing
+
+The application uses React Router for client-side navigation with URL-based routing:
+
+- **`/`** - Data Explorer (default view)
+- **`/advanced-search`** - Advanced Search with comprehensive filters
+- **`/treemap`** - Treemap Visualization with drill-down
+- **`/api-docs`** - API Documentation (OpenAPI/Swagger)
+- **`/help`** - Help and user guides
+- **`/about`** - About page with version info and changelog
+- **`*`** - 404 Not Found page for invalid routes
+
+All routes support deep linking and browser history navigation (back/forward buttons). Route constants are defined in `src/constants/routes.ts`.
 
 ## 📊 Key Features
 
