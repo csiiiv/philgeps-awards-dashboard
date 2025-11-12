@@ -1,10 +1,12 @@
-import React, { useState, Suspense } from 'react'
+import React, { Suspense } from 'react'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { ThemeToggle } from './components/features/shared/ThemeToggle'
 import { ErrorBoundary } from './components/features/shared/ErrorBoundary'
 import { usePerformanceMonitoring, usePageLoadPerformance } from './hooks/usePerformanceMonitoring'
 import { useServiceWorker } from './utils/serviceWorker'
-import { TAB_CONFIGS, DEFAULT_TAB, type TabType } from './constants/tabs'
+import { TAB_CONFIGS, type TabType } from './constants/tabs'
+import { ROUTES } from './constants/routes'
 import {
   LazyDataExplorer,
   LazyAdvancedSearch,
@@ -14,6 +16,7 @@ import {
   LazyAbout,
   ComponentLoadingFallback,
 } from './components/lazy/LazyComponents'
+import NotFound from './pages/NotFound'
 import {
   AppContainer,
   Navigation,
@@ -29,7 +32,8 @@ import './App.css'
 import './styles/theme.css'
 
 const AppContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>(DEFAULT_TAB)
+  const location = useLocation()
+  const navigate = useNavigate()
   const { isDark } = useTheme()
   
   // Performance monitoring
@@ -46,27 +50,32 @@ const AppContent: React.FC = () => {
     },
   })
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'data-explorer':
-        return <LazyDataExplorer />
-      case 'advanced-search':
-        return <LazyAdvancedSearch />
-      case 'treemap':
-        return <LazyTreemapPage />
-      case 'api-docs':
-        return <LazyApiDocumentation />
-      case 'help':
-        return <LazyHelp />
-      case 'about':
-        return <LazyAbout />
-      default:
-        return <LazyDataExplorer />
-    }
+  // Determine active tab based on current route
+  const getActiveTab = (): TabType => {
+    const path = location.pathname
+    if (path === '/' || path === '') return 'data-explorer'
+    if (path.startsWith('/advanced-search')) return 'advanced-search'
+    if (path.startsWith('/treemap')) return 'treemap'
+    if (path.startsWith('/api-docs')) return 'api-docs'
+    if (path.startsWith('/help')) return 'help'
+    if (path.startsWith('/about')) return 'about'
+    return 'data-explorer'
   }
 
+  const activeTab = getActiveTab()
+
+  const activeTab = getActiveTab()
+
   const handleTabChange = (tabId: TabType) => {
-    setActiveTab(tabId)
+    const routeMap: Record<TabType, string> = {
+      'data-explorer': ROUTES.DATA_EXPLORER,
+      'advanced-search': ROUTES.ADVANCED_SEARCH,
+      'treemap': ROUTES.TREEMAP,
+      'api-docs': ROUTES.API_DOCS,
+      'help': ROUTES.HELP,
+      'about': ROUTES.ABOUT,
+    }
+    navigate(routeMap[tabId])
   }
 
   return (
@@ -97,7 +106,15 @@ const AppContent: React.FC = () => {
       {/* Main Content */}
       <MainContent>
         <Suspense fallback={<ComponentLoadingFallback />}>
-          {renderContent()}
+          <Routes>
+            <Route path={ROUTES.HOME} element={<LazyDataExplorer />} />
+            <Route path={ROUTES.ADVANCED_SEARCH} element={<LazyAdvancedSearch />} />
+            <Route path={ROUTES.TREEMAP} element={<LazyTreemapPage />} />
+            <Route path={ROUTES.API_DOCS} element={<LazyApiDocumentation />} />
+            <Route path={ROUTES.HELP} element={<LazyHelp />} />
+            <Route path={ROUTES.ABOUT} element={<LazyAbout />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </Suspense>
       </MainContent>
 
@@ -119,7 +136,9 @@ function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
-        <AppContent />
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
       </ErrorBoundary>
     </ThemeProvider>
   )
