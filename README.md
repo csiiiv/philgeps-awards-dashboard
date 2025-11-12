@@ -70,6 +70,10 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
   - Dark mode modals and drill-down panels
   - Pagination and table components with theme support
   - CSS variable-based theming system
+- **URL-Based Routing**: React Router with deep linking support
+  - Direct navigation to any page via URL
+  - Browser back/forward button support
+  - Bookmarkable pages and shareable links
 - **Modern UI Components**: shadcn/ui integration for enhanced patterns
 - **Responsive Design**: Works flawlessly on desktop and mobile devices
 - **Performance Optimized**: Lazy loading and efficient rendering
@@ -316,6 +320,7 @@ docker run --env-file backend/django/.env -d -p 3200:3200 --name philgeps-backen
 ### Architecture
 - **Backend**: Django REST Framework with DuckDB analytics
 - **Frontend**: React 19 + Vite with TypeScript
+- **Routing**: React Router for client-side navigation
 - **Theming**: CSS variable-based theme system with dark/light mode support
 - **UI Components**: shadcn/ui for modern, accessible components
 - **Data**: Parquet files with optimized aggregations
