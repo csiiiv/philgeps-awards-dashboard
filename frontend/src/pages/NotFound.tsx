@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
-import { getThemeVars, typography, spacing } from '../design-system'
+import { getThemeVars } from '../design-system/theme'
+import { typography, spacing } from '../design-system'
 import styled from 'styled-components'
 
 const NotFoundContainer = styled.div<{ $isDark: boolean }>`

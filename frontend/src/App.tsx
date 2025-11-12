@@ -64,8 +64,6 @@ const AppContent: React.FC = () => {
 
   const activeTab = getActiveTab()
 
-  const activeTab = getActiveTab()
-
   const handleTabChange = (tabId: TabType) => {
     const routeMap: Record<TabType, string> = {
       'data-explorer': ROUTES.DATA_EXPLORER,
