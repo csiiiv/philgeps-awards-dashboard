@@ -108,25 +108,42 @@ const FilterChip: React.FC<FilterChipProps> = ({
   return (
     <div
       style={getChipStyle(type)}
-      onClick={onRemove}
       title={`Remove ${label}`}
     >
       <span style={{ marginRight: spacing[1] }}>
         {getIcon(type)}
       </span>
-      <span style={{ 
-        overflow: 'hidden', 
-        textOverflow: 'ellipsis', 
-        whiteSpace: 'nowrap',
-        flex: 1
+      <span style={{
+        flex: 1,
+        // Removed ellipsis/truncation to show full name
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
       }}>
         {label}
       </span>
-      <span style={{ 
-        marginLeft: spacing[1], 
-        fontSize: typography.fontSize.xs,
-        opacity: 0.7
-      }}>
+      <span
+        style={{ 
+          marginLeft: spacing[1], 
+          fontSize: typography.fontSize.xs,
+          opacity: 0.7,
+          cursor: 'pointer',
+          padding: '0 4px',
+          userSelect: 'none',
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        aria-label={`Remove ${label}`}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onRemove();
+          }
+        }}
+      >
         ×
       </span>
     </div>

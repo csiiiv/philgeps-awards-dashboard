@@ -28,6 +28,10 @@ export interface AdvancedSearchFiltersProps {
   onAddFilter: (type: keyof FilterState, value: string) => void
   onRemoveFilter: (type: keyof FilterState, index: number) => void
   onClearAllFilters: () => void
+  onClearContractors: () => void
+  onClearAreas: () => void
+  onClearOrganizations: () => void
+  onClearBusinessCategories: () => void
   
   // Keyword actions
   onKeywordInputChange: (value: string) => void
@@ -65,6 +69,10 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
   onAddFilter,
   onRemoveFilter,
   onClearAllFilters,
+  onClearContractors,
+  onClearAreas,
+  onClearOrganizations,
+  onClearBusinessCategories,
   onKeywordInputChange,
   onKeywordKeyDown,
   onKeywordAdd,
@@ -81,6 +89,15 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
 }) => {
   const { isDark } = useTheme()
   const vars = getThemeVars(isDark)
+
+  // Debug: log filters & counts to help diagnose per-group clear button visibility
+  // eslint-disable-next-line no-console
+  console.log('AdvancedSearchFilters render: filters counts ->', {
+    contractors: filters.contractors.length,
+    areas: filters.areas.length,
+    organizations: filters.organizations.length,
+    business_categories: filters.business_categories.length
+  })
 
   // Generate year options (2013-2025)
   const yearOptions = Array.from({ length: 13 }, (_, i) => 2013 + i).reverse()
@@ -195,6 +212,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.contractors}
           onAdd={(value) => onAddFilter('contractors', value)}
           onRemove={(index) => onRemoveFilter('contractors', index)}
+          onClear={onClearContractors}
           loading={loadingOptions}
         />
 
@@ -207,6 +225,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.areas}
           onAdd={(value) => onAddFilter('areas', value)}
           onRemove={(index) => onRemoveFilter('areas', index)}
+          onClear={onClearAreas}
           loading={loadingOptions}
         />
 
@@ -219,6 +238,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.organizations}
           onAdd={(value) => onAddFilter('organizations', value)}
           onRemove={(index) => onRemoveFilter('organizations', index)}
+          onClear={onClearOrganizations}
           loading={loadingOptions}
         />
 
@@ -231,6 +251,7 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
           selectedValues={filters.business_categories}
           onAdd={(value) => onAddFilter('business_categories', value)}
           onRemove={(index) => onRemoveFilter('business_categories', index)}
+          onClear={onClearBusinessCategories}
           loading={loadingOptions}
         />
       </div>

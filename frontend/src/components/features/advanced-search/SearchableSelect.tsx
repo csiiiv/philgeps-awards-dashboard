@@ -16,6 +16,7 @@ export interface SearchableSelectProps {
   exactWord?: boolean
   // Support for AND logic in keywords
   supportAndLogic?: boolean
+  selectedValues?: string[] // For highlighting already selected options
 }
 
 const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -28,7 +29,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   disabled = false,
   typeKey,
   exactWord = false,
-  supportAndLogic = false
+  supportAndLogic = false,
+  selectedValues = []
 }) => {
   const vars = getThemeVars(isDark)
   const [isOpen, setIsOpen] = useState(false)
@@ -256,6 +258,17 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     border: `1px solid ${vars.primary[300]}`
   }
 
+  // Style for already selected options
+  const selectedOptionStyle = {
+    ...optionStyle,
+    backgroundColor: vars.primary[50],
+    color: vars.primary[700],
+    fontWeight: 600,
+    opacity: 0.7,
+    cursor: 'not-allowed',
+    pointerEvents: 'none',
+  }
+
   return (
     <div style={containerStyle} ref={dropdownRef}>
       <div style={triggerStyle} onClick={handleToggle}>
@@ -284,7 +297,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
             style={searchInputStyle}
             autoFocus
           />
-          
           {/* Show AND logic keywords if supportAndLogic is enabled and searchTerm contains && */}
           {supportAndLogic && searchTerm.includes('&&') && (
             <div style={{ padding: `${spacing[2]} ${spacing[3]}` }}>
@@ -298,39 +310,36 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
               ))}
             </div>
           )}
-          
           <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
             {searchTerm && (
               <div
                 style={addRowStyle}
                 onClick={() => handleSelect(searchTerm)}
               >
-                Add "{searchTerm}"
+                Add as new filter: "{searchTerm}"
               </div>
             )}
             {isLoading ? (
               <div style={noResultsStyle}>Loading...</div>
             ) : filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
-                <div
-                  key={`option-${option}-${index}`}
-                  style={optionStyle}
-                  onMouseEnter={(e) => {
-                    Object.assign(e.currentTarget.style, optionHoverStyle)
-                  }}
-                  onMouseLeave={(e) => {
-                    Object.assign(e.currentTarget.style, { backgroundColor: 'transparent' })
-                  }}
-                  onClick={() => handleSelect(option)}
-                >
-                  {option}
-                </div>
-              ))
+              filteredOptions.map((option, index) => {
+                const isSelected = selectedValues.includes(option)
+                return (
+                  <div
+                    key={`option-${option}-${index}`}
+                    style={isSelected ? selectedOptionStyle : optionStyle}
+                    onMouseEnter={isSelected ? undefined : (e => Object.assign(e.currentTarget.style, optionHoverStyle))}
+                    onMouseLeave={isSelected ? undefined : (e => Object.assign(e.currentTarget.style, { backgroundColor: 'transparent' }))}
+                    onClick={isSelected ? undefined : (() => handleSelect(option))}
+                  >
+                    {option} {isSelected && <span style={{ fontSize: 12, marginLeft: 6 }}>(Selected)</span>}
+                  </div>
+                )
+              })
             ) : (
               <div style={noResultsStyle}>No options available</div>
             )}
           </div>
-          
           {/* Show AND logic hint at the bottom */}
           {supportAndLogic && (
             <div style={andLogicHintStyle}>

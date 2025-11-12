@@ -33,6 +33,10 @@ export interface UseAdvancedSearchFiltersReturn {
   addFilter: (type: keyof FilterState, value: string) => void
   removeFilter: (type: keyof FilterState, index: number) => void
   clearAllFilters: () => void
+  clearContractors: () => void
+  clearAreas: () => void
+  clearOrganizations: () => void
+  clearBusinessCategories: () => void
   
   // Keyword actions
   addKeyword: (keyword: string) => void
@@ -153,6 +157,36 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
       endDate: '2025-12-31'
     })
     console.log('✅ useAdvancedSearchFilters - all filters cleared')
+  }, [])
+
+  // Per-group clear functions
+  const clearContractors = useCallback(() => {
+    setFilters(prev => ({ ...prev, contractors: [] }))
+    console.log('🧹 useAdvancedSearchFilters - contractors cleared')
+  }, [])
+  
+  const clearAreas = useCallback(() => {
+    setFilters(prev => ({ ...prev, areas: [] }))
+    console.log('🧹 useAdvancedSearchFilters - areas cleared')
+  }, [])
+  
+  const clearOrganizations = useCallback(() => {
+    setFilters(prev => ({ ...prev, organizations: [] }))
+    console.log('🧹 useAdvancedSearchFilters - organizations cleared')
+  }, [])
+  
+  const clearBusinessCategories = useCallback(() => {
+    setFilters(prev => ({ ...prev, business_categories: [] }))
+    console.log('🧹 useAdvancedSearchFilters - business_categories cleared')
+  }, [])
+
+  // Generic per-group clear function
+  const clearFilterGroup = useCallback((type: keyof FilterState) => {
+    setFilters(prev => ({
+      ...prev,
+      [type]: []
+    }))
+    console.log('🧹 useAdvancedSearchFilters - group cleared:', type)
   }, [])
 
   // Keyword management functions
@@ -316,6 +350,11 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     addFilter,
     removeFilter,
     clearAllFilters,
+    clearFilterGroup,
+    clearContractors,
+    clearAreas,
+    clearOrganizations,
+    clearBusinessCategories,
     
     // Keyword actions
     addKeyword,

@@ -12,6 +12,7 @@ export interface FilterSectionProps {
   selectedValues: string[]
   onAdd: (value: string) => void
   onRemove: (index: number) => void
+  onClear?: () => void
   isDark?: boolean
   disabled?: boolean
   supportAndLogic?: boolean
@@ -26,6 +27,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   selectedValues = [], // Default to empty array to prevent undefined errors
   onAdd,
   onRemove,
+  onClear,
   isDark = false,
   disabled = false,
   supportAndLogic = false,
@@ -33,6 +35,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 }) => {
   const vars = getThemeVars(isDark)
   const [exactWord, setExactWord] = useState(false)
+  // Debug: log selected values and onClear presence
+  // eslint-disable-next-line no-console
+  console.log(`FilterSection(${title}) render: selectedValues=${selectedValues.length}, onClearType=${typeof (onClear as any)}`)
 
   const containerStyle = {
     marginBottom: spacing[4]
@@ -108,19 +113,43 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         )}
       </div>
 
-      {/* Selected chips */}
+      {/* Selected chips and per-group clear button */}
       {selectedValues.length > 0 && (
-        <div style={chipsContainerStyle}>
-          {selectedValues.map((value, index) => (
-            <FilterChip
-              key={`${type}-${index}`}
-              label={value}
-              value={value}
-              type={type}
-              onRemove={() => onRemove(index)}
-              isDark={isDark}
-            />
-          ))}
+        <div style={{ ...chipsContainerStyle, alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2], flex: 1 }}>
+            {selectedValues.map((value, index) => (
+              <FilterChip
+                key={`${type}-${index}`}
+                label={value}
+                value={value}
+                type={type}
+                onRemove={() => onRemove(index)}
+                isDark={isDark}
+              />
+            ))}
+          </div>
+          {typeof onClear === 'function' && (
+            <button
+              style={{
+                marginLeft: spacing[2],
+                padding: `${spacing[1]} ${spacing[2]}`,
+                backgroundColor: 'transparent',
+                color: vars.text.secondary,
+                border: `1px solid ${vars.border.medium}`,
+                borderRadius: spacing[1],
+                cursor: 'pointer',
+                fontSize: typography.fontSize.xs,
+                opacity: 0.8,
+                height: 28,
+                alignSelf: 'flex-start',
+              }}
+              onClick={onClear}
+              type="button"
+              aria-label={`Clear all ${title}`}
+            >
+              Clear
+            </button>
+          )}
         </div>
       )}
 
@@ -138,6 +167,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             typeKey={type === 'contractor' || type === 'area' || type === 'organization' || type === 'category' ? type : undefined}
             exactWord={exactWord}
             supportAndLogic={supportAndLogic}
+            selectedValues={selectedValues}
           />
         </div>
         {(type === 'contractor' || type === 'area' || type === 'organization' || type === 'category') && (

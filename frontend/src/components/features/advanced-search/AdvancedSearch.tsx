@@ -292,6 +292,10 @@ const AdvancedSearch: React.FC = () => {
         onAddFilter={filtersHook.addFilter}
         onRemoveFilter={filtersHook.removeFilter}
         onClearAllFilters={filtersHook.clearAllFilters}
+        onClearContractors={filtersHook.clearContractors}
+        onClearAreas={filtersHook.clearAreas}
+        onClearOrganizations={filtersHook.clearOrganizations}
+        onClearBusinessCategories={filtersHook.clearBusinessCategories}
         onKeywordInputChange={filtersHook.setKeywordInput}
         onKeywordKeyDown={filtersHook.handleKeywordKeyDown}
         onKeywordAdd={filtersHook.handleKeywordAdd}
