@@ -15,11 +15,16 @@ class ParquetSearchService:
     _connection_lock = None
     
     def __init__(self):
-        # Get the project root directory (four levels up from this file)
-        # File is at: backend/django/contracts/parquet_search.py
-        # Need to go up 4 levels to reach project root
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        self.data_dir = os.path.join(project_root, 'data', 'parquet')
+        # Read PARQUET_DIR from environment variable, fallback to project root path
+        parquet_dir_env = os.environ.get('PARQUET_DIR')
+        if parquet_dir_env and os.path.exists(parquet_dir_env):
+            self.data_dir = parquet_dir_env
+        else:
+            # Get the project root directory (four levels up from this file)
+            # File is at: backend/django/contracts/parquet_search.py
+            # Need to go up 4 levels to reach project root
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            self.data_dir = os.path.join(project_root, 'data', 'parquet')
         self.parquet_files = self._get_parquet_files()
     
     @classmethod
@@ -222,44 +227,56 @@ class ParquetSearchService:
         else:
             base_query = f"SELECT * FROM ({base_query})"
         
-        # Add sorting with proper type casting for numeric fields
+        # Use CTE to avoid scanning base query twice (once for count, once for data)
         sort_direction_sql = "DESC" if sort_direction.lower() == "desc" else "ASC"
         
-        # Handle numeric sorting for contract value fields
-        if sort_by in ['contract_value', 'total_contract_amount', 'award_amount', 'contract_amount']:
-            # Map frontend field names to actual column names in the SELECT clause
-            if sort_by == 'contract_value':
-                sort_field = 'contract_amount'  # Use the actual column name for sorting
-            else:
-                sort_field = sort_by
-            # For DuckDB UNION queries, we need to wrap the entire query in a subquery for ORDER BY
-            base_query = f"SELECT * FROM ({base_query}) ORDER BY CAST({sort_field} AS DOUBLE) {sort_direction_sql}"
+        # Determine sort field and type
+        sort_is_numeric = sort_by in ['contract_value', 'total_contract_amount', 'award_amount', 'contract_amount']
+        if sort_by == 'contract_value':
+            sort_field = 'contract_amount'
         else:
-            base_query += f" ORDER BY {sort_by} {sort_direction_sql}"
+            sort_field = sort_by
         
-        # Get total count
-        count_query = f"SELECT COUNT(*) as total FROM ({base_query})"
-        
-        # Add pagination
         offset = (page - 1) * page_size
-        paginated_query = f"{base_query} LIMIT {page_size} OFFSET {offset}"
+        
+        # Build optimized query with CTE to scan base data only once
+        if sort_is_numeric:
+            final_query = f"""
+            WITH base_data AS ({base_query}),
+            total_count AS (SELECT COUNT(*) as total FROM base_data)
+            SELECT b.*, t.total 
+            FROM base_data b
+            CROSS JOIN total_count t
+            ORDER BY CAST(b.{sort_field} AS DOUBLE) {sort_direction_sql}
+            LIMIT {page_size} OFFSET {offset}
+            """
+        else:
+            final_query = f"""
+            WITH base_data AS ({base_query}),
+            total_count AS (SELECT COUNT(*) as total FROM base_data)
+            SELECT b.*, t.total 
+            FROM base_data b
+            CROSS JOIN total_count t
+            ORDER BY b.{sort_field} {sort_direction_sql}
+            LIMIT {page_size} OFFSET {offset}
+            """
         
         try:
             # Execute queries using DuckDB with reusable connection
             conn = self.get_connection()
             
-            # Get total count
-            count_result = conn.execute(count_query).fetchone()
-            total_count = count_result[0] if count_result else 0
-            
-            # Get paginated results
-            results = conn.execute(paginated_query).fetchall()
+            # Execute single query that returns both data and count
+            results = conn.execute(final_query).fetchall()
             columns = [desc[0] for desc in conn.description]
+            
+            # Extract total count from first row
+            total_count = results[0][-1] if results else 0
             
             # Convert to list of dictionaries
             contracts = []
             for row in results:
-                contract_dict = dict(zip(columns, row))
+                # Build dict excluding the 'total' column (last column)
+                contract_dict = dict(zip(columns[:-1], row[:-1]))
                 # Convert dates to strings for JSON serialization
                 if contract_dict.get('award_date'):
                     if hasattr(contract_dict['award_date'], 'date'):
@@ -446,25 +463,23 @@ class ParquetSearchService:
         """Build WHERE conditions for chip-based filtering (extracted for reuse)"""
         where_conditions = []
         
-        # Keywords search
-        if keywords:
-            keyword_conditions = []
-            for keyword in keywords:
-                if keyword.strip():
-                    and_keywords = self._parse_and_keywords(keyword.strip())
+        # Apply filters in order of selectivity (most selective first)
+        # 1. Business category first (most selective, smallest result set)
+        if business_categories:
+            category_conditions = []
+            for category in business_categories:
+                if category.strip():
+                    and_keywords = self._parse_and_keywords(category.strip())
                     if and_keywords:
-                        keyword_and_conditions = []
-                        for and_keyword in and_keywords:
-                            escaped_keyword = self._escape_sql_like(and_keyword)
-                            try:
-                                keyword_and_conditions.append(f"CONTAINS(LOWER(search_text), LOWER('{escaped_keyword}'))")
-                            except:
-                                keyword_and_conditions.append(f"LOWER(search_text) LIKE LOWER('%{escaped_keyword}%')")
-                        keyword_conditions.append(f"({' AND '.join(keyword_and_conditions)})")
-            if keyword_conditions:
-                where_conditions.append(f"({' OR '.join(keyword_conditions)})")
+                        category_and_conditions = []
+                        for keyword in and_keywords:
+                            escaped_keyword = self._escape_sql_like(keyword)
+                            category_and_conditions.append(f"LOWER(business_category) LIKE LOWER('%{escaped_keyword}%')")
+                        category_conditions.append(f"({' AND '.join(category_and_conditions)})")
+            if category_conditions:
+                where_conditions.append(f"({' OR '.join(category_conditions)})")
         
-        # Contractor filter
+        # 2. Contractor filter (usually selective)
         if contractors:
             contractor_conditions = []
             for contractor in contractors:
@@ -479,22 +494,7 @@ class ParquetSearchService:
             if contractor_conditions:
                 where_conditions.append(f"({' OR '.join(contractor_conditions)})")
         
-        # Area filter
-        if areas:
-            area_conditions = []
-            for area in areas:
-                if area.strip():
-                    and_keywords = self._parse_and_keywords(area.strip())
-                    if and_keywords:
-                        area_and_conditions = []
-                        for keyword in and_keywords:
-                            escaped_keyword = self._escape_sql_like(keyword)
-                            area_and_conditions.append(f"LOWER(area_of_delivery) LIKE LOWER('%{escaped_keyword}%')")
-                        area_conditions.append(f"({' AND '.join(area_and_conditions)})")
-            if area_conditions:
-                where_conditions.append(f"({' OR '.join(area_conditions)})")
-        
-        # Organization filter
+        # 3. Organization filter
         if organizations:
             org_conditions = []
             for org in organizations:
@@ -509,20 +509,36 @@ class ParquetSearchService:
             if org_conditions:
                 where_conditions.append(f"({' OR '.join(org_conditions)})")
         
-        # Business category filter
-        if business_categories:
-            category_conditions = []
-            for category in business_categories:
-                if category.strip():
-                    and_keywords = self._parse_and_keywords(category.strip())
+        # 4. Area filter
+        if areas:
+            area_conditions = []
+            for area in areas:
+                if area.strip():
+                    and_keywords = self._parse_and_keywords(area.strip())
                     if and_keywords:
-                        category_and_conditions = []
+                        area_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
-                            category_and_conditions.append(f"LOWER(business_category) LIKE LOWER('%{escaped_keyword}%')")
-                        category_conditions.append(f"({' AND '.join(category_and_conditions)})")
-            if category_conditions:
-                where_conditions.append(f"({' OR '.join(category_conditions)})")
+                            area_and_conditions.append(f"LOWER(area_of_delivery) LIKE LOWER('%{escaped_keyword}%')")
+                        area_conditions.append(f"({' AND '.join(area_and_conditions)})")
+            if area_conditions:
+                where_conditions.append(f"({' OR '.join(area_conditions)})")
+        
+        # 5. Keywords search LAST (most expensive, applied to already-filtered rows)
+        if keywords:
+            keyword_conditions = []
+            for keyword in keywords:
+                if keyword.strip():
+                    and_keywords = self._parse_and_keywords(keyword.strip())
+                    if and_keywords:
+                        keyword_and_conditions = []
+                        for and_keyword in and_keywords:
+                            escaped_keyword = self._escape_sql_like(and_keyword)
+                            # Simple LIKE is actually faster than regexp for short patterns in DuckDB
+                            keyword_and_conditions.append(f"LOWER(search_text) LIKE LOWER('%{escaped_keyword}%')")
+                        keyword_conditions.append(f"({' AND '.join(keyword_and_conditions)})")
+            if keyword_conditions:
+                where_conditions.append(f"({' OR '.join(keyword_conditions)})")
         
         # Time range filter
         if time_ranges:
@@ -681,47 +697,71 @@ class ParquetSearchService:
         else:
             base_query = " UNION ALL ".join(union_queries)
         
-        # Add sorting with proper type casting for numeric fields
+        # Use CTE to avoid scanning base query twice (once for count, once for data)
         sort_direction_sql = "DESC" if sort_direction.lower() == "desc" else "ASC"
         
-        # Handle numeric sorting for contract value fields
-        if sort_by in ['contract_value', 'total_contract_amount', 'award_amount', 'contract_amount']:
-            # Map frontend field names to actual column names in the SELECT clause
-            if sort_by == 'contract_value':
-                sort_field = 'contract_amount'  # Use the actual column name for sorting
-            else:
-                sort_field = sort_by
-            # For DuckDB UNION queries, we need to wrap the entire query in a subquery for ORDER BY
-            base_query = f"SELECT * FROM ({base_query}) ORDER BY CAST({sort_field} AS DOUBLE) {sort_direction_sql}"
+        # Determine sort field and type
+        sort_is_numeric = sort_by in ['contract_value', 'total_contract_amount', 'award_amount', 'contract_amount']
+        if sort_by == 'contract_value':
+            sort_field = 'contract_amount'
         else:
-            base_query += f" ORDER BY {sort_by} {sort_direction_sql}"
+            sort_field = sort_by
         
-        # Prepare count query and paginated query
-        count_query = f"SELECT COUNT(*) as total FROM ({base_query})"
-
         offset = (page - 1) * page_size
-        paginated_query = f"{base_query} LIMIT {page_size} OFFSET {offset}"
+        
+        # Build optimized query with CTE to scan base data only once
+        if include_count:
+            # When count is needed, use CTE to calculate count and fetch data in single execution
+            if sort_is_numeric:
+                final_query = f"""
+                WITH base_data AS ({base_query}),
+                total_count AS (SELECT COUNT(*) as total FROM base_data)
+                SELECT b.*, t.total 
+                FROM base_data b
+                CROSS JOIN total_count t
+                ORDER BY CAST(b.{sort_field} AS DOUBLE) {sort_direction_sql}
+                LIMIT {page_size} OFFSET {offset}
+                """
+            else:
+                final_query = f"""
+                WITH base_data AS ({base_query}),
+                total_count AS (SELECT COUNT(*) as total FROM base_data)
+                SELECT b.*, t.total 
+                FROM base_data b
+                CROSS JOIN total_count t
+                ORDER BY b.{sort_field} {sort_direction_sql}
+                LIMIT {page_size} OFFSET {offset}
+                """
+        else:
+            # When count not needed, skip CTE overhead
+            if sort_is_numeric:
+                final_query = f"SELECT * FROM ({base_query}) ORDER BY CAST({sort_field} AS DOUBLE) {sort_direction_sql} LIMIT {page_size} OFFSET {offset}"
+            else:
+                final_query = f"SELECT * FROM ({base_query}) ORDER BY {sort_field} {sort_direction_sql} LIMIT {page_size} OFFSET {offset}"
 
         try:
             # Use reusable connection for better performance
             conn = self.get_connection()
 
-            total_count = 0
-            # Only execute count if caller requests it (avoid expensive global counts during streaming exports)
-            if include_count:
-                try:
-                    count_result = conn.execute(count_query).fetchone()
-                    total_count = count_result[0] if count_result else 0
-                except Exception:
-                    total_count = 0
-
-            # Get paginated results
-            results = conn.execute(paginated_query).fetchall()
+            # Execute single query that returns both data and count
+            results = conn.execute(final_query).fetchall()
             columns = [desc[0] for desc in conn.description]
+            
+            # Extract total count from first row if include_count is True
+            total_count = 0
+            if include_count and results:
+                # Total is in the last column when using CTE
+                total_count = results[0][-1]
 
             contracts = []
             for row in results:
-                contract_dict = dict(zip(columns, row))
+                # Build dict excluding the 'total' column if present
+                if include_count:
+                    # Exclude last column (total) from contract data
+                    contract_dict = dict(zip(columns[:-1], row[:-1]))
+                else:
+                    contract_dict = dict(zip(columns, row))
+                    
                 # Convert dates to strings for JSON serialization
                 if contract_dict.get('award_date'):
                     if hasattr(contract_dict['award_date'], 'date'):
@@ -911,24 +951,18 @@ class ParquetSearchService:
 
         base_query = " UNION ALL ".join(union_queries)
         
+        # Use CTE to execute base query once and reuse for all aggregates (massive performance improvement)
+        cte_query = f"WITH filtered_data AS ({base_query})"
 
-        # Aggregates
+        # Aggregates - now all query from the CTE instead of re-executing base_query
         queries = {
-            'summary': f"SELECT COUNT(*) as count, SUM(CAST(contract_amount AS DOUBLE)) as total_value, AVG(CAST(contract_amount AS DOUBLE)) as avg_value FROM ({base_query})",
-            'by_year': (
-                "SELECT CAST(date_part('year', TRY_CAST(award_date AS DATE)) AS INT) as year, "
-                "SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count "
-                f"FROM ({base_query}) WHERE TRY_CAST(award_date AS DATE) IS NOT NULL GROUP BY 1 ORDER BY 1"
-            ),
-            'by_month': (
-                "SELECT STRFTIME(TRY_CAST(award_date AS DATE), '%Y-%m') as month, "
-                "SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count "
-                f"FROM ({base_query}) WHERE TRY_CAST(award_date AS DATE) IS NOT NULL GROUP BY 1 ORDER BY 1"
-            ),
-            'by_contractor': f"SELECT awardee_name as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM ({base_query}) WHERE awardee_name IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}",
-            'by_organization': f"SELECT organization_name as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM ({base_query}) WHERE organization_name IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}",
-            'by_area': f"SELECT area_of_delivery as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM ({base_query}) WHERE area_of_delivery IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}",
-            'by_category': f"SELECT business_category as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM ({base_query}) WHERE business_category IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}"
+            'summary': f"{cte_query} SELECT COUNT(*) as count, SUM(CAST(contract_amount AS DOUBLE)) as total_value, AVG(CAST(contract_amount AS DOUBLE)) as avg_value FROM filtered_data",
+            'by_year': f"{cte_query} SELECT CAST(date_part('year', TRY_CAST(award_date AS DATE)) AS INT) as year, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM filtered_data WHERE TRY_CAST(award_date AS DATE) IS NOT NULL GROUP BY 1 ORDER BY 1",
+            'by_month': f"{cte_query} SELECT STRFTIME(TRY_CAST(award_date AS DATE), '%Y-%m') as month, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM filtered_data WHERE TRY_CAST(award_date AS DATE) IS NOT NULL GROUP BY 1 ORDER BY 1",
+            'by_contractor': f"{cte_query} SELECT awardee_name as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM filtered_data WHERE awardee_name IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}",
+            'by_organization': f"{cte_query} SELECT organization_name as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM filtered_data WHERE organization_name IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}",
+            'by_area': f"{cte_query} SELECT area_of_delivery as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM filtered_data WHERE area_of_delivery IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}",
+            'by_category': f"{cte_query} SELECT business_category as label, SUM(CAST(contract_amount AS DOUBLE)) as total_value, COUNT(*) as count FROM filtered_data WHERE business_category IS NOT NULL GROUP BY 1 ORDER BY total_value DESC LIMIT {topN}"
         }
 
         try:

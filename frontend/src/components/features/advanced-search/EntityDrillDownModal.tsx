@@ -502,7 +502,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         business_categories: entityType === 'category' ? [entityName] : [],
         keywords: [],
         time_ranges: currentFilters.time_ranges || [],
-        include_flood_control: currentFilters.includeFloodControl || false
+        include_flood_control: false
       }
       
       exportConfig = {
@@ -530,7 +530,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         keywords: currentFilters.keywords || [],
         time_ranges: currentFilters.time_ranges || [],
         dimension: dimension,
-        include_flood_control: currentFilters.includeFloodControl || false
+        include_flood_control: false
       }
       
       exportConfig = {

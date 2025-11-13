@@ -72,11 +72,36 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'philgeps_data_explorer.wsgi.application'
 
-# Database configuration
+# Database configuration with connection pooling
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,
+        },
+        'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=600, cast=int),  # Persistent connections for 10 minutes
+    }
+}
+
+# Caching configuration with Redis
+REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+CACHES = {
+    'default': {
+        # Use django-redis backend (not Django's built-in RedisCache which doesn't support CLIENT_CLASS)
+        'BACKEND': config('CACHE_BACKEND', default='django_redis.cache.RedisCache'),
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 50,
+                'retry_on_timeout': True,
+            },
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+        },
+        'KEY_PREFIX': 'philgeps',
+        'TIMEOUT': config('CACHE_TIMEOUT', default=300, cast=int),  # 5 minutes default
     }
 }
 
@@ -87,7 +112,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',  # Backend static files only (admin, etc.)
 ]
 
-# REST Framework
+# REST Framework with optimized throttling for concurrent users
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -95,10 +120,14 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '240/hour',  # 240 requests per hour for all users (no authentication system)
-    }
+        'anon': '10000/hour',  # Increased for load testing (1000 -> 10000)
+        'burst': '300/minute',  # Handle burst traffic during load tests
+    },
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 # Spectacular Settings

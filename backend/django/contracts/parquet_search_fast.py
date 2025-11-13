@@ -12,9 +12,14 @@ import time
 
 class FastParquetSearchService:
     def __init__(self):
-        # Get the project root directory
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        self.data_dir = os.path.join(project_root, 'data', 'parquet')
+        # Read PARQUET_DIR from environment variable, fallback to project root path
+        parquet_dir_env = os.environ.get('PARQUET_DIR')
+        if parquet_dir_env and os.path.exists(parquet_dir_env):
+            self.data_dir = parquet_dir_env
+        else:
+            # Get the project root directory
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            self.data_dir = os.path.join(project_root, 'data', 'parquet')
         
         # Use optimized files if available
         self.title_optimized_file = os.path.join(self.data_dir, 'facts_awards_title_optimized.parquet')

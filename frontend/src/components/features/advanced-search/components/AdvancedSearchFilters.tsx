@@ -541,44 +541,6 @@ export const AdvancedSearchFilters: React.FC<AdvancedSearchFiltersProps> = ({
         border: `1px solid ${vars.border.light}`,
         borderRadius: spacing[2]
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: spacing[3]
-        }}>
-          <input
-            type="checkbox"
-            id="include-flood-control"
-            checked={includeFloodControl}
-            onChange={(e) => onIncludeFloodControlChange(e.target.checked)}
-            style={{
-              width: 18,
-              height: 18,
-              accentColor: vars.primary[600],
-              cursor: 'pointer'
-            }}
-            disabled={loading}
-          />
-          <label
-            htmlFor="include-flood-control"
-            style={{
-              color: vars.text.primary,
-              fontSize: typography.fontSize.sm,
-              cursor: 'pointer',
-              userSelect: 'none'
-            }}
-          >
-            Include "Sumbong sa Pangulo" Dataset
-          </label>
-        </div>
-        <p style={{
-          color: vars.text.secondary,
-          fontSize: typography.fontSize.xs,
-          margin: `${spacing[2]} 0 0 0`,
-          fontStyle: 'italic'
-        }}>
-          This will include flood control projects from the Sumbong sa Pangulo dataset in your search results. This data will all be categorized as "Flood Control". Note: This may lead to duplicate data with PhilGEPS entries.
-        </p>
       </div>
 
     </div>

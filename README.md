@@ -103,6 +103,15 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 docker compose up --build
 ```
 
+### RAM-Optimized (Ultra-Fast Data Access) ⚡
+```bash
+# Mount Parquet data in RAM for 10-100x faster queries
+# Requires 3+ GB available RAM
+docker compose -f docker-compose.ram.yml up --build
+
+# See docs/RAM_OPTIMIZATION.md for details
+```
+
 ### Cloudflare Tunnel (Optional)
 ```bash
 # Expose local services securely to the internet

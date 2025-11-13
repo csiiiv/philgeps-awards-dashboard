@@ -138,7 +138,7 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
         keywords: currentFilters.keywords || [],
         time_ranges: currentFilters.time_ranges || [],
         dimension: analyticsControls.dimension,
-        include_flood_control: currentFilters.includeFloodControl || false
+        include_flood_control: false
       } : {
         dimension: analyticsControls.dimension,
         include_flood_control: false

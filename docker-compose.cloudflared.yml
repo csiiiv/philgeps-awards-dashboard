@@ -53,12 +53,12 @@ services:
         condition: service_healthy
       
   # Optional: Use this if you want to run cloudflared in Docker instead of as a background service
-  # cloudflared:
-  #   image: cloudflare/cloudflared:latest
-  #   restart: unless-stopped
-  #   command: tunnel --no-autoupdate run
-  #   environment:
-  #     TUNNEL_TOKEN: "<your-cloudflare-tunnel-token>"
-  #   depends_on:
-  #     - backend
-  #     - frontend
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: "<your-cloudflare-tunnel-token>"
+    depends_on:
+      - backend
+      - frontend

@@ -134,19 +134,6 @@ export const DataExplorerEntityFilters: React.FC<DataExplorerEntityFiltersProps>
           cursor: 'pointer',
           color: vars.text.primary
         }}>
-          <input
-            type="checkbox"
-            checked={includeFloodControl}
-            onChange={(e) => onIncludeFloodControlChange(e.target.checked)}
-            style={{
-              width: '16px',
-              height: '16px',
-              accentColor: vars.primary[500]
-            }}
-          />
-          <span style={{ fontSize: typography.fontSize.sm }}>
-            Include Sumbong sa Pangulo Dataset (2022-2025)
-          </span>
         </label>
       </div>
     </Card>

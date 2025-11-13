@@ -5,20 +5,17 @@ This directory contains optimized Parquet files for high-performance analytics a
 ## 📁 Directory Structure
 
 ```
-parquet/
+static_data/
 ├── README.md                                    # This file - parquet data documentation
-├── agg_area.parquet                            # Area aggregations (9 columns, 520 rows)
-├── agg_business_category.parquet               # Business category aggregations (9 columns, 169 rows)
-├── agg_contractor.parquet                      # Contractor aggregations (9 columns, 73,994 rows)
-├── agg_organization.parquet                    # Organization aggregations (9 columns, 13,943 rows)
-├── facts_awards_all_time.parquet               # All-time facts (44 columns, 2.2M+ rows)
-├── facts_awards_flood_control.parquet          # Flood control facts (43 columns, 9,855 rows)
-├── facts_awards_title_optimized.parquet        # Title optimized for search (14 columns, 2.2M+ rows)
-├── quarterly/                                  # Quarterly aggregations (180 files)
-│   └── year_YYYY_qN/                          # Quarterly data by year and quarter
-└── yearly/                                     # Yearly aggregations (45 files)
-    └── year_YYYY/                             # Yearly data by year
+├── agg_area.parquet                            # Area aggregations (9 columns, 525 rows)
+├── agg_business_category.parquet               # Business category aggregations (9 columns, 171 rows)
+├── agg_contractor.parquet                      # Contractor aggregations (9 columns, 127,049 rows)
+├── agg_organization.parquet                    # Organization aggregations (9 columns, 24,658 rows)
+├── facts_awards_all_time.parquet               # All-time facts (20 columns, 5.5M+ rows)
+└── facts_awards_title_optimized.parquet        # Title optimized for search (14 columns, 5.5M+ rows)
 ```
+
+**Note**: Quarterly and yearly aggregations have been removed in favor of dynamic filtering in the application layer.
 
 ## 🎯 File Types and Purposes
 
@@ -26,8 +23,9 @@ parquet/
 Pre-computed aggregations for fast analytics and dashboard performance.
 
 #### `agg_area.parquet` - Geographic Area Analytics
-- **Size**: 520 rows, 9 columns
+- **Size**: 525 rows, 9 columns
 - **Purpose**: Fast analytics by delivery area/geographic region
+- **Source**: Generated from `all-awarded-frontend-compressed.parquet`
 - **Columns**: 
   - `entity` - Area name (e.g., "NCR", "CALABARZON", "Central Luzon")
   - `contract_count` - Total number of contracts
@@ -41,35 +39,40 @@ Pre-computed aggregations for fast analytics and dashboard performance.
 - **API Usage**: `/api/v1/data-processing/entities/?entity_type=area`
 
 #### `agg_business_category.parquet` - Business Category Analytics
-- **Size**: 169 rows, 9 columns
+- **Size**: 171 rows, 9 columns
 - **Purpose**: Fast analytics by business category/industry type
+- **Source**: Generated from `all-awarded-frontend-compressed.parquet`
 - **Columns**: Same structure as area aggregations
 - **Categories**: Infrastructure, Goods, Services, Consulting, etc.
 - **API Usage**: `/api/v1/data-processing/entities/?entity_type=business_category`
-
 #### `agg_contractor.parquet` - Contractor/Supplier Analytics
-- **Size**: 73,994 rows, 9 columns
+- **Size**: 127,049 rows, 9 columns
 - **Purpose**: Fast analytics by contractor/supplier entities
+- **Source**: Generated from `all-awarded-frontend-compressed.parquet`
 - **Columns**: Same structure as area aggregations
 - **API Usage**: `/api/v1/data-processing/entities/?entity_type=contractor`
-
+- **API Usage**: `/api/v1/data-processing/entities/?entity_type=contractor`
 #### `agg_organization.parquet` - Government Organization Analytics
-- **Size**: 13,943 rows, 9 columns
+- **Size**: 24,658 rows, 9 columns
 - **Purpose**: Fast analytics by government agency/organization
+- **Source**: Generated from `all-awarded-frontend-compressed.parquet`
 - **Columns**: Same structure as area aggregations
+- **API Usage**: `/api/v1/data-processing/entities/?entity_type=organization`
 - **API Usage**: `/api/v1/data-processing/entities/?entity_type=organization`
 
 ### Fact Tables (3 files)
-Detailed contract data optimized for different use cases.
-
 #### `facts_awards_all_time.parquet` - Complete Contract Data
-- **Size**: 2.2M+ rows, 44 columns
+- **Size**: 5.5M+ rows, 20 columns
 - **Purpose**: Complete contract lifecycle data for comprehensive analysis
-- **Structure**: Full 44-column schema with all contract details
-- **Coverage**: 2013-2025 (all available data)
+- **Source**: Generated from `all-awarded-frontend-compressed.parquet`
+- **Structure**: Core contract data with compatibility fields
+- **Coverage**: 2001-2025+ (all available data from PhilGEPS)
 - **Usage**: Data processing, comprehensive analysis, data export
 
 #### `facts_awards_title_optimized.parquet` - Search-Optimized Data
+- **Size**: 5.5M+ rows, 14 columns
+- **Purpose**: Fast title-based search and basic analytics
+- **Source**: Generated from `all-awarded-frontend-compressed.parquet`ized Data
 - **Size**: 2.2M+ rows, 14 columns
 - **Purpose**: Fast title-based search and basic analytics
 - **Columns**:
@@ -87,36 +90,11 @@ Detailed contract data optimized for different use cases.
   - `organization_name` - Government organization
   - `business_category` - Business category
   - `area_of_delivery` - Delivery area
-- **Optimizations**: Pre-computed search text, word arrays, lowercase variants
-- **API Usage**: `/api/v1/contracts/search/`
+### Removed Files
 
-#### `facts_awards_flood_control.parquet` - Flood Control Projects
-- **Size**: 9,855 rows, 43 columns
-- **Purpose**: Specialized dataset for flood control infrastructure projects
-- **Source**: Sumbong sa Pangulo flood control projects (2022-2025)
-- **Structure**: Complete 43-column schema with flood control specific data
-- **Usage**: Flood control project analysis, specialized reporting
-
-### Time-Based Aggregations
-
-#### Quarterly Aggregations (`/quarterly/`)
-- **Total Files**: 180 files (5 files per quarter × 36 quarters)
-- **Coverage**: 2013-2021 (all quarters)
-- **Structure**: Each quarter has 5 files:
-  - `agg_area.parquet` - Area aggregations for the quarter
-  - `agg_business_category.parquet` - Category aggregations for the quarter
-  - `agg_contractor.parquet` - Contractor aggregations for the quarter
-  - `agg_organization.parquet` - Organization aggregations for the quarter
-  - `facts_awards_year_YYYY_qN.parquet` - Fact data for the quarter
-- **API Usage**: `/api/v1/data-processing/entities/?time_range=quarterly&year=YYYY&quarter=N`
-
-#### Yearly Aggregations (`/yearly/`)
-- **Total Files**: 45 files (5 files per year × 9 years)
-- **Coverage**: 2013-2021 (all years)
-- **Structure**: Each year has 5 files:
-  - `agg_area.parquet` - Area aggregations for the year
-  - `agg_business_category.parquet` - Category aggregations for the year
-  - `agg_contractor.parquet` - Contractor aggregations for the year
+The following files have been removed in this version:
+- **`facts_awards_flood_control.parquet`**: Flood control data is now integrated into the main dataset
+- **Quarterly/Yearly subdirectories**: Time-based filtering is now handled dynamically in the application layer
   - `agg_organization.parquet` - Organization aggregations for the year
   - `facts_awards_year_YYYY.parquet` - Fact data for the year
 - **API Usage**: `/api/v1/data-processing/entities/?time_range=yearly&year=YYYY`
@@ -165,10 +143,14 @@ Detailed contract data optimized for different use cases.
 ### Data Dimensions
 - **Geographic Areas**: 520 unique delivery areas
 - **Business Categories**: 169 different business categories
-- **Contractors**: 73,994 unique contractor entities
-- **Organizations**: 13,943 government organizations
-- **Total Contracts**: 2.2M+ procurement contracts
-
+### Source Files
+- **Main Source**: `data/all-awarded-frontend-compressed.parquet` (398 MB, 5.5M+ records)
+- **Generation Script**: `scripts/rebuild_static_data_from_compressed.py`
+- **Column Mapping**:
+  - `contract_no` → `contract_number`
+  - `awardee_name` → contractor entity
+  - `procuring_entity` → `organization_name`
+  - All other core fields preserved
 ## 🔍 Usage Examples
 
 ### API Endpoints
@@ -176,17 +158,17 @@ Detailed contract data optimized for different use cases.
 # Get area analytics
 GET /api/v1/data-processing/entities/?entity_type=area
 
-# Get contractor analytics for 2020
-GET /api/v1/data-processing/entities/?entity_type=contractor&time_range=yearly&year=2020
+### Time Periods
+- **2001-2025+**: Complete coverage of PhilGEPS data
+- **Total Coverage**: 24+ years of government procurement data
 
-# Search contracts by title
-GET /api/v1/contracts/search/?q=construction&include_flood_control=true
-
-# Get quarterly data for Q1 2019
-GET /api/v1/data-processing/entities/?time_range=quarterly&year=2019&quarter=1
-```
-
-### Direct File Access
+### Data Dimensions
+- **Geographic Areas**: 525 unique delivery areas
+- **Business Categories**: 171 different business categories
+- **Contractors**: 127,049 unique contractor entities
+- **Organizations**: 24,658 government organizations
+- **Total Contracts**: 5.5M+ procurement contracts
+- **Total Value**: ₱16.96 trillion in contract awards
 ```python
 import pandas as pd
 import duckdb
@@ -230,3 +212,8 @@ result = conn.execute("""
 **Last Updated**: January 1, 2025  
 **Version**: v1.0.0 - Parquet Data Documentation
 
+---
+
+**Last Updated**: November 13, 2025  
+**Version**: v2.0.0 - Rebuilt from compressed source data  
+**Data Source**: `all-awarded-frontend-compressed.parquet`

@@ -159,6 +159,18 @@ export const getThemeVars = (/* isDark: boolean */) => {
       medium: 'var(--color-border-medium)',
       dark: 'var(--color-border-dark)'
     },
+    gray: {
+      50: 'var(--color-primary-50)',
+      100: '#f3f4f6',
+      200: '#e5e7eb',
+      300: '#d1d5db',
+      400: '#9ca3af',
+      500: '#6b7280',
+      600: '#4b5563',
+      700: '#374151',
+      800: '#1f2937',
+      900: '#111827'
+    },
     // semantic tokens
     success: {
       50: 'var(--color-success-50)',

@@ -8,7 +8,8 @@ from django.db import models
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import StreamingHttpResponse
-import io, csv, time, re
+from django.core.cache import cache
+import io, csv, time, re, hashlib, json
 from django.core.paginator import Paginator
 import os
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
@@ -179,8 +180,19 @@ class ContractViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='chip-search')
     def chip_search(self, request):
         """
-        Advanced search with filter chips (multiple values per filter type)
+        Advanced search with filter chips (multiple values per filter type). Results cached for 5 minutes.
         """
+        # Generate cache key from request body
+        request_body = json.dumps(request.data, sort_keys=True)
+        cache_key = f"chip_search:{hashlib.md5(request_body.encode()).hexdigest()}"
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
         try:
             # Validate request data
             serializer = ChipSearchRequestSerializer(data=request.data)
@@ -207,11 +219,16 @@ class ContractViewSet(viewsets.ModelViewSet):
             )
             
             if result['success']:
-                return Response({
+                response_data = {
                     'success': True,
                     'data': result['data'],
                     'pagination': result['pagination']
-                }, status=status.HTTP_200_OK)
+                }
+                # Cache successful response for 10 minutes
+                cache.set(cache_key, response_data, 600)
+                response = Response(response_data, status=status.HTTP_200_OK)
+                response['X-Cache-Status'] = 'MISS'
+                return response
             else:
                 return Response({
                     'success': False,
@@ -249,7 +266,24 @@ class ContractViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['post'], url_path='chip-aggregates')
     def chip_aggregates(self, request):
-        """Aggregates for charts using same chip filters."""
+        """Aggregates for charts using same chip filters. Results cached for 5 minutes."""
+        # Generate cache key from request body
+        request_body = json.dumps(request.data, sort_keys=True)
+        cache_key = f"chip_agg:{hashlib.md5(request_body.encode()).hexdigest()}"
+        
+        print(f"DEBUG: Cache key: {cache_key}")
+        print(f"DEBUG: Request body hash: {hashlib.md5(request_body.encode()).hexdigest()}")
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            print(f"DEBUG: Cache HIT!")
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
+        print(f"DEBUG: Cache MISS - executing query")
+        
         try:
             # Validate request data
             serializer = ChipSearchRequestSerializer(data=request.data)
@@ -273,7 +307,12 @@ class ContractViewSet(viewsets.ModelViewSet):
             )
             
             if result.get('success'):
-                return Response({'data': result['data']}, status=status.HTTP_200_OK)
+                response_data = {'data': result['data']}
+                # Cache successful response for 10 minutes
+                cache.set(cache_key, response_data, 600)
+                response = Response(response_data, status=status.HTTP_200_OK)
+                response['X-Cache-Status'] = 'MISS'
+                return response
             else:
                 raise SearchError(detail=result.get('error', 'Aggregation failed'))
                 
@@ -307,7 +346,18 @@ class ContractViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['post'], url_path='chip-aggregates-paginated')
     def chip_aggregates_paginated(self, request):
-        """Paginated aggregates for analytics table using chip filters."""
+        """Paginated aggregates for analytics table using chip filters. Results cached for 5 minutes."""
+        # Generate cache key from request body
+        request_body = json.dumps(request.data, sort_keys=True)
+        cache_key = f"chip_agg_pag:{hashlib.md5(request_body.encode()).hexdigest()}"
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
         try:
             # Debug logging
             print(f"DEBUG: Request data type: {type(request.data)}")
@@ -338,10 +388,15 @@ class ContractViewSet(viewsets.ModelViewSet):
             )
             
             if result.get('success'):
-                return Response({
+                response_data = {
                     'data': result['data'],
                     'pagination': result['pagination']
-                }, status=status.HTTP_200_OK)
+                }
+                # Cache successful response for 10 minutes
+                cache.set(cache_key, response_data, 600)
+                response = Response(response_data, status=status.HTTP_200_OK)
+                response['X-Cache-Status'] = 'MISS'
+                return response
             else:
                 raise SearchError(detail=result.get('error', 'Paginated aggregation failed'))
                 
@@ -375,6 +430,18 @@ class ContractViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['post'], url_path='chip-export-estimate')
     def chip_export_estimate(self, request):
+        """Estimate export size. Results cached for 10 minutes."""
+        # Generate cache key from request body
+        request_body = json.dumps(request.data, sort_keys=True)
+        cache_key = f"export_est:{hashlib.md5(request_body.encode()).hexdigest()}"
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
         try:
             # Validate request data
             serializer = ExportEstimateRequestSerializer(data=request.data)
@@ -410,10 +477,15 @@ class ContractViewSet(viewsets.ModelViewSet):
             avg_row_bytes = 350
             estimated_bytes = total_count * avg_row_bytes
             
-            return Response({
+            response_data = {
                 'total_count': total_count, 
                 'estimated_csv_bytes': estimated_bytes
-            }, status=status.HTTP_200_OK)
+            }
+            # Cache for 10 minutes
+            cache.set(cache_key, response_data, 600)
+            response = Response(response_data, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'MISS'
+            return response
             
         except ValidationError:
             raise
@@ -439,10 +511,22 @@ class ContractViewSet(viewsets.ModelViewSet):
                 description='Internal server error'
             )
         },
-        tags=['export']
+        tags=['contracts']
     )
     @action(detail=False, methods=['post'], url_path='chip-export-aggregated-estimate')
     def chip_export_aggregated_estimate(self, request):
+        """Estimate aggregated export size. Results cached for 10 minutes."""
+        # Generate cache key from request body
+        request_body = json.dumps(request.data, sort_keys=True)
+        cache_key = f"export_agg_est:{hashlib.md5(request_body.encode()).hexdigest()}"
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
         try:
             # Validate request data
             serializer = AggregatedExportRequestSerializer(data=request.data)
@@ -480,10 +564,15 @@ class ContractViewSet(viewsets.ModelViewSet):
             avg_row_bytes = 120
             estimated_bytes = total_count * avg_row_bytes
             
-            return Response({
+            response_data = {
                 'total_count': total_count, 
                 'estimated_csv_bytes': estimated_bytes
-            }, status=status.HTTP_200_OK)
+            }
+            # Cache for 10 minutes
+            cache.set(cache_key, response_data, 600)
+            response = Response(response_data, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'MISS'
+            return response
             
         except ValidationError:
             raise
@@ -762,14 +851,28 @@ class ContractViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='filter-options')
     def filter_options(self, request):
         """
-        Get filter options for advanced search dropdowns from ALL parquet data
+        Get filter options for advanced search dropdowns from ALL parquet data. Results cached for 10 minutes.
         """
+        # Static cache key since this endpoint has no parameters
+        cache_key = "filter_options:all"
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
         try:
             # Use parquet search service to get filter options from ALL data
             parquet_service = ParquetSearchService()
             filter_options = parquet_service.get_filter_options()
             
-            return Response(filter_options, status=status.HTTP_200_OK)
+            # Cache for 10 minutes (this data changes infrequently)
+            cache.set(cache_key, filter_options, 600)
+            response = Response(filter_options, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'MISS'
+            return response
             
         except Exception as e:
             raise FilterOptionsError(detail=f'Failed to load filter options: {str(e)}')

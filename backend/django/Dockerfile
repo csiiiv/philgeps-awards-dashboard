@@ -21,36 +21,33 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app/
 
-# Copy static parquet data into the image so the backend can serve data without a
-# host volume. This makes the image larger but is useful for portable or CI
-# builds. If you prefer a smaller image, mount `./backend/django/static_data`
-# at runtime instead (see docker-compose.debug).
-RUN mkdir -p /data/parquet && \
+# Copy static parquet data into the image at a staging location
+# The entrypoint script will optionally copy this to tmpfs (RAM disk) for faster access
+RUN mkdir -p /data/parquet-disk && \
         if [ -d /app/static_data ]; then \
-            cp -r /app/static_data/* /data/parquet/; \
+            cp -r /app/static_data/* /data/parquet-disk/; \
         fi
 
-# Make Parquet directory discoverable by the app
-ENV PARQUET_DIR=/data/parquet
+# Copy and set up entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create directories for logs and media
 RUN mkdir -p /app/logs /app/media
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
-
-# Run database migrations
-RUN python manage.py migrate --noinput
-
 # Expose port
 EXPOSE 8000
 
-# Run the application (ensure correct Django project module)
-# Use gevent worker for optimal streaming/async I/O performance, with extended timeouts
+# Set Gunicorn environment defaults
 ENV GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-300}
 ENV GUNICORN_GRACEFUL_TIMEOUT=${GUNICORN_GRACEFUL_TIMEOUT:-330}
 ENV GUNICORN_KEEPALIVE=${GUNICORN_KEEPALIVE:-5}
 ENV GUNICORN_LOG_LEVEL=${GUNICORN_LOG_LEVEL:-info}
 ENV GUNICORN_ACCESS_LOG=${GUNICORN_ACCESS_LOG:--}
 ENV GUNICORN_ERROR_LOG=${GUNICORN_ERROR_LOG:--}
+
+# Use entrypoint to handle tmpfs copy and migrations
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Default command: run Gunicorn with gevent workers
 CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:8000 --timeout ${GUNICORN_TIMEOUT} --graceful-timeout ${GUNICORN_GRACEFUL_TIMEOUT} --keep-alive ${GUNICORN_KEEPALIVE} --log-level ${GUNICORN_LOG_LEVEL} --access-logfile ${GUNICORN_ACCESS_LOG} --error-logfile ${GUNICORN_ERROR_LOG} --workers 2 --worker-class gevent --worker-connections 1000 philgeps_data_explorer.wsgi:application"]
