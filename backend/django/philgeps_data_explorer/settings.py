@@ -14,6 +14,8 @@ ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1',
     '0.0.0.0',  # For Docker
+    'philgeps-2.simple-systems.dev',
+    'philgeps-api-2.simple-systems.dev',
 ]
 
 allowed_hosts_env = config('ALLOWED_HOSTS', default='')
@@ -157,6 +159,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3002",
     "http://localhost:3200",
     "http://127.0.0.1:3200",
+    "https://philgeps-2.simple-systems.dev",
+    "https://philgeps-api-2.simple-systems.dev",
 ]
 
 cors_env = config('CORS_ALLOWED_ORIGINS', default='')
@@ -166,7 +170,8 @@ if cors_env:
 
 # Additional CORS settings
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = False  # Security: only allow specific origins
+# Allow all origins (required due to Cloudflare Tunnel CORS header handling)
+CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF trusted origins (for forms and API requests with CSRF protection)
 CSRF_TRUSTED_ORIGINS = [
@@ -178,6 +183,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3002",
     "http://localhost:3200",
     "http://127.0.0.1:3200",
+    "https://philgeps-2.simple-systems.dev",
+    "https://philgeps-api-2.simple-systems.dev",
 ]
 
 csrf_env = config('CSRF_TRUSTED_ORIGINS', default='')

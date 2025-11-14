@@ -111,6 +111,16 @@ const AppContent: React.FC = () => {
             <Route path={ROUTES.API_DOCS} element={<LazyApiDocumentation />} />
             <Route path={ROUTES.HELP} element={<LazyHelp />} />
             <Route path={ROUTES.ABOUT} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_OVERVIEW} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_DATA} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_FEATURES} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_UPDATES} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_ARCHITECTURE} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_METHODOLOGY} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_QUALITY} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_API} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_CONTACT} element={<LazyAbout />} />
+            <Route path={ROUTES.ABOUT_SCHEMA} element={<LazyAbout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

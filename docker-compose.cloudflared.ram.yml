@@ -8,12 +8,12 @@ services:
     ports:
       - "3200:8000"
     environment:
-      # Production mode - minimal logging
-      DEBUG: "False"
+      # Development mode for local access
+      DEBUG: "True"
       # Django settings
-      ALLOWED_HOSTS: "localhost,127.0.0.1,philgeps-api.simple-systems.dev,philgeps.simple-systems.dev"
-      CORS_ALLOWED_ORIGINS: "https://philgeps.simple-systems.dev"
-      CSRF_TRUSTED_ORIGINS: "https://philgeps.simple-systems.dev"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+      CSRF_TRUSTED_ORIGINS: "http://localhost:3000,http://localhost:5173"
       SECRET_KEY: "your-secret-key"
       # Enable RAM disk optimization (entrypoint will set PARQUET_DIR)
       USE_TMPFS_PARQUET: "true"
@@ -47,7 +47,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: https://philgeps-api.simple-systems.dev
+        VITE_API_URL: http://localhost:3200
     image: philgeps-frontend:latest
     container_name: philgeps-frontend
     ports:

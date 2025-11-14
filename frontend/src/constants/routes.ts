@@ -11,6 +11,17 @@ export const ROUTES = {
   API_DOCS: '/api-docs',
   HELP: '/help',
   ABOUT: '/about',
+  // About sub-routes
+  ABOUT_OVERVIEW: '/about/overview',
+  ABOUT_DATA: '/about/data',
+  ABOUT_FEATURES: '/about/features',
+  ABOUT_UPDATES: '/about/updates',
+  ABOUT_ARCHITECTURE: '/about/architecture',
+  ABOUT_METHODOLOGY: '/about/methodology',
+  ABOUT_QUALITY: '/about/quality',
+  ABOUT_API: '/about/api',
+  ABOUT_CONTACT: '/about/contact',
+  ABOUT_SCHEMA: '/about/schema',
 } as const
 
 // Type for route paths

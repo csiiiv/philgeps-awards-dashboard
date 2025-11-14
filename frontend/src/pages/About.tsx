@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
 import { getThemeVars } from '../design-system/theme'
 import { typography, spacing } from '../design-system'
+import { ROUTES } from '../constants/routes'
 import {
   PageContainer,
   ContentContainer,
@@ -10,22 +12,52 @@ import {
   BodyText,
   Alert
 } from '../components/styled/Common.styled'
+import { Schema } from './About/Schema'
 
 export const About: React.FC = () => {
   const { isDark } = useTheme()
   const vars = getThemeVars()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [activeSection, setActiveSection] = useState('overview')
 
+  // Sync activeSection with URL
+  useEffect(() => {
+    const path = location.pathname
+    if (path === ROUTES.ABOUT || path === ROUTES.ABOUT_OVERVIEW) {
+      setActiveSection('overview')
+    } else if (path === ROUTES.ABOUT_DATA) {
+      setActiveSection('data')
+    } else if (path === ROUTES.ABOUT_FEATURES) {
+      setActiveSection('features')
+    } else if (path === ROUTES.ABOUT_UPDATES) {
+      setActiveSection('updates')
+    } else if (path === ROUTES.ABOUT_ARCHITECTURE) {
+      setActiveSection('architecture')
+    } else if (path === ROUTES.ABOUT_METHODOLOGY) {
+      setActiveSection('methodology')
+    } else if (path === ROUTES.ABOUT_QUALITY) {
+      setActiveSection('quality')
+    } else if (path === ROUTES.ABOUT_API) {
+      setActiveSection('api')
+    } else if (path === ROUTES.ABOUT_CONTACT) {
+      setActiveSection('contact')
+    } else if (path === ROUTES.ABOUT_SCHEMA) {
+      setActiveSection('schema')
+    }
+  }, [location.pathname])
+
   const sections = [
-    { id: 'overview', title: 'Overview', icon: '🏛️', color: vars.primary[600] },
-    { id: 'data', title: 'Data Sources', icon: '📊', color: vars.primary[500] },
-    { id: 'features', title: 'Key Features', icon: '⚡', color: vars.primary[700] },
-    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: vars.primary[500] },
-    { id: 'architecture', title: 'Architecture', icon: '🏗️', color: vars.primary[600] },
-    { id: 'methodology', title: 'Methodology', icon: '🔬', color: vars.primary[500] },
-    { id: 'quality', title: 'Data Quality', icon: '✅', color: vars.primary[600] },
-    { id: 'api', title: 'API & Development', icon: '🔌', color: vars.primary[700] },
-    { id: 'contact', title: 'Support', icon: '📞', color: vars.primary[500] }
+    { id: 'overview', title: 'Overview', icon: '🏛️', color: vars.primary[600], route: ROUTES.ABOUT_OVERVIEW },
+    { id: 'data', title: 'Data Sources', icon: '📊', color: vars.primary[500], route: ROUTES.ABOUT_DATA },
+    { id: 'features', title: 'Key Features', icon: '⚡', color: vars.primary[700], route: ROUTES.ABOUT_FEATURES },
+    { id: 'updates', title: 'Latest Updates', icon: '🆕', color: vars.primary[500], route: ROUTES.ABOUT_UPDATES },
+    { id: 'architecture', title: 'Architecture', icon: '🏗️', color: vars.primary[600], route: ROUTES.ABOUT_ARCHITECTURE },
+    { id: 'methodology', title: 'Methodology', icon: '🔬', color: vars.primary[500], route: ROUTES.ABOUT_METHODOLOGY },
+    { id: 'quality', title: 'Data Quality', icon: '✅', color: vars.primary[600], route: ROUTES.ABOUT_QUALITY },
+    { id: 'api', title: 'API & Development', icon: '🔌', color: vars.primary[700], route: ROUTES.ABOUT_API },
+    { id: 'contact', title: 'Support', icon: '📞', color: vars.primary[500], route: ROUTES.ABOUT_CONTACT },
+    { id: 'schema', title: 'Schema', icon: '📋', color: vars.primary[600], route: ROUTES.ABOUT_SCHEMA }
   ]
 
   const renderTableOfContents = () => (
@@ -41,7 +73,10 @@ export const About: React.FC = () => {
         {sections.map(section => (
           <button
             key={section.id}
-            onClick={() => setActiveSection(section.id)}
+            onClick={() => {
+              setActiveSection(section.id)
+              navigate(section.route)
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -874,6 +909,8 @@ export const About: React.FC = () => {
         return renderAPI()
       case 'contact':
         return renderContact()
+      case 'schema':
+        return <Schema />
       default:
         return renderOverview()
     }
