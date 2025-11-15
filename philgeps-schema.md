@@ -1,7 +1,6 @@
 # PhilGEPS Schema Evolution Analysis
 
 **Analysis Date:** November 14, 2025  
-**Analyst:** AI Analysis of Raw Source Files  
 **Purpose:** Comprehensive understanding of PhilGEPS data structure changes from 2000-2025
 
 ---
@@ -201,96 +200,97 @@ Likely scenarios:
 
 ---
 
-## Semantic Column Grouping: Related Fields Aligned
 
-This view groups related fields together across schemas, making it easier to see how specific data categories evolved.
+## 📊 Complete Semantic Grouping Table
 
-### 📊 Complete Semantic Grouping Table
+This view groups related fields together across schemas, making it easier to see how specific data categories evolved. The 14 categories are:
 
-| Category | Field Name | Schema 1-2<br>2000-2020 | Schema 3<br>2021-2024 | Schema 4-5<br>2025/V2 | Evolution Notes |
-|----------|------------|-------------------------|----------------------|---------------------|-----------------|
-| **🏛️ PROCURING ENTITY** | | | | | |
-| | Entity name | `Organization Name` | `Procuring Entity` | `Procuring Entity (PE)` | Renamed 2021, clarified 2025 |
-| | Region | — | — | `Region` | **NEW 2025/V2** |
-| | Province | — | — | `Province` | **NEW 2025/V2** |
-| | City/Municipality | — | — | `City/Municipality` | **NEW 2025/V2** |
-| | Government branch | — | — | `Government Branch` | **NEW 2025/V2** |
-| | Organization type | — | — | `PE Organization Type` | **NEW 2025/V2** |
-| | Organization type (grouped) | — | — | `PE Organization Type (Grouped)` | **NEW 2025/V2** |
-| | | | | | |
-| **📋 BID IDENTIFICATION** | | | | | |
-| | Reference number | `Reference ID` | `Bid Reference No.` | `Bid Reference No.` | Renamed 2021 |
-| | Solicitation number | `Solicitation No.` | `Solicitation No.` | **REMOVED** | Legacy field dropped 2025 |
-| | Notice title | `Notice Title` | `Notice Title` | `Notice Title` | Stable |
-| | Classification | `Classification` | `Classification` | `Classification` | Stable |
-| | Notice type | `Notice Type` | `Notice Type` | **REMOVED** | Redundant, dropped 2025 |
-| | Business category | `Business Category` | `Business Category` | `Business Category` | Stable |
-| | | | | | |
-| **📅 BID TIMELINE** | | | | | |
-| | Published date | `Publish Date` | `Published Date` | `Published Date` | Renamed 2021 |
-| | Pre-bid date | `PreBid Date` | `PreBid Date` | **REMOVED** | Less common, dropped 2025 |
-| | Closing date | `Closing Date` | `Closing Date` | `Closing Date` | Stable |
-| | | | | | |
-| **💰 BUDGET & FUNDING** | | | | | |
-| | Funding source | `Funding Source` | `Funding Source` | `Funding Source` | Stable |
-| | Funding instrument | `Funding Instrument` | `Funding Instrument` | `Funding Instrument` | Stable |
-| | Approved budget | `Approved Budget of the Contract` | `Approved Budget of the Contract` | `Approved Budget of the Contract` | Stable |
-| | Trade agreement | `Trade Agreement` | `Trade Agreement` | `Trade Agreement` | Stable |
-| | | | | | |
-| **🛒 PROCUREMENT** | | | | | |
-| | Procurement mode | `Procurement Mode` | `Procurement Mode` | `Procurement Mode` | Stable |
-| | Area of delivery | `Area of Delivery` | `Area of Delivery` | `Area of Delivery` | Stable |
-| | Contract duration | `Contract Duration` | `Contract Duration` | `Contract Duration` | Stable |
-| | Calendar type | `Calendar Type` | `Calendar Type` | `Calendar Type` | Stable |
-| | | | | | |
-| **📦 LINE ITEMS** | | | | | |
-| | Line item number | `Line Item No` | `Line Item No` | `Line Item No` | Stable |
-| | Item name | `Item Name` | `Item Name` | `Item Name` | Stable |
-| | Item description | `Item Desc` | `Item Description` | `Item Description` | Full word 2021 |
-| | Quantity | `Quantity` | `Quantity` | `Quantity` | Stable |
-| | Unit of measure | `UOM` (2000-2015)<br>`Unit of Measurement` (2016-2020) | `UOM` | `UOM` | **Changed 2016**, reverted 2021 |
-| | Item budget | `Item Budget` | `Item Budget` | `Item Budget` | Stable |
-| | | | | | |
-| **🏷️ UNSPSC** | | | | | |
-| | UNSPSC code | `UNSPSC Code` | `UNSPSC Code` | `UNSPSC Code` | Stable |
-| | UNSPSC description | `UNSPSC Description` | `UNSPSC Description` | `UNSPSC Description` | Stable |
-| | | | | | |
-| **📊 BID STATUS** | | | | | |
-| | Bid/notice status | `Notice Status` | `Notice Status` | `Bid Notice Status` | More descriptive 2025 |
-| | Created by user | — | `Created By` | **REMOVED** | Added 2021, privacy concern 2025 |
-| | | | | | |
-| **🏆 AWARD ID** | | | | | |
-| | Award reference | `Award No.` | `Award No.` | `Award Reference No.` | More descriptive 2025 |
-| | Award title | `Award Title` | `Award Title` | `Award Title` | Stable |
-| | Award type | `Award Type` | `Award Type` | **REMOVED** | Simplified 2025 |
-| | | | | | |
-| **📅 AWARD TIMELINE** | | | | | |
-| | Published date (award) | `Publish Date(Award)` | `Published Date(Award)` | `Published Date(Award)` | Renamed 2021 |
-| | Award date | `Award Date` | `Award Date` | `Award Date` | Stable |
-| | Notice to proceed | `Notice to Proceed Date` | `Notice to Proceed Date` | `Notice to Proceed Date` | Stable |
-| | Contract effectivity | `Contract Efectivity Date` ⚠️ | `Contract Efectivity Date` ⚠️ | `Contract Effectivity Date` ✅ | **Typo fixed 2025!** |
-| | Contract end date | `Contract End Date` | `Contract End Date` | `Contract End Date` | Stable |
-| | | | | | |
-| **💵 CONTRACT** | | | | | |
-| | Contract amount | `Contract Amount` | `Contract Amount` | `Contract Amount` | Stable |
-| | Contract number | `Contract No` | `Contract No` | **REMOVED** | Auto-generated 2025 |
-| | | | | | |
-| **🎯 AWARD STATUS** | | | | | |
-| | Award status | `Award Status` | `Award Status` | `Award Notice Status` | Consistent naming 2025 |
-| | Reason for award | `Reason for Award` | `Reason for Award` | **REMOVED** | Simplified 2025 |
-| | | | | | |
-| **🏢 AWARDEE** | | | | | |
-| | Organization name | `Awardee Corporate Title` | `Awardee Organization Name` | `Awardee Organization Name` | Renamed 2021 |
-| | Contact person | — | `Awardee Contact Person` | **REMOVED** | Added 2021, privacy 2025 |
-| | Country | — | — | `Country of Awardee` | **NEW 2025/V2** |
-| | Region | — | — | `Region of Awardee` | **NEW 2025/V2** |
-| | Province | — | — | `Province of Awardee` | **NEW 2025/V2** |
-| | City/Municipality | — | — | `City/Municipality of Awardee` | **NEW 2025/V2** |
-| | Awardee size | — | — | `Awardee Size` | **NEW 2025/V2** (Small/Med/Large) |
-| | Joint venture | — | — | `Awardee Joint Venture` | **NEW 2025/V2** (JV partners) |
-| | | | | | |
-| **👥 COMPETITION** | | | | | |
-| | List of bidders | — | `List of Bidder's` | **REMOVED** | Added 2021, sensitive data 2025 |
+1. Procuring Entity
+2. Bid Identification
+3. Bid Timeline
+4. Budget & Funding
+5. Procurement
+6. Line Items
+7. UNSPSC
+8. Bid Status
+9. Award ID
+10. Award Timeline
+11. Contract
+12. Award Status
+13. Awardee Information
+14. Competition
+
+| Field Name | Schema 1-2<br>2000-2020 | Schema 3<br>2021-2024 | Schema 4-5<br>2025/V2 | Evolution Notes |
+|-----------|-------------------------|----------------------|---------------------|-----------------|
+| **🏛️ PROCURING ENTITY** | | | | |
+| Entity name | `Organization Name` | `Procuring Entity` | `Procuring Entity (PE)` | Renamed 2021, clarified 2025 |
+| Region | — | — | `Region` | **NEW 2025/V2** |
+| Province | — | — | `Province` | **NEW 2025/V2** |
+| City/Municipality | — | — | `City/Municipality` | **NEW 2025/V2** |
+| Government branch | — | — | `Government Branch` | **NEW 2025/V2** |
+| Organization type | — | — | `PE Organization Type` | **NEW 2025/V2** |
+| Organization type (grouped) | — | — | `PE Organization Type (Grouped)` | **NEW 2025/V2** |
+| **📋 BID IDENTIFICATION** | | | | |
+| Reference number | `Reference ID` | `Bid Reference No.` | `Bid Reference No.` | Renamed 2021 |
+| Solicitation number | `Solicitation No.` | `Solicitation No.` | **REMOVED** | Legacy field dropped 2025 |
+| Notice title | `Notice Title` | `Notice Title` | `Notice Title` | Stable |
+| Classification | `Classification` | `Classification` | `Classification` | Stable |
+| Notice type | `Notice Type` | `Notice Type` | **REMOVED** | Redundant, dropped 2025 |
+| Business category | `Business Category` | `Business Category` | `Business Category` | Stable |
+| **📅 BID TIMELINE** | | | | |
+| Published date | `Publish Date` | `Published Date` | `Published Date` | Renamed 2021 |
+| Pre-bid date | `PreBid Date` | `PreBid Date` | **REMOVED** | Less common, dropped 2025 |
+| Closing date | `Closing Date` | `Closing Date` | `Closing Date` | Stable |
+| **💰 BUDGET & FUNDING** | | | | |
+| Funding source | `Funding Source` | `Funding Source` | `Funding Source` | Stable |
+| Funding instrument | `Funding Instrument` | `Funding Instrument` | `Funding Instrument` | Stable |
+| Approved budget | `Approved Budget of the Contract` | `Approved Budget of the Contract` | `Approved Budget of the Contract` | Stable |
+| Trade agreement | `Trade Agreement` | `Trade Agreement` | `Trade Agreement` | Stable |
+| **🛒 PROCUREMENT** | | | | |
+| Procurement mode | `Procurement Mode` | `Procurement Mode` | `Procurement Mode` | Stable |
+| Area of delivery | `Area of Delivery` | `Area of Delivery` | `Area of Delivery` | Stable |
+| Contract duration | `Contract Duration` | `Contract Duration` | `Contract Duration` | Stable |
+| Calendar type | `Calendar Type` | `Calendar Type` | `Calendar Type` | Stable |
+| **📦 LINE ITEMS** | | | | |
+| Line item number | `Line Item No` | `Line Item No` | `Line Item No` | Stable |
+| Item name | `Item Name` | `Item Name` | `Item Name` | Stable |
+| Item description | `Item Desc` | `Item Description` | `Item Description` | Full word 2021 |
+| Quantity | `Quantity` | `Quantity` | `Quantity` | Stable |
+| Unit of measure | `UOM` (2000-2015)<br>`Unit of Measurement` (2016-2020) | `UOM` | `UOM` | **Changed 2016**, reverted 2021 |
+| Item budget | `Item Budget` | `Item Budget` | `Item Budget` | Stable |
+| **🏷️ UNSPSC** | | | | |
+| UNSPSC code | `UNSPSC Code` | `UNSPSC Code` | `UNSPSC Code` | Stable |
+| UNSPSC description | `UNSPSC Description` | `UNSPSC Description` | `UNSPSC Description` | Stable |
+| **📊 BID STATUS** | | | | |
+| Bid/notice status | `Notice Status` | `Notice Status` | `Bid Notice Status` | More descriptive 2025 |
+| Created by user | — | `Created By` | **REMOVED** | Added 2021, privacy concern 2025 |
+| **🏆 AWARD ID** | | | | |
+| Award reference | `Award No.` | `Award No.` | `Award Reference No.` | More descriptive 2025 |
+| Award title | `Award Title` | `Award Title` | `Award Title` | Stable |
+| Award type | `Award Type` | `Award Type` | **REMOVED** | Simplified 2025 |
+| **📅 AWARD TIMELINE** | | | | |
+| Published date (award) | `Publish Date(Award)` | `Published Date(Award)` | `Published Date(Award)` | Renamed 2021 |
+| Award date | `Award Date` | `Award Date` | `Award Date` | Stable |
+| Notice to proceed | `Notice to Proceed Date` | `Notice to Proceed Date` | `Notice to Proceed Date` | Stable |
+| Contract effectivity | `Contract Efectivity Date` ⚠️ | `Contract Efectivity Date` ⚠️ | `Contract Effectivity Date` ✅ | Typo fixed 2025 |
+| Contract end date | `Contract End Date` | `Contract End Date` | `Contract End Date` | Stable |
+| **💵 CONTRACT** | | | | |
+| Contract amount | `Contract Amount` | `Contract Amount` | `Contract Amount` | Stable |
+| Contract number | `Contract No` | `Contract No` | **REMOVED** | Auto-generated 2025 |
+| **🎯 AWARD STATUS** | | | | |
+| Award status | `Award Status` | `Award Status` | `Award Notice Status` | Consistent naming 2025 |
+| Reason for award | `Reason for Award` | `Reason for Award` | **REMOVED** | Simplified 2025 |
+| **🏢 AWARDEE INFORMATION** | | | | |
+| Organization name | `Awardee Corporate Title` | `Awardee Organization Name` | `Awardee Organization Name` | Renamed 2021 |
+| Contact person | — | `Awardee Contact Person` | **REMOVED** | Added 2021, removed 2025 (privacy) |
+| Country | — | — | `Country of Awardee` | **NEW in 2025/V2** |
+| Region | — | — | `Region of Awardee` | **NEW in 2025/V2** |
+| Province | — | — | `Province of Awardee` | **NEW in 2025/V2** |
+| City/Municipality | — | — | `City/Municipality of Awardee` | **NEW in 2025/V2** |
+| Awardee size | — | — | `Awardee Size` | **NEW in 2025/V2** (Small/Med/Large) |
+| Joint venture | — | — | `Awardee Joint Venture` | **NEW in 2025/V2** (JV partners) |
+| **👥 COMPETITION** | | | | |
+| List of bidders | — | `List of Bidder's` | **REMOVED** | Added 2021, sensitive data 2025 |
 
 **Totals by Schema:**
 - Schema 1-2 (2000-2020): **40 fields**
@@ -513,67 +513,37 @@ This view groups related fields together across schemas, making it easier to see
 
 ---
 
+
 ## Key Observations & Insights
 
-### 1. The Persistent Typo
+1. **Location Data Gap:**
+    - 2000-2020: No location data
+    - 2021-2024 (Schema 3): Still no location data
+    - 2021-2024 (Schema 5): Full location data (retroactive)
+    - 2025+: Full location data
 
-**`Contract Efectivity Date`** appears in all schemas from 2000-2025. This 25-year-old typo (should be "Effectivity") has never been fixed in the source data, though it was corrected in the 2025 Schema 4 to `Contract Effectivity Date`.
+2. **Privacy Considerations:**
+    - Schema 3 introduced personal data fields (Created By, Awardee Contact Person, List of Bidders)
+    - Schema 4/5 removed these, likely due to privacy regulations (Data Privacy Act of 2012) and GDPR-like compliance
 
-**Implication:** When mapping to unified schema, normalize this to `contract_effectivity_date`.
+3. **Status Field Canonicalization:**
+    - Old: `Notice Status` → New: `Bid Notice Status`
+    - Old: `Award Status` → New: `Award Notice Status`
+    - The rename makes fields more descriptive and consistent
 
-### 2. Column Order Is Unreliable
+4. **Column Order Is Unreliable:**
+    - Column positions change dramatically between schemas
+    - **Always map by column NAME, never by position**
 
-Column positions change dramatically between schemas:
-- Schema 1: Position 11 = `Procurement Mode`
-- Schema 3: Position 7 = `Procurement Mode`
-- Schema 4: Position 11 = `Procurement Mode` (back to original!)
+5. **Typo Correction:**
+    - The longstanding typo `Contract Efectivity Date` was corrected to `Contract Effectivity Date` in Schema 4
 
-**Lesson:** Always map by column NAME, never by position.
-
-### 3. The Location Data Gap
-
-**2000-2020:** No location data at all  
-**2021-2024 (Schema 3):** Still no location data  
-**2021-2024 (Schema 5):** Full location data (retroactive)  
-**2025+:** Full location data
-
-This means geographic analysis is only possible for:
-- 2025+ data (natively)
-- 2021-2024 data (if using Schema 5 instead of Schema 3)
-- 2000-2020 data (requires entity name matching/geocoding)
-
-### 4. Privacy Considerations
-
-Schema 3 introduced personal data fields:
-- `Created By` - System user names
-- `Awardee Contact Person` - Personal contact info
-- `List of Bidder's` - Business competitor information
-
-Schema 4/5 removed these, possibly due to:
-- Privacy regulations (Data Privacy Act of 2012)
-- GDPR-like compliance
-- Reduced PII exposure risk
-
-### 5. Status Field Canonicalization
-
-| Schema | Bid Status Field | Award Status Field |
-|--------|-----------------|-------------------|
-| 1-2 | `Notice Status` | `Award Status` |
-| 3 | `Notice Status` | `Award Status` |
-| 4-5 | `Bid Notice Status` | `Award Notice Status` |
-
-The rename makes the fields more descriptive and consistent with each other.
-
-### 6. File Naming Conventions
-
-| Schema | Pattern | Example |
-|--------|---------|---------|
-| 1-2 | `YYYY-MM -- YYYY-MM.xlsx` | `2015-01 -- 2015-12.xlsx` |
-| 3 | `YYYY-MM -- YYYY-MM.csv` | `2023-01 -- 2023-12.csv` |
-| 4 | `YYYY-MM -- YYYY-MM.csv` | `2025-01 -- 2025-03.csv` |
-| 5 | `YYYY_MMM-MMM.csv` | `2024_Oct-Dec.csv` |
-
-Schema 5 uses a different naming convention, further confirming it's a separate export process.
+6. **File Naming Conventions:**
+    - Schema 1-2: `YYYY-MM -- YYYY-MM.xlsx`
+    - Schema 3: `YYYY-MM -- YYYY-MM.csv`
+    - Schema 4: `YYYY-MM -- YYYY-MM.csv`
+    - Schema 5: `YYYY_MMM-MMM.csv`
+    - Schema 5 uses a different naming convention, confirming it's a separate export process
 
 ---
 

@@ -367,7 +367,7 @@ docker run --env-file backend/django/.env -d -p 3200:3200 --name philgeps-backen
 
 ### Project Information
 - [📝 Changelog](CHANGELOG.md) - Version history
-- [ OpenAPI Migration](docs/OPENAPI_MIGRATION_GUIDE.md) - API migration
+- [📋 Schema Evolution](philgeps-schema.md) - Data structure documentation
 
 ---
 

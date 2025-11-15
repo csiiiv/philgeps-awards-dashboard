@@ -26,6 +26,7 @@ MANIFEST
 # MISC
 data/*
 backend/django/static_data/*
+archive/
 
 # Virtual Environment
 venv/

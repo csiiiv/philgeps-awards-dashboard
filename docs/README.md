@@ -11,8 +11,6 @@ This directory contains the current and essential documentation for the PhilGEPS
 - **`ACTIVE_API_DOCUMENTATION.md`** - Complete OpenAPI 3.0 API reference
 - **`DOCKER_DEPLOYMENT_GUIDE.md`** - Container deployment and cloud setup
 - **`PRODUCTION_DEPLOYMENT_GUIDE.md`** - Production deployment guide
-- **`OPENAPI_MIGRATION_GUIDE.md`** - Migration guide to OpenAPI 3.0
-- **`OPENAPI_MIGRATION_SUMMARY.md`** - Migration completion summary
 
 ## 🎯 Documentation Overview
 
@@ -42,13 +40,9 @@ Complete OpenAPI 3.0 compliant API reference covering:
 - Interactive testing capabilities
 
 ### Migration Guide
-**File**: `OPENAPI_MIGRATION_GUIDE.md`
+**Status**: Archived (migration completed)
 
-Complete guide for migrating to OpenAPI 3.0 including:
-- Migration steps and process
-- New endpoint documentation
-- Schema changes and updates
-- Testing and validation procedures
+The migration to OpenAPI 3.0 has been successfully completed. Migration documentation has been archived to `docs/archive/` for historical reference.
 
 ### Docker Deployment
 **File**: `DOCKER_DEPLOYMENT_GUIDE.md`
@@ -73,9 +67,8 @@ Comprehensive production deployment guide including:
 
 1. **For Users**: Start with `DASHBOARD_DOCUMENTATION.md`
 2. **For Developers**: Review `ACTIVE_API_DOCUMENTATION.md`
-3. **For Migration**: Check `OPENAPI_MIGRATION_GUIDE.md`
-4. **For Production**: See `PRODUCTION_DEPLOYMENT_GUIDE.md`
-5. **For Setup**: See the main project `README.md` in the root directory
+3. **For Deployment**: Check `DOCKER_DEPLOYMENT_GUIDE.md` or `PRODUCTION_DEPLOYMENT_GUIDE.md`
+4. **For Setup**: See the main project `README.md` in the root directory
 
 ## 📝 Documentation Standards
 
