@@ -93,7 +93,7 @@ const AdvancedSearch: React.FC = () => {
       businessCategories: filtersHook.filters.business_categories,
       keywords: filtersHook.filters.keywords,
       timeRanges: timeRanges,
-      valueRange: filtersHook.valueRange,
+      value_range: filtersHook.valueRange,  // Backend expects snake_case
       page: paginationHook.pagination.page,
       pageSize: paginationHook.pagination.pageSize,
       sortBy: paginationHook.sortConfig.key,
@@ -234,6 +234,7 @@ const AdvancedSearch: React.FC = () => {
       business_categories: filtersHook.filters.business_categories,
       keywords: filtersHook.filters.keywords,
       time_ranges: timeRanges,
+      value_range: filtersHook.valueRange,
       includeFloodControl: filtersHook.includeFloodControl
     }
   }, [
@@ -247,6 +248,7 @@ const AdvancedSearch: React.FC = () => {
     filtersHook.dateRange.quarter,
     filtersHook.dateRange.startDate,
     filtersHook.dateRange.endDate,
+    filtersHook.valueRange,
     filtersHook.includeFloodControl
   ])
 

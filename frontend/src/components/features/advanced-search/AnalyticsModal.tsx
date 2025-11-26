@@ -12,6 +12,7 @@ interface AnalyticsModalProps {
     business_categories: string[]
     keywords: string[]
     time_ranges: any[]
+    value_range?: { min?: number; max?: number }
     includeFloodControl?: boolean
   }
 }

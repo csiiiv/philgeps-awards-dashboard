@@ -21,6 +21,7 @@ import {
 import { AnalyticsSummary } from '../analytics/AnalyticsSummary'
 import { AnalyticsControls } from '../analytics/AnalyticsControls'
 import { AnalyticsTable } from '../analytics/AnalyticsTable'
+import { ThresholdClustering } from '../analytics/ThresholdClustering'
 import { UnifiedPagination } from './UnifiedPagination'
 import { useUnifiedAnalytics } from '../../../hooks/useUnifiedAnalytics'
 import { EntityDrillDownModal } from '../advanced-search/EntityDrillDownModal'
@@ -46,6 +47,7 @@ interface AnalyticsExplorerProps {
     business_categories: string[]
     keywords: string[]
     time_ranges: any[]
+    value_range?: { min?: number; max?: number }
     includeFloodControl?: boolean
   }
   showSearchFilters?: boolean
@@ -369,6 +371,15 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Threshold Clustering */}
+                <div style={{ marginTop: spacing[6] }}>
+                  <ThresholdClustering
+                    currentFilters={currentFilters}
+                    isDark={darkMode}
+                    numBins={1000}
+                  />
                 </div>
               </div>
             )}

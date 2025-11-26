@@ -52,7 +52,7 @@ export const useEntityFilters = (): EntityFiltersState & EntityFiltersActions =>
         keywords: [],
         timeRanges: [],
         includeFloodControl: false,
-        valueRange: undefined
+        value_range: undefined
       })
       
       if (response.data) {

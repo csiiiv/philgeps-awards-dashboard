@@ -41,7 +41,7 @@ export interface ChipSearchParams {
   sortDirection?: 'asc' | 'desc'
   includeFloodControl?: boolean
   dimension?: string
-  valueRange?: {
+  value_range?: {  // Backend expects snake_case
     min?: number
     max?: number
   }
@@ -219,7 +219,7 @@ export class AdvancedSearchService {
         sortBy: params.sortBy,
         sortDirection: params.sortDirection,
         include_flood_control: params.includeFloodControl || false,
-        value_range: this.getDefaultValueRange(params.valueRange)
+        value_range: this.getDefaultValueRange(params.value_range)  // Fixed: use snake_case
       }
       
       // Debug logging
@@ -284,7 +284,7 @@ export class AdvancedSearchService {
       time_ranges: params.timeRanges || [],
       topN: params.topN || 20,
       include_flood_control: params.includeFloodControl || false,
-      value_range: this.getDefaultValueRange(params.valueRange)
+      value_range: this.getDefaultValueRange(params.value_range)  // Fixed: use snake_case
     }
 
     console.log('🔍 chipAggregates request payload:', JSON.stringify(payload, null, 2))
@@ -316,7 +316,7 @@ export class AdvancedSearchService {
       sort_by: params.sortBy || 'total_value',
       sort_direction: params.sortDirection || 'desc',
       include_flood_control: params.includeFloodControl || false,
-      value_range: this.getDefaultValueRange(params.valueRange)
+      value_range: this.getDefaultValueRange(params.value_range)
     }
 
     const response = await fetch(`${this.baseUrl}/contracts/chip-aggregates-paginated/`, {
@@ -339,7 +339,7 @@ export class AdvancedSearchService {
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
       include_flood_control: params.includeFloodControl || false,
-      value_range: this.getDefaultValueRange(params.valueRange)
+      value_range: this.getDefaultValueRange(params.value_range)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-estimate/`, {
       method: 'POST',
@@ -358,7 +358,7 @@ export class AdvancedSearchService {
       business_categories: params.businessCategories || [],
       keywords: params.keywords || [],
       time_ranges: params.timeRanges || [],
-      value_range: this.getDefaultValueRange(params.valueRange)
+      value_range: this.getDefaultValueRange(params.value_range)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export/`, {
       method: 'POST',
@@ -379,7 +379,7 @@ export class AdvancedSearchService {
       time_ranges: params.timeRanges || [],
       dimension: params.dimension || 'by_contractor',
       include_flood_control: params.includeFloodControl || false,
-      value_range: this.getDefaultValueRange(params.valueRange)
+      value_range: this.getDefaultValueRange(params.value_range)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated/`, {
       method: 'POST',
@@ -400,7 +400,7 @@ export class AdvancedSearchService {
       time_ranges: params.timeRanges || [],
       dimension: params.dimension || 'by_contractor',
       include_flood_control: params.includeFloodControl || false,
-      value_range: this.getDefaultValueRange(params.valueRange)
+      value_range: this.getDefaultValueRange(params.value_range)
     }
     const response = await fetch(`${this.baseUrl}/contracts/chip-export-aggregated-estimate/`, {
       method: 'POST',
@@ -434,6 +434,60 @@ export class AdvancedSearchService {
       throw new Error('Failed to load filter options. Please try again.')
     }
   }
+
+  /**
+   * Get value distribution histogram
+   */
+  async getValueDistribution(params: ChipSearchParams & { num_bins?: number }): Promise<ValueDistributionResponse> {
+    const payload = {
+      contractors: params.contractors || [],
+      areas: params.areas || [],
+      organizations: params.organizations || [],
+      business_categories: params.businessCategories || [],
+      keywords: params.keywords || [],
+      time_ranges: params.timeRanges || [],
+      include_flood_control: params.includeFloodControl || false,
+      value_range: this.getDefaultValueRange(params.value_range),
+      num_bins: params.num_bins || 1000
+    }
+
+    console.log('📊 getValueDistribution request payload:', JSON.stringify(payload, null, 2))
+
+    const response = await fetch(`${this.baseUrl}/contracts/value-distribution/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('❌ getValueDistribution error response:', response.status, errorText)
+      throw new Error(`Value distribution failed: ${response.statusText}`)
+    }
+    
+    const data = await response.json()
+    console.log('✅ getValueDistribution response:', data)
+    return data
+  }
+}
+
+// Value Distribution Types
+export interface ValueDistributionResponse {
+  min_value: number
+  max_value: number
+  bin_width: number
+  num_bins: number
+  total_contracts: number
+  bins: ValueDistributionBin[]
+}
+
+export interface ValueDistributionBin {
+  bin_number: number
+  bin_start: number
+  bin_end: number
+  count: number
+  total_value: number
+  avg_value: number
 }
 
 // Export singleton instance

@@ -461,7 +461,13 @@ class ParquetSearchService:
                                     time_ranges: List[Dict] = [],
                                     value_range: Optional[Dict] = None) -> List[str]:
         """Build WHERE conditions for chip-based filtering (extracted for reuse)"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
         where_conditions = []
+        
+        # Log input filters for debugging
+        logger.info(f"Building WHERE conditions with filters: contractors={contractors}, areas={areas}, organizations={organizations}, keywords={keywords}")
         
         # Apply filters in order of selectivity (most selective first)
         # 1. Business category first (most selective, smallest result set)
@@ -504,7 +510,8 @@ class ParquetSearchService:
                         org_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
-                            org_and_conditions.append(f"LOWER(organization_name) LIKE LOWER('%{escaped_keyword}%')")
+                            # Add NULL safety - organization_name can be NULL or empty
+                            org_and_conditions.append(f"(organization_name IS NOT NULL AND LOWER(organization_name) LIKE LOWER('%{escaped_keyword}%'))")
                         org_conditions.append(f"({' AND '.join(org_and_conditions)})")
             if org_conditions:
                 where_conditions.append(f"({' OR '.join(org_conditions)})")
@@ -519,7 +526,8 @@ class ParquetSearchService:
                         area_and_conditions = []
                         for keyword in and_keywords:
                             escaped_keyword = self._escape_sql_like(keyword)
-                            area_and_conditions.append(f"LOWER(area_of_delivery) LIKE LOWER('%{escaped_keyword}%')")
+                            # Add NULL safety - area_of_delivery can be NULL or empty
+                            area_and_conditions.append(f"(area_of_delivery IS NOT NULL AND LOWER(area_of_delivery) LIKE LOWER('%{escaped_keyword}%'))")
                         area_conditions.append(f"({' AND '.join(area_and_conditions)})")
             if area_conditions:
                 where_conditions.append(f"({' OR '.join(area_conditions)})")
@@ -600,6 +608,11 @@ class ParquetSearchService:
             
             if amount_conditions:
                 where_conditions.append(f"({' AND '.join(amount_conditions)})")
+        
+        # Log final WHERE conditions for debugging
+        logger.info(f"Final WHERE conditions: {where_conditions}")
+        if where_conditions:
+            logger.info(f"Combined WHERE clause: {' AND '.join(where_conditions)}")
         
         return where_conditions
     
@@ -1248,3 +1261,168 @@ class ParquetSearchService:
             }
         except Exception as e:
             return {'success': False, 'error': str(e), 'data': [], 'pagination': {}}
+    
+    def get_value_distribution(
+        self,
+        contractors: List[str] = None,
+        areas: List[str] = None,
+        organizations: List[str] = None,
+        business_categories: List[str] = None,
+        keywords: List[str] = None,
+        time_ranges: List[Dict] = None,
+        value_range: Dict[str, float] = None,
+        include_flood_control: bool = False,
+        num_bins: int = 1000
+    ) -> Dict[str, Any]:
+        """
+        Calculate value distribution histogram with configurable bins.
+        
+        Returns bins showing how many contracts fall within each value range,
+        revealing clustering patterns (e.g., many contracts around 1M, 5M, etc.)
+        
+        Args:
+            num_bins: Number of bins to divide the value range into (default: 1000)
+            Other args: Same as chip_search for filtering
+            
+        Returns:
+            {
+                'success': True,
+                'min_value': float,
+                'max_value': float,
+                'bin_width': float,
+                'bins': [
+                    {'bin_start': float, 'bin_end': float, 'count': int, 'total_value': float},
+                    ...
+                ]
+            }
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            # Get parquet files
+            parquet_files = self._get_parquet_files(include_flood_control=include_flood_control)
+            if not parquet_files:
+                return {
+                    'success': False,
+                    'error': 'No parquet files found',
+                    'bins': []
+                }
+            
+            # Build WHERE conditions (returns a list, need to join)
+            where_conditions_list = self._build_chip_where_conditions(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                value_range=value_range
+            )
+            
+            # Build base query with proper WHERE clause handling
+            file_list = "', '".join(parquet_files)
+            
+            # Always include contract_amount conditions
+            amount_conditions = "contract_amount IS NOT NULL AND contract_amount > 0"
+            
+            if where_conditions_list:
+                # Join the list of conditions with AND
+                where_conditions_str = ' AND '.join(where_conditions_list)
+                where_clause = f"WHERE {where_conditions_str} AND {amount_conditions}"
+            else:
+                where_clause = f"WHERE {amount_conditions}"
+            
+            base_query = f"""
+            SELECT contract_amount
+            FROM read_parquet(['{file_list}'])
+            {where_clause}
+            """
+            
+            logger.info(f"Value distribution query: {base_query}")
+            
+            conn = self.get_connection()
+            
+            # First, get min and max values
+            stats_query = f"""
+            SELECT 
+                MIN(contract_amount) as min_value,
+                MAX(contract_amount) as max_value,
+                COUNT(*) as total_contracts
+            FROM ({base_query})
+            """
+            
+            stats = conn.execute(stats_query).fetchone()
+            min_value, max_value, total_contracts = stats
+            
+            if not min_value or not max_value or total_contracts == 0:
+                return {
+                    'success': True,
+                    'min_value': 0,
+                    'max_value': 0,
+                    'bin_width': 0,
+                    'total_contracts': 0,
+                    'bins': []
+                }
+            
+            # Calculate bin width
+            bin_width = (max_value - min_value) / num_bins
+            
+            # Manual binning (WIDTH_BUCKET not available in this DuckDB version)
+            histogram_query = f"""
+            WITH binned_data AS (
+                SELECT 
+                    CAST(
+                        LEAST(
+                            FLOOR((contract_amount - {min_value}) / {bin_width}) + 1,
+                            {num_bins}
+                        ) AS INTEGER
+                    ) as bin_number,
+                    contract_amount
+                FROM ({base_query})
+            )
+            SELECT 
+                bin_number,
+                {min_value} + (bin_number - 1) * {bin_width} as bin_start,
+                {min_value} + bin_number * {bin_width} as bin_end,
+                COUNT(*) as count,
+                SUM(contract_amount) as total_value
+            FROM binned_data
+            WHERE bin_number >= 1 AND bin_number <= {num_bins}
+            GROUP BY bin_number
+            ORDER BY bin_number
+            """
+            
+            logger.info(f"Histogram query: {histogram_query}")
+            
+            rows = conn.execute(histogram_query).fetchall()
+            
+            bins = []
+            for row in rows:
+                bin_number, bin_start, bin_end, count, total_value = row
+                bins.append({
+                    'bin_number': int(bin_number),
+                    'bin_start': float(bin_start),
+                    'bin_end': float(bin_end),
+                    'count': int(count),
+                    'total_value': float(total_value) if total_value else 0,
+                    'avg_value': float(total_value / count) if count > 0 else 0
+                })
+            
+            return {
+                'success': True,
+                'min_value': float(min_value),
+                'max_value': float(max_value),
+                'bin_width': float(bin_width),
+                'num_bins': num_bins,
+                'total_contracts': int(total_contracts),
+                'bins': bins
+            }
+            
+        except Exception as e:
+            logger.error(f"Error calculating value distribution: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e),
+                'bins': []
+            }
