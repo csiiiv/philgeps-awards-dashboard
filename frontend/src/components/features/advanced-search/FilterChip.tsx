@@ -8,6 +8,7 @@ export interface FilterChipProps {
   type: 'contractor' | 'area' | 'organization' | 'category' | 'keyword' | 'timerange' | 'date'
   onRemove: () => void
   isDark?: boolean
+  readOnly?: boolean // For display-only chips (e.g., in analytics modal header)
 }
 
 const FilterChip: React.FC<FilterChipProps> = ({ 
@@ -15,7 +16,8 @@ const FilterChip: React.FC<FilterChipProps> = ({
   value, 
   type, 
   onRemove, 
-  isDark = false 
+  isDark = false,
+  readOnly = false
 }) => {
   const vars = getThemeVars(isDark)
   
@@ -107,8 +109,11 @@ const FilterChip: React.FC<FilterChipProps> = ({
 
   return (
     <div
-      style={getChipStyle(type)}
-      title={`Remove ${label}`}
+      style={{
+        ...getChipStyle(type),
+        cursor: readOnly ? 'default' : 'pointer'
+      }}
+      title={readOnly ? label : `Remove ${label}`}
     >
       <span style={{ marginRight: spacing[1] }}>
         {getIcon(type)}
@@ -121,31 +126,33 @@ const FilterChip: React.FC<FilterChipProps> = ({
       }}>
         {label}
       </span>
-      <span
-        style={{ 
-          marginLeft: spacing[1], 
-          fontSize: typography.fontSize.xs,
-          opacity: 0.7,
-          cursor: 'pointer',
-          padding: '0 4px',
-          userSelect: 'none',
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove();
-        }}
-        aria-label={`Remove ${label}`}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
+      {!readOnly && (
+        <span
+          style={{ 
+            marginLeft: spacing[1], 
+            fontSize: typography.fontSize.xs,
+            opacity: 0.7,
+            cursor: 'pointer',
+            padding: '0 4px',
+            userSelect: 'none',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
             onRemove();
-          }
-        }}
-      >
-        ×
-      </span>
+          }}
+          aria-label={`Remove ${label}`}
+          role="button"
+          tabIndex={0}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onRemove();
+            }
+          }}
+        >
+          ×
+        </span>
+      )}
     </div>
   )
 }

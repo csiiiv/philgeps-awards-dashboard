@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing, commonStyles } from '../../../design-system'
 import { advancedSearchService, type FilterOptions } from '../../../services/AdvancedSearchService'
+import { getFiltersFromUrl, updateUrlHash, hasUrlFilters } from '../../../utils/urlState'
 
 // Import extracted hooks
 import { useAdvancedSearchFilters } from '../../../hooks/advanced-search/useAdvancedSearchFilters'
@@ -38,6 +39,8 @@ const AdvancedSearch: React.FC = () => {
   })
   const [loadingOptions, setLoadingOptions] = useState(false)
   const [analyticsOpen, setAnalyticsOpen] = useState(false)
+  const hasLoadedFromUrl = useRef(false)
+  const shouldTriggerSearch = useRef(false)
 
   // Load filter options on mount
   useEffect(() => {
@@ -57,6 +60,108 @@ const AdvancedSearch: React.FC = () => {
 
     loadFilterOptions()
   }, []) // Remove dataHook dependency to prevent multiple loads
+
+  // Load filters from URL on mount
+  useEffect(() => {
+    if (hasLoadedFromUrl.current) return
+    
+    // Check if we have URL filters
+    if (hasUrlFilters()) {
+      const urlFilters = getFiltersFromUrl()
+      console.log('🔗 Loading filters from URL:', urlFilters)
+
+      // Apply filters from URL using individual add methods
+      if (urlFilters.keywords?.length) {
+        urlFilters.keywords.forEach(k => {
+          console.log('🔗 Adding keyword from URL:', k)
+          filtersHook.addKeyword(k)
+        })
+      }
+      if (urlFilters.contractors?.length) {
+        urlFilters.contractors.forEach(c => {
+          console.log('🔗 Adding contractor from URL:', c)
+          filtersHook.addFilter('contractors', c)
+        })
+      }
+      if (urlFilters.areas?.length) {
+        urlFilters.areas.forEach(a => {
+          console.log('🔗 Adding area from URL:', a)
+          filtersHook.addFilter('areas', a)
+        })
+      }
+      if (urlFilters.organizations?.length) {
+        urlFilters.organizations.forEach(o => {
+          console.log('🔗 Adding organization from URL:', o)
+          filtersHook.addFilter('organizations', o)
+        })
+      }
+      if (urlFilters.business_categories?.length) {
+        urlFilters.business_categories.forEach(b => {
+          console.log('🔗 Adding business category from URL:', b)
+          filtersHook.addFilter('business_categories', b)
+        })
+      }
+
+      // Apply date range
+      if (urlFilters.dateRangeType && urlFilters.dateRangeType !== 'all_time') {
+        console.log('🔗 Setting date range from URL:', urlFilters.dateRangeType)
+        if (urlFilters.dateRangeType === 'yearly' && urlFilters.year) {
+          filtersHook.setDateRange({
+            type: 'yearly',
+            year: urlFilters.year,
+            quarter: 1,
+            startDate: '',
+            endDate: ''
+          })
+        } else if (urlFilters.dateRangeType === 'quarterly' && urlFilters.year && urlFilters.quarter) {
+          filtersHook.setDateRange({
+            type: 'quarterly',
+            year: urlFilters.year,
+            quarter: urlFilters.quarter,
+            startDate: '',
+            endDate: ''
+          })
+        } else if (urlFilters.dateRangeType === 'custom' && urlFilters.startDate && urlFilters.endDate) {
+          filtersHook.setDateRange({
+            type: 'custom',
+            year: new Date().getFullYear(),
+            quarter: 1,
+            startDate: urlFilters.startDate,
+            endDate: urlFilters.endDate
+          })
+        }
+      }
+
+      // Apply value range
+      if (urlFilters.minValue !== undefined || urlFilters.maxValue !== undefined) {
+        console.log('🔗 Setting value range from URL:', { min: urlFilters.minValue, max: urlFilters.maxValue })
+        filtersHook.setValueRange({
+          min: urlFilters.minValue,
+          max: urlFilters.maxValue
+        })
+      }
+
+      // Apply flood control
+      if (urlFilters.includeFloodControl !== undefined) {
+        console.log('🔗 Setting flood control from URL:', urlFilters.includeFloodControl)
+        filtersHook.setIncludeFloodControl(urlFilters.includeFloodControl)
+      }
+
+      // Trigger search after filters are loaded
+      shouldTriggerSearch.current = true
+      
+      // Auto-open analytics if view=analytics
+      if (urlFilters.view === 'analytics') {
+        console.log('🔗 Will auto-open analytics after search')
+        setTimeout(() => setAnalyticsOpen(true), 2000)
+      }
+    } else {
+      console.log('🔗 No URL filters found, starting fresh')
+    }
+    
+    // Mark as loaded regardless
+    hasLoadedFromUrl.current = true
+  }, [])
 
   // Build search parameters from current state
   const buildSearchParams = useCallback(() => {
@@ -135,7 +240,28 @@ const AdvancedSearch: React.FC = () => {
     
     const searchParams = buildSearchParams()
     await dataHook.performSearch(searchParams, paginationHook.setPagination)
-  }, [buildSearchParams, dataHook, paginationHook, filtersHook.dateRange])
+    
+    // Update URL with current filters after search
+    const urlState = {
+      keywords: filtersHook.filters.keywords,
+      contractors: filtersHook.filters.contractors,
+      areas: filtersHook.filters.areas,
+      organizations: filtersHook.filters.organizations,
+      business_categories: filtersHook.filters.business_categories,
+      dateRangeType: filtersHook.dateRange.type,
+      year: filtersHook.dateRange.year,
+      quarter: filtersHook.dateRange.quarter,
+      startDate: filtersHook.dateRange.startDate,
+      endDate: filtersHook.dateRange.endDate,
+      minValue: filtersHook.valueRange?.min,
+      maxValue: filtersHook.valueRange?.max,
+      includeFloodControl: filtersHook.includeFloodControl,
+      view: analyticsOpen ? 'analytics' as const : 'search' as const
+    }
+    
+    console.log('🔗 Updating URL after search:', urlState)
+    updateUrlHash(urlState)
+  }, [buildSearchParams, dataHook, paginationHook, filtersHook, analyticsOpen])
 
   // Handle sorting
   const handleSort = useCallback((key: string) => {
@@ -210,13 +336,72 @@ const AdvancedSearch: React.FC = () => {
   const handleShowAnalytics = useCallback(() => {
     console.log('📈 AdvancedSearch - handleShowAnalytics called')
     setAnalyticsOpen(true)
-  }, [])
+    
+    // Update URL to include view=analytics
+    const urlState = {
+      keywords: filtersHook.filters.keywords,
+      contractors: filtersHook.filters.contractors,
+      areas: filtersHook.filters.areas,
+      organizations: filtersHook.filters.organizations,
+      business_categories: filtersHook.filters.business_categories,
+      dateRangeType: filtersHook.dateRange.type,
+      year: filtersHook.dateRange.year,
+      quarter: filtersHook.dateRange.quarter,
+      startDate: filtersHook.dateRange.startDate,
+      endDate: filtersHook.dateRange.endDate,
+      minValue: filtersHook.valueRange?.min,
+      maxValue: filtersHook.valueRange?.max,
+      includeFloodControl: filtersHook.includeFloodControl,
+      view: 'analytics' as const
+    }
+    updateUrlHash(urlState)
+  }, [filtersHook])
 
   // Handle analytics modal close
   const handleAnalyticsClose = useCallback(() => {
     console.log('📈 AdvancedSearch - handleAnalyticsClose called')
     setAnalyticsOpen(false)
+    
+    // Update URL to remove view=analytics
+    const urlState = {
+      keywords: filtersHook.filters.keywords,
+      contractors: filtersHook.filters.contractors,
+      areas: filtersHook.filters.areas,
+      organizations: filtersHook.filters.organizations,
+      business_categories: filtersHook.filters.business_categories,
+      dateRangeType: filtersHook.dateRange.type,
+      year: filtersHook.dateRange.year,
+      quarter: filtersHook.dateRange.quarter,
+      startDate: filtersHook.dateRange.startDate,
+      endDate: filtersHook.dateRange.endDate,
+      minValue: filtersHook.valueRange?.min,
+      maxValue: filtersHook.valueRange?.max,
+      includeFloodControl: filtersHook.includeFloodControl,
+      view: 'search' as const
+    }
+    updateUrlHash(urlState)
+  }, [filtersHook])
+
+  // Handle share
+  const handleShare = useCallback(() => {
+    const url = window.location.href
+    navigator.clipboard.writeText(url).then(() => {
+      console.log('🔗 URL copied to clipboard:', url)
+    }).catch((err) => {
+      console.error('Failed to copy URL:', err)
+      // Fallback: show URL in alert
+      alert(`Share this URL:\n${url}`)
+    })
   }, [])
+
+  // Auto-trigger search after loading from URL (placed after all callbacks are defined)
+  useEffect(() => {
+    if (shouldTriggerSearch.current) {
+      shouldTriggerSearch.current = false
+      console.log('🔗 Auto-triggering search after URL load')
+      handleSearch()
+    }
+  }, [handleSearch])
 
   // Get current filters for analytics modal - memoized to prevent unnecessary re-renders
   const currentFilters = useMemo(() => {
@@ -327,6 +512,7 @@ const AdvancedSearch: React.FC = () => {
           onSearch={handleSearch}
           onExport={handleExport}
           onShowAnalytics={handleShowAnalytics}
+          onShare={handleShare}
         />
       </div>
 

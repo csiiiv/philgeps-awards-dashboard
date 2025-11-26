@@ -30,6 +30,7 @@ import { ExportCSVModal } from './ExportCSVModal'
 import { AccessibleButton } from './AccessibleButton'
 import { useUnifiedExport } from '../../../hooks/useUnifiedExport'
 import { createAnalyticsExplorerConfig } from '../../../hooks/useUnifiedExportConfigs'
+import { FilterChip } from '../advanced-search/FilterChip'
 
 // Types (re-exported or imported from other files)
 export type DatasetType = 'contractors' | 'organizations' | 'areas' | 'categories'
@@ -188,6 +189,74 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
 
   const displayError = dataError || propError
 
+  // State for tab selection
+  const [activeTab, setActiveTab] = React.useState<'tables' | 'charts'>('tables')
+
+  // Build applied filters as FilterChips
+  const appliedFilters = React.useMemo(() => {
+    const filters: Array<{ label: string; type: 'contractor' | 'area' | 'organization' | 'category' | 'keyword' | 'timerange' | 'date' }> = []
+    
+    if (currentFilters?.keywords && currentFilters.keywords.length > 0) {
+      currentFilters.keywords.forEach(keyword => {
+        filters.push({ label: keyword, type: 'keyword' })
+      })
+    }
+    if (currentFilters?.contractors && currentFilters.contractors.length > 0) {
+      currentFilters.contractors.forEach(contractor => {
+        filters.push({ label: contractor, type: 'contractor' })
+      })
+    }
+    if (currentFilters?.areas && currentFilters.areas.length > 0) {
+      currentFilters.areas.forEach(area => {
+        filters.push({ label: area, type: 'area' })
+      })
+    }
+    if (currentFilters?.organizations && currentFilters.organizations.length > 0) {
+      currentFilters.organizations.forEach(org => {
+        filters.push({ label: org, type: 'organization' })
+      })
+    }
+    if (currentFilters?.business_categories && currentFilters.business_categories.length > 0) {
+      currentFilters.business_categories.forEach(cat => {
+        filters.push({ label: cat, type: 'category' })
+      })
+    }
+    if (currentFilters?.value_range) {
+      const { min, max } = currentFilters.value_range
+      if (min !== undefined || max !== undefined) {
+        const formatCurrency = (n: number) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
+        let label = ''
+        if (min !== undefined && max !== undefined) {
+          label = `Value: ${formatCurrency(min)} - ${formatCurrency(max)}`
+        } else if (min !== undefined) {
+          label = `Value: ≥ ${formatCurrency(min)}`
+        } else if (max !== undefined) {
+          label = `Value: ≤ ${formatCurrency(max)}`
+        }
+        if (label) {
+          filters.push({ label, type: 'date' })
+        }
+      }
+    }
+    if (currentFilters?.time_ranges && currentFilters.time_ranges.length > 0) {
+      currentFilters.time_ranges.forEach(range => {
+        let label = ''
+        if (range.type === 'yearly' && range.year) {
+          label = `Year: ${range.year}`
+        } else if (range.type === 'quarterly' && range.year && range.quarter) {
+          label = `Q${range.quarter} ${range.year}`
+        } else if (range.type === 'custom' && range.startDate && range.endDate) {
+          label = `${range.startDate} to ${range.endDate}`
+        }
+        if (label) {
+          filters.push({ label, type: 'timerange' })
+        }
+      })
+    }
+    
+    return filters
+  }, [currentFilters])
+
   // Modal wrapper for analytics mode
   if (mode === 'analytics') {
     return (
@@ -195,7 +264,33 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
         <Modal
           open={open}
           onClose={onClose || (() => {})}
-          title="Analytics Overview"
+          title={
+            <div>
+              <div style={{ fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold, marginBottom: spacing[1] }}>
+                Analytics Overview
+              </div>
+              {appliedFilters.length > 0 && (
+                <div style={{ 
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: spacing[2],
+                  marginTop: spacing[2]
+                }}>
+                  {appliedFilters.map((filter, idx) => (
+                    <FilterChip
+                      key={idx}
+                      label={filter.label}
+                      value={filter.label}
+                      type={filter.type}
+                      onRemove={() => {}} // Read-only chips
+                      isDark={darkMode}
+                      readOnly={true}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          }
           isDark={darkMode}
           size="xlarge"
           zIndex={10000}
@@ -219,10 +314,10 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
             {dataLoading && <LoadingSpinner />}
             {displayError && <ErrorDisplay error={displayError} />}
 
-            {/* Summary Statistics */}
+            {/* Summary Statistics - Always Visible */}
             {showSummary && <AnalyticsSummary {...summaryStats} />}
 
-            {/* Analytics Controls */}
+            {/* Analytics Controls - Always Visible */}
             <AnalyticsControls
               dimension={analyticsControls.dimension}
               metric={analyticsControls.metric}
@@ -233,55 +328,112 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
               isDark={darkMode}
             />
 
-            {/* Analytics Table */}
-            <AnalyticsTable
-              data={processedData}
-              metric={analyticsControls.metric}
-              onEntityClick={handleEntityClick}
-              isDark={darkMode}
-              loading={dataLoading}
-              currentPage={pagination.currentPage}
-              pageSize={pagination.pageSize}
-            />
+            {/* Tabs - Consistent with main navigation style */}
+            <div style={{ 
+              borderBottom: `1px solid ${vars.border.light}`, 
+              marginTop: spacing[6],
+              marginBottom: spacing[4]
+            }}>
+              <div style={{ display: 'flex', gap: spacing[1] }}>
+                <button
+                  onClick={() => setActiveTab('tables')}
+                  style={{
+                    padding: `${spacing[3]} ${spacing[4]}`,
+                    border: 'none',
+                    backgroundColor: activeTab === 'tables' ? vars.primary[600] : 'transparent',
+                    color: activeTab === 'tables' ? vars.text.inverse : vars.text.primary,
+                    cursor: 'pointer',
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.medium,
+                    borderRadius: `${spacing[1]} ${spacing[1]} 0 0`,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: spacing[2]
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'tables') {
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'tables') {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
+                >
+                  <span>📊</span>
+                  Tables
+                </button>
+                <button
+                  onClick={() => setActiveTab('charts')}
+                  style={{
+                    padding: `${spacing[3]} ${spacing[4]}`,
+                    border: 'none',
+                    backgroundColor: activeTab === 'charts' ? vars.primary[600] : 'transparent',
+                    color: activeTab === 'charts' ? vars.text.inverse : vars.text.primary,
+                    cursor: 'pointer',
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.medium,
+                    borderRadius: `${spacing[1]} ${spacing[1]} 0 0`,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: spacing[2]
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'charts') {
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'charts') {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
+                >
+                  <span>📈</span>
+                  Charts
+                </button>
+              </div>
+            </div>
 
-            {/* Pagination */}
-            <UnifiedPagination
-              currentPage={pagination.currentPage}
-              totalPages={pagination.totalPages}
-              totalCount={pagination.totalCount}
-              pageSize={pagination.pageSize}
-              showingText={pagination.info.showingText}
-              onPageChange={pagination.goToPage}
-              onPageSizeChange={pagination.setPageSize}
-              onFirstPage={pagination.goToFirstPage}
-              onPreviousPage={pagination.goToPreviousPage}
-              onNextPage={pagination.goToNextPage}
-              onLastPage={pagination.goToLastPage}
-              isDark={darkMode}
-              variant="analytics"
-            />
-            
-            {/* Debug info - remove in production */}
-            {process.env.NODE_ENV === 'development' && (
-              <div style={{ 
-                marginTop: spacing[4], 
-                padding: spacing[2], 
-                backgroundColor: darkMode ? '#374151' : '#f3f4f6', 
-                borderRadius: spacing[1],
-                fontSize: typography.fontSize.xs,
-                color: vars.text.secondary
-              }}>
-                Debug: Total Pages: {pagination.totalPages}, Current Page: {pagination.currentPage}, 
-                Page Size: {pagination.pageSize}, Total Count: {pagination.totalCount}
+            {/* Tables Tab Content */}
+            {activeTab === 'tables' && (
+              <div>
+                {/* Analytics Table */}
+                <AnalyticsTable
+                  data={processedData}
+                  metric={analyticsControls.metric}
+                  onEntityClick={handleEntityClick}
+                  isDark={darkMode}
+                  loading={dataLoading}
+                  currentPage={pagination.currentPage}
+                  pageSize={pagination.pageSize}
+                />
+
+                {/* Pagination */}
+                <UnifiedPagination
+                  currentPage={pagination.currentPage}
+                  totalPages={pagination.totalPages}
+                  totalCount={pagination.totalCount}
+                  pageSize={pagination.pageSize}
+                  showingText={pagination.info.showingText}
+                  onPageChange={pagination.goToPage}
+                  onPageSizeChange={pagination.setPageSize}
+                  onFirstPage={pagination.goToFirstPage}
+                  onPreviousPage={pagination.goToPreviousPage}
+                  onNextPage={pagination.goToNextPage}
+                  onLastPage={pagination.goToLastPage}
+                  isDark={darkMode}
+                  variant="analytics"
+                />
               </div>
             )}
 
-            {/* Charts */}
-            {showCharts && aggregates && (
-              <div style={{ marginTop: spacing[6] }}>
-                <div style={{ marginBottom: spacing[4], fontWeight: typography.fontWeight.semibold, color: vars.text.primary, fontSize: typography.fontSize.lg }}>
-                  Charts
-                </div>
+            {/* Charts Tab Content */}
+            {activeTab === 'charts' && showCharts && aggregates && (
+              <div>
                 <div style={{ display: 'grid', gap: spacing[6] }}>
                   {/* Horizontal bar chart for Top entities */}
                   <div>
@@ -378,7 +530,6 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
                   <ThresholdClustering
                     currentFilters={currentFilters}
                     isDark={darkMode}
-                    numBins={1000}
                   />
                 </div>
               </div>
