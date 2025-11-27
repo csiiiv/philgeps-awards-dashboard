@@ -7,150 +7,247 @@ services:
     container_name: philgeps-backend-ram
     ports:
       - "3200:8000"
+    networks:
+      - philgeps-cloudflared
     environment:
-        environment:
-          DEBUG: ${DEBUG:-True}
-          ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
-          CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
-          CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
-          SECRET_KEY: ${SECRET_KEY:-your-secret-key}
-          USE_TMPFS_PARQUET: "true"
-          GUNICORN_WORKERS: "4"
-          GUNICORN_WORKER_CLASS: "gevent"
-          GUNICORN_WORKER_CONNECTIONS: "1000"
-          GUNICORN_TIMEOUT: "120"
-          GUNICORN_GRACEFUL_TIMEOUT: "125"
-          GUNICORN_KEEPALIVE: "75"
-          DB_CONN_MAX_AGE: "600"
-          REDIS_URL: "redis://redis:6379/0"
-          CACHE_BACKEND: "django_redis.cache.RedisCache"
-          CACHE_TIMEOUT: "300"
-          PYTHONUNBUFFERED: "1"
-          CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
-          CELERY_RESULT_BACKEND: "redis://redis:6379/0"
-    # RAM disk for parquet data (3GB for 2.0GB of data)
+      # Production mode - minimal logging
+      DEBUG: ${DEBUG:-False}
+      # Django settings for production with Cloudflare
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,philgeps-api.simple-systems.dev,philgeps.simple-systems.dev}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://philgeps.simple-systems.dev}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-https://philgeps.simple-systems.dev}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key}
+      # Enable tmpfs for parquet data - will be copied to RAM at startup
+      USE_TMPFS_PARQUET: ${USE_TMPFS_PARQUET:-true}
+      # Celery configuration
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      # Gunicorn settings for streaming (gevent worker, extended timeouts)
+      GUNICORN_TIMEOUT: "1800"  # Allow up to 30 minutes for large exports
+      GUNICORN_GRACEFUL_TIMEOUT: "1805"  # Extra 5s for graceful shutdown
+      GUNICORN_KEEPALIVE: "5"
+      GUNICORN_LOG_LEVEL: "info"
+      GUNICORN_ACCESS_LOG: "-"
+      GUNICORN_ERROR_LOG: "-"
+      # Python logging
+      PYTHONUNBUFFERED: "1"
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Mount tmpfs (RAM disk) for ultra-fast parquet file access
+    # Size: 3GB (sufficient for current 1.8GB data with headroom for growth)
     tmpfs:
       - /data/parquet-tmpfs:size=3221225472,mode=1777
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/"]
       interval: 30s
       timeout: 10s
-            # Celery broker for RabbitMQ
-            CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
-            CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       retries: 3
       start_period: 40s
-      depends_on:
-        - rabbitmq
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
 
   frontend:
     build:
       context: ./frontend
       args:
         VITE_API_URL: https://philgeps-api.simple-systems.dev
-          depends_on:
+    image: philgeps-frontend:latest
+    container_name: philgeps-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - philgeps-cloudflared
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      backend:
+        condition: service_healthy
 
-            services:
-              backend:
-                build:
-                  context: ./backend/django
-                  dockerfile: Dockerfile
-                image: philgeps-backend:latest
-                container_name: philgeps-backend-ram
-                ports:
-                  - "3200:8000"
-                environment:
-                  DEBUG: "True"
-                  ALLOWED_HOSTS: "localhost,127.0.0.1"
-                  CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
-                  CSRF_TRUSTED_ORIGINS: "http://localhost:3000,http://localhost:5173"
-                  SECRET_KEY: "your-secret-key"
-                  USE_TMPFS_PARQUET: "true"
-                  GUNICORN_WORKERS: "4"
-                  GUNICORN_WORKER_CLASS: "gevent"
-                  GUNICORN_WORKER_CONNECTIONS: "1000"
-                  GUNICORN_TIMEOUT: "120"
-                  GUNICORN_GRACEFUL_TIMEOUT: "125"
-                  GUNICORN_KEEPALIVE: "75"
-                  DB_CONN_MAX_AGE: "600"
-                  REDIS_URL: "redis://redis:6379/0"
-                  CACHE_BACKEND: "django_redis.cache.RedisCache"
-                  CACHE_TIMEOUT: "300"
-                  PYTHONUNBUFFERED: "1"
-                  CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
-                  CELERY_RESULT_BACKEND: "redis://redis:6379/0"
-                tmpfs:
-                  - /data/parquet-tmpfs:size=3221225472,mode=1777
-                restart: unless-stopped
-                healthcheck:
-                  test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/"]
-                  interval: 30s
-                  timeout: 10s
-                  retries: 3
-                  start_period: 40s
-                depends_on:
-                  - rabbitmq
+  # Redis - Result Backend for Celery & Caching
+  redis:
+    image: redis:7-alpine
+    container_name: philgeps-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - philgeps-cloudflared
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - redis_data:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-              frontend:
-                build:
-                  context: ./frontend
-                  args:
-                    VITE_API_URL: http://localhost:3200
-                image: philgeps-frontend:latest
-                container_name: philgeps-frontend
-                ports:
-                  - "3000:80"
-                restart: unless-stopped
-                healthcheck:
-                  test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:80/"]
-                  interval: 30s
-                  timeout: 10s
-                  retries: 3
-                  start_period: 10s
-                depends_on:
-                  backend:
-                    condition: service_healthy
+  # RabbitMQ - Message Broker for Celery
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: philgeps-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    networks:
+      - philgeps-cloudflared
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-              redis:
-                image: redis:7-alpine
-                container_name: philgeps-redis
-                command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
-                restart: unless-stopped
-                healthcheck:
-                  test: ["CMD", "redis-cli", "ping"]
-                  interval: 10s
-                  timeout: 3s
-                  retries: 3
+  # Celery Worker
+  celeryworker:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
+    image: philgeps-celeryworker:latest
+    container_name: philgeps-celeryworker
+    command: celery -A philgeps_data_explorer worker --loglevel=info
+    networks:
+      - philgeps-cloudflared
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key}
+      DEBUG: ${DEBUG:-False}
+      DJANGO_SETTINGS_MODULE: "philgeps_data_explorer.settings"
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      USE_TMPFS_PARQUET: ${USE_TMPFS_PARQUET:-true}
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    tmpfs:
+      - /data/parquet-tmpfs:size=3221225472,mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
 
-              rabbitmq:
-                image: rabbitmq:3-management
-                container_name: philgeps-rabbitmq
-                ports:
-                  - "5672:5672"
-                  - "15672:15672"
-                restart: unless-stopped
-                healthcheck:
-                  test: ["CMD", "rabbitmqctl", "status"]
-                  interval: 10s
-                  timeout: 5s
-                  retries: 3
+  # Flower - Celery Monitoring Tool
+  flower:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
+    image: philgeps-backend:latest
+    container_name: philgeps-flower
+    command: celery -A philgeps_data_explorer flower --port=5555
+    ports:
+      - "5555:5555"
+    networks:
+      - philgeps-cloudflared
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-              celeryworker:
-                build:
-                  context: ./backend/django
-                  dockerfile: Dockerfile
-                image: philgeps-celeryworker:latest
-                container_name: philgeps-celeryworker
-                command: celery -A philgeps_data_explorer worker --loglevel=INFO
-                environment:
-                  DEBUG: "True"
-                  SECRET_KEY: "your-secret-key"
-                  DJANGO_SETTINGS_MODULE: "philgeps_data_explorer.settings"
-                  CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
-                  CELERY_RESULT_BACKEND: "redis://redis:6379/0"
-                depends_on:
-                  - backend
-                  - rabbitmq
-                  - redis
-                restart: unless-stopped
+  # Celery Beat - Periodic Task Scheduler
+  celerybeat:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
+    image: philgeps-celeryworker:latest
+    container_name: philgeps-celerybeat
+    command: celery -A philgeps_data_explorer beat --loglevel=info
+    networks:
+      - philgeps-cloudflared
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key}
+      DEBUG: ${DEBUG:-False}
+      DJANGO_SETTINGS_MODULE: "philgeps_data_explorer.settings"
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Cloudflare Tunnel - exposes services to the internet securely
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: philgeps-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    networks:
+      - philgeps-cloudflared
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-your-cloudflare-tunnel-token}
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  philgeps-cloudflared:
+    driver: bridge
+    name: philgeps-cloudflared-network
+
+volumes:
+  redis_data:
+  rabbitmq_data:
