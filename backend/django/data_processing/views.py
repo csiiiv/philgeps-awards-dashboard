@@ -777,3 +777,73 @@ def get_cached_result(request):
         
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def benfords_law_analysis(request):
+    """
+    Analyze contract values using Benford's Law
+    
+    POST /api/data-processing/benfords-law/
+    """
+    try:
+        from contracts.parquet_search import ParquetSearchService
+        
+        data = json.loads(request.body) if request.body else {}
+        service = ParquetSearchService()
+        
+        result = service.analyze_benfords_law(
+            contractors=data.get('contractors', []),
+            areas=data.get('areas', []),
+            organizations=data.get('organizations', []),
+            business_categories=data.get('business_categories', []),
+            keywords=data.get('keywords', []),
+            time_ranges=data.get('time_ranges', []),
+            value_range=data.get('value_range')
+        )
+        
+        if not result.get('success'):
+            return Response({
+                'detail': result.get('error', 'Analysis failed')
+            }, status=500)
+        
+        return Response(result, status=200)
+        
+    except Exception as e:
+        return Response({'detail': str(e)}, status=500)
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def rounding_patterns_analysis(request):
+    """
+    Analyze rounding patterns in contract values
+    
+    POST /api/data-processing/rounding-patterns/
+    """
+    try:
+        from contracts.parquet_search import ParquetSearchService
+        
+        data = json.loads(request.body) if request.body else {}
+        service = ParquetSearchService()
+        
+        result = service.analyze_rounding_patterns(
+            contractors=data.get('contractors', []),
+            areas=data.get('areas', []),
+            organizations=data.get('organizations', []),
+            business_categories=data.get('business_categories', []),
+            keywords=data.get('keywords', []),
+            time_ranges=data.get('time_ranges', []),
+            value_range=data.get('value_range')
+        )
+        
+        if not result.get('success'):
+            return Response({
+                'detail': result.get('error', 'Analysis failed')
+            }, status=500)
+        
+        return Response(result, status=200)
+        
+    except Exception as e:
+        return Response({'detail': str(e)}, status=500)

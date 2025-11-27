@@ -5,9 +5,12 @@ Parquet-based search service for searching ALL contracts without importing to da
 import os
 import pandas as pd
 import glob
+import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
 import duckdb
+
+logger = logging.getLogger(__name__)
 
 class ParquetSearchService:
     # Singleton DuckDB connection for reuse across requests
@@ -1369,12 +1372,13 @@ class ParquetSearchService:
             bin_width = (max_value - min_value) / num_bins
             
             # Manual binning (WIDTH_BUCKET not available in this DuckDB version)
+            # Use DOUBLE to prevent overflow with large bin_width values
             histogram_query = f"""
             WITH binned_data AS (
                 SELECT 
                     CAST(
                         LEAST(
-                            FLOOR((contract_amount - {min_value}) / {bin_width}) + 1,
+                            FLOOR((CAST(contract_amount AS DOUBLE) - CAST({min_value} AS DOUBLE)) / CAST({bin_width} AS DOUBLE)) + 1,
                             {num_bins}
                         ) AS INTEGER
                     ) as bin_number,
@@ -1383,8 +1387,8 @@ class ParquetSearchService:
             )
             SELECT 
                 bin_number,
-                {min_value} + (bin_number - 1) * {bin_width} as bin_start,
-                {min_value} + bin_number * {bin_width} as bin_end,
+                CAST({min_value} AS DOUBLE) + CAST((bin_number - 1) AS DOUBLE) * CAST({bin_width} AS DOUBLE) as bin_start,
+                CAST({min_value} AS DOUBLE) + CAST(bin_number AS DOUBLE) * CAST({bin_width} AS DOUBLE) as bin_end,
                 COUNT(*) as count,
                 SUM(contract_amount) as total_value
             FROM binned_data
@@ -1397,17 +1401,18 @@ class ParquetSearchService:
             
             rows = conn.execute(histogram_query).fetchall()
             
-            bins = []
+            # Return bins as object with bin_number as key for sparse data efficiency
+            # Only non-empty bins are included; frontend will fill in zeros for missing bins
+            bins = {}
             for row in rows:
                 bin_number, bin_start, bin_end, count, total_value = row
-                bins.append({
-                    'bin_number': int(bin_number),
+                bins[str(bin_number)] = {
                     'bin_start': float(bin_start),
                     'bin_end': float(bin_end),
                     'count': int(count),
                     'total_value': float(total_value) if total_value else 0,
                     'avg_value': float(total_value / count) if count > 0 else 0
-                })
+                }
             
             return {
                 'success': True,
@@ -1416,7 +1421,7 @@ class ParquetSearchService:
                 'bin_width': float(bin_width),
                 'num_bins': num_bins,
                 'total_contracts': int(total_contracts),
-                'bins': bins
+                'bins': bins  # Object with bin_number as key
             }
             
         except Exception as e:
@@ -1425,4 +1430,318 @@ class ParquetSearchService:
                 'success': False,
                 'error': str(e),
                 'bins': []
+            }
+    
+    def analyze_benfords_law(
+        self,
+        contractors: List[str] = None,
+        areas: List[str] = None,
+        organizations: List[str] = None,
+        business_categories: List[str] = None,
+        keywords: List[str] = None,
+        time_ranges: List[Dict] = None,
+        value_range: Dict = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze first digit distribution using Benford's Law
+        
+        Benford's Law states that in many natural datasets, the first digit is:
+        - 1: 30.1%
+        - 2: 17.6%
+        - 3: 12.5%
+        - 4: 9.7%
+        - 5: 7.9%
+        - 6: 6.7%
+        - 7: 5.8%
+        - 8: 5.1%
+        - 9: 4.6%
+        """
+        import math
+        from scipy import stats
+        
+        try:
+            parquet_files = self._get_parquet_files()
+            
+            # Build WHERE conditions
+            where_conditions_list = self._build_chip_where_conditions(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                value_range=value_range
+            )
+            
+            # Build base query
+            file_list = "', '".join(parquet_files)
+            amount_conditions = "contract_amount IS NOT NULL AND contract_amount > 0"
+            
+            if where_conditions_list:
+                where_conditions_str = ' AND '.join(where_conditions_list)
+                where_clause = f"WHERE {where_conditions_str} AND {amount_conditions}"
+            else:
+                where_clause = f"WHERE {amount_conditions}"
+            
+            # Extract first digit from contract amounts
+            query = f"""
+            WITH first_digits AS (
+                SELECT 
+                    CAST(SUBSTR(CAST(CAST(contract_amount AS BIGINT) AS VARCHAR), 1, 1) AS INTEGER) as first_digit
+                FROM read_parquet(['{file_list}'])
+                {where_clause}
+            )
+            SELECT 
+                first_digit,
+                COUNT(*) as count
+            FROM first_digits
+            WHERE first_digit BETWEEN 1 AND 9
+            GROUP BY first_digit
+            ORDER BY first_digit
+            """
+            
+            conn = self.get_connection()
+            results = conn.execute(query).fetchall()
+            
+            # Benford's Law expected frequencies
+            benfords_expected = {
+                1: 30.1, 2: 17.6, 3: 12.5, 4: 9.7, 5: 7.9,
+                6: 6.7, 7: 5.8, 8: 5.1, 9: 4.6
+            }
+            
+            # Calculate observed frequencies
+            total_count = sum(count for _, count in results)
+            observed = {digit: 0 for digit in range(1, 10)}
+            for digit, count in results:
+                observed[digit] = count
+            
+            # Calculate chi-square statistic
+            analysis = []
+            chi_square = 0
+            
+            for digit in range(1, 10):
+                observed_freq = (observed[digit] / total_count * 100) if total_count > 0 else 0
+                expected_freq = benfords_expected[digit]
+                expected_count = total_count * expected_freq / 100
+                
+                # Chi-square component
+                if expected_count > 0:
+                    chi_component = ((observed[digit] - expected_count) ** 2) / expected_count
+                else:
+                    chi_component = 0
+                
+                chi_square += chi_component
+                
+                analysis.append({
+                    'digit': digit,
+                    'count': int(observed[digit]),
+                    'observed_frequency': round(observed_freq, 2),
+                    'expected_frequency': round(expected_freq, 2),
+                    'chi_square_component': round(chi_component, 2)
+                })
+            
+            # Calculate p-value (8 degrees of freedom for 9 categories)
+            p_value = 1 - stats.chi2.cdf(chi_square, df=8)
+            
+            # Is it suspicious? (p < 0.05 indicates significant deviation)
+            is_suspicious = p_value < 0.05
+            
+            return {
+                'success': True,
+                'total_contracts': int(total_count),
+                'analysis': analysis,
+                'chi_square_statistic': round(chi_square, 2),
+                'p_value': round(p_value, 4),
+                'is_suspicious': is_suspicious
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in Benford's Law analysis: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def analyze_rounding_patterns(
+        self,
+        contractors: List[str] = None,
+        areas: List[str] = None,
+        organizations: List[str] = None,
+        business_categories: List[str] = None,
+        keywords: List[str] = None,
+        time_ranges: List[Dict] = None,
+        value_range: Dict = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze rounding patterns in contract values
+        
+        Detects:
+        - Excessive rounding to "nice" numbers
+        - Trailing zeros patterns
+        - Last digit distribution
+        """
+        try:
+            parquet_files = self._get_parquet_files()
+            
+            # Build WHERE conditions
+            where_conditions_list = self._build_chip_where_conditions(
+                contractors=contractors,
+                areas=areas,
+                organizations=organizations,
+                business_categories=business_categories,
+                keywords=keywords,
+                time_ranges=time_ranges,
+                value_range=value_range
+            )
+            
+            # Build base query
+            file_list = "', '".join(parquet_files)
+            amount_conditions = "contract_amount IS NOT NULL AND contract_amount > 0"
+            
+            if where_conditions_list:
+                where_conditions_str = ' AND '.join(where_conditions_list)
+                where_clause = f"WHERE {where_conditions_str} AND {amount_conditions}"
+            else:
+                where_clause = f"WHERE {amount_conditions}"
+            
+            conn = self.get_connection()
+            
+            # 1. Rounding magnitude analysis
+            rounding_query = f"""
+            WITH amounts AS (
+                SELECT contract_amount
+                FROM read_parquet(['{file_list}'])
+                {where_clause}
+            ),
+            rounding_levels AS (
+                SELECT 
+                    CASE
+                        WHEN contract_amount % 10000000 = 0 THEN 'Rounded to 10M'
+                        WHEN contract_amount % 1000000 = 0 THEN 'Rounded to 1M'
+                        WHEN contract_amount % 100000 = 0 THEN 'Rounded to 100K'
+                        WHEN contract_amount % 10000 = 0 THEN 'Rounded to 10K'
+                        WHEN contract_amount % 1000 = 0 THEN 'Rounded to 1K'
+                        ELSE 'No rounding'
+                    END as bucket,
+                    contract_amount
+                FROM amounts
+            )
+            SELECT 
+                bucket,
+                COUNT(*) as count,
+                SUM(contract_amount) as total_value
+            FROM rounding_levels
+            GROUP BY bucket
+            ORDER BY 
+                CASE bucket
+                    WHEN 'Rounded to 10M' THEN 1
+                    WHEN 'Rounded to 1M' THEN 2
+                    WHEN 'Rounded to 100K' THEN 3
+                    WHEN 'Rounded to 10K' THEN 4
+                    WHEN 'Rounded to 1K' THEN 5
+                    ELSE 6
+                END
+            """
+            
+            rounding_results = conn.execute(rounding_query).fetchall()
+            total_contracts = sum(count for _, count, _ in rounding_results)
+            
+            rounding_buckets = []
+            for bucket, count, total_value in rounding_results:
+                rounding_buckets.append({
+                    'bucket': bucket,
+                    'count': int(count),
+                    'percentage': round(count / total_contracts * 100, 2) if total_contracts > 0 else 0,
+                    'total_value': float(total_value) if total_value else 0
+                })
+            
+            # 2. Last digit distribution
+            last_digit_query = f"""
+            WITH amounts AS (
+                SELECT contract_amount
+                FROM read_parquet(['{file_list}'])
+                {where_clause}
+            )
+            SELECT 
+                CAST(contract_amount AS BIGINT) % 10 as last_digit,
+                COUNT(*) as count
+            FROM amounts
+            GROUP BY last_digit
+            ORDER BY last_digit
+            """
+            
+            last_digit_results = conn.execute(last_digit_query).fetchall()
+            last_digit_distribution = []
+            for digit, count in last_digit_results:
+                last_digit_distribution.append({
+                    'digit': int(digit),
+                    'count': int(count),
+                    'percentage': round(count / total_contracts * 100, 2) if total_contracts > 0 else 0
+                })
+            
+            # 3. Trailing zeros analysis
+            trailing_zeros_query = f"""
+            WITH amounts AS (
+                SELECT contract_amount
+                FROM read_parquet(['{file_list}'])
+                {where_clause}
+            ),
+            trailing_zeros AS (
+                SELECT 
+                    LENGTH(CAST(CAST(contract_amount AS BIGINT) AS VARCHAR)) - 
+                    LENGTH(RTRIM(CAST(CAST(contract_amount AS BIGINT) AS VARCHAR), '0')) as zeros
+                FROM amounts
+            )
+            SELECT 
+                zeros,
+                COUNT(*) as count
+            FROM trailing_zeros
+            GROUP BY zeros
+            ORDER BY zeros
+            """
+            
+            trailing_results = conn.execute(trailing_zeros_query).fetchall()
+            trailing_zeros_distribution = []
+            for zeros, count in trailing_results:
+                trailing_zeros_distribution.append({
+                    'zeros': int(zeros),
+                    'count': int(count),
+                    'percentage': round(count / total_contracts * 100, 2) if total_contracts > 0 else 0
+                })
+            
+            # Calculate suspicion score (0-100)
+            # Higher score = more suspicious
+            suspicion_score = 0
+            
+            # Check for excessive rounding to millions
+            for bucket in rounding_buckets:
+                if 'M' in bucket['bucket'] and bucket['percentage'] > 15:
+                    suspicion_score += 30
+            
+            # Check for last digit bias (should be ~10% each)
+            for item in last_digit_distribution:
+                deviation = abs(item['percentage'] - 10)
+                if deviation > 5:
+                    suspicion_score += deviation * 2
+            
+            # Cap at 100
+            suspicion_score = min(suspicion_score, 100)
+            
+            is_suspicious = suspicion_score > 70
+            
+            return {
+                'success': True,
+                'total_contracts': int(total_contracts),
+                'rounding_buckets': rounding_buckets,
+                'last_digit_distribution': last_digit_distribution,
+                'trailing_zeros_distribution': trailing_zeros_distribution,
+                'suspicion_score': round(suspicion_score, 1),
+                'is_suspicious': is_suspicious
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in rounding patterns analysis: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e)
             }
