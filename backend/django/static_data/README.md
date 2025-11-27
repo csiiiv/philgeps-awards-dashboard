@@ -11,11 +11,29 @@ static_data/
 ├── agg_business_category.parquet               # Business category aggregations (9 columns, 171 rows)
 ├── agg_contractor.parquet                      # Contractor aggregations (9 columns, 127,049 rows)
 ├── agg_organization.parquet                    # Organization aggregations (9 columns, 24,658 rows)
-├── facts_awards_all_time.parquet               # All-time facts (20 columns, 5.5M+ rows)
-└── facts_awards_title_optimized.parquet        # Title optimized for search (14 columns, 5.5M+ rows)
+├── facts_awards_all_time.parquet               # All-time facts (21 columns, 5.5M+ rows) - AUTO-GENERATED
+└── chunks/                                      # Parquet chunks (15 files, <50MB each)
+    ├── README.md                               # Chunking documentation
+    ├── facts_awards_chunk_01.parquet           # Chunk 1 (38 MB)
+    ├── facts_awards_chunk_02.parquet           # Chunk 2 (48 MB)
+    ├── facts_awards_chunk_03.parquet           # Chunk 3 (49 MB)
+    ├── facts_awards_chunk_04.parquet           # Chunk 4 (49 MB)
+    ├── facts_awards_chunk_05.parquet           # Chunk 5 (48 MB)
+    ├── facts_awards_chunk_06.parquet           # Chunk 6 (47 MB)
+    ├── facts_awards_chunk_07.parquet           # Chunk 7 (45 MB)
+    ├── facts_awards_chunk_08.parquet           # Chunk 8 (46 MB)
+    ├── facts_awards_chunk_09.parquet           # Chunk 9 (45 MB)
+    ├── facts_awards_chunk_10.parquet           # Chunk 10 (45 MB)
+    ├── facts_awards_chunk_11.parquet           # Chunk 11 (45 MB)
+    ├── facts_awards_chunk_12.parquet           # Chunk 12 (41 MB)
+    ├── facts_awards_chunk_13.parquet           # Chunk 13 (37 MB)
+    ├── facts_awards_chunk_14.parquet           # Chunk 14 (38 MB)
+    └── facts_awards_chunk_15.parquet           # Chunk 15 (5 MB)
 ```
 
-**Note**: Quarterly and yearly aggregations have been removed in favor of dynamic filtering in the application layer.
+**Note**: 
+- Quarterly and yearly aggregations have been removed in favor of dynamic filtering in the application layer.
+- `facts_awards_all_time.parquet` is auto-generated from chunks during Docker build to avoid Git LFS.
 
 ## 🎯 File Types and Purposes
 
@@ -90,14 +108,35 @@ Pre-computed aggregations for fast analytics and dashboard performance.
   - `organization_name` - Government organization
   - `business_category` - Business category
   - `area_of_delivery` - Delivery area
+### Chunking Strategy (Git LFS Avoidance)
+
+To avoid Git LFS limits and costs, the large `facts_awards_all_time.parquet` file (636 MB) is split into 15 smaller chunks (<50MB each):
+
+#### Why Chunks?
+- ✅ **No Git LFS required** - All chunks are under GitHub's 50MB warning threshold
+- ✅ **No GitHub warnings** - Avoids the 50MB file size warnings (hard limit is 100MB)
+- ✅ **Direct Git storage** - Reduces complexity and repository costs
+- ✅ **Faster cloning** - No LFS authentication or bandwidth limits
+- ✅ **Automatic combination** - Chunks are combined during Docker build
+
+#### How It Works
+1. **Development**: `facts_awards_all_time.parquet` exists locally (ignored by Git)
+2. **Commit**: Only chunks are tracked in Git (`chunks/*.parquet`)
+3. **Docker Build**: `combine_parquet_chunks.py` runs automatically
+4. **Result**: Complete file available in container
+
+#### Scripts
+- **Split**: `scripts/split_parquet_for_git.py` - Splits large file into chunks
+- **Combine**: `backend/django/combine_parquet_chunks.py` - Combines chunks (runs in Docker)
+
+See `chunks/README.md` for detailed documentation.
+
 ### Removed Files
 
 The following files have been removed in this version:
+- **`facts_awards_title_optimized.parquet`**: ~~Redundant search-optimized file (1.3GB) - not used by application~~
 - **`facts_awards_flood_control.parquet`**: Flood control data is now integrated into the main dataset
 - **Quarterly/Yearly subdirectories**: Time-based filtering is now handled dynamically in the application layer
-  - `agg_organization.parquet` - Organization aggregations for the year
-  - `facts_awards_year_YYYY.parquet` - Fact data for the year
-- **API Usage**: `/api/v1/data-processing/entities/?time_range=yearly&year=YYYY`
 
 ## 🚀 Performance Optimizations
 

@@ -21,6 +21,15 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app/
 
+# Combine parquet chunks if they exist
+# This reconstructs facts_awards_all_time.parquet from chunks to avoid Git LFS
+RUN if [ -d /app/static_data/chunks ]; then \
+        echo "🔄 Combining parquet chunks..."; \
+        python3 /app/combine_parquet_chunks.py; \
+    else \
+        echo "✅ No chunks found, using existing parquet file"; \
+    fi
+
 # Copy static parquet data into the image at a staging location
 # The entrypoint script will optionally copy this to tmpfs (RAM disk) for faster access
 RUN mkdir -p /data/parquet-disk && \

@@ -281,6 +281,12 @@ $RECYCLE.BIN/
 *.xls
 *.7z
 
+# Parquet chunking strategy (avoid Git LFS)
+# Track the small chunk files (<100MB each) but ignore the large combined file
+# The combined file is auto-generated from chunks during Docker build
+backend/django/static_data/facts_awards_all_time.parquet
+!backend/django/static_data/chunks/*.parquet
+
 # Database files
 *.sqlite3
 *.db
