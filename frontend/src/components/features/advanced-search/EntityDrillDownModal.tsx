@@ -39,6 +39,7 @@ interface EntityDrillDownModalProps {
     businessCategories: string[]
     keywords: string[]
     time_ranges: any[]
+    value_range?: { min?: number; max?: number }
     includeFloodControl?: boolean
   }
   isDark?: boolean
@@ -296,6 +297,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         pageSize: pagination.pageSize,
         sortBy: sortConfig.key,
         sortDirection: sortConfig.direction,
+        value_range: currentFilters.value_range,
         includeFloodControl: currentFilters.includeFloodControl || false
       }
 
@@ -339,6 +341,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         businessCategories: entityFilters.businessCategories || [],
         keywords: entityFilters.keywords || [],
         timeRanges: entityFilters.time_ranges || [],
+        value_range: currentFilters.value_range,
         topN: 999999, // Very large number to get all counts
         includeFloodControl: currentFilters.includeFloodControl || false
       }
@@ -362,6 +365,7 @@ const EntityDrillDownModal: React.FC<EntityDrillDownModalProps> = ({
         businessCategories: entityFilters.businessCategories || [],
         keywords: entityFilters.keywords || [],
         timeRanges: entityFilters.time_ranges || [],
+        value_range: currentFilters.value_range,
         topN: pageSize,
         includeFloodControl: currentFilters.includeFloodControl || false
       }
@@ -1069,6 +1073,7 @@ const NestedContractsModal: React.FC<{
         pageSize: pagination.pageSize, 
         sortBy: sortConfig.key, 
         sortDirection: sortConfig.direction,
+        value_range: parentFilters.value_range,
         includeFloodControl: parentFilters.includeFloodControl || false
       }
       const response = await advancedSearchService.searchContractsWithChips(params as any)

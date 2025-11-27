@@ -15,7 +15,7 @@ export interface UnifiedAnalyticsConfig {
     keywords: string[]
     time_ranges: any[]
     includeFloodControl?: boolean
-    valueRange?: { min?: number; max?: number; }
+    value_range?: { min?: number; max?: number; }  // Backend expects snake_case
   }
 }
 
@@ -62,7 +62,7 @@ export const useUnifiedAnalytics = (config: UnifiedAnalyticsConfig) => {
         sortDirection: 'desc',
         includeFloodControl: currentFilters.includeFloodControl || false,
         dimension: analyticsControls.dimension,
-        valueRange: currentFilters.valueRange
+        value_range: currentFilters.value_range  // Backend expects snake_case
       }
     } else {
       // Explorer mode - use analytics controls for time filtering
@@ -89,7 +89,7 @@ export const useUnifiedAnalytics = (config: UnifiedAnalyticsConfig) => {
         pageSize: pagination.pageSize,
         includeFloodControl: entityFilters.includeFloodControl,
         dimension: analyticsControls.dimension,
-        valueRange: { min: 0, max: 1000000000000 } // Default to min 0 and max 1T for Data Explorer
+        value_range: { min: 0, max: 1000000000000 } // Default to min 0 and max 1T for Data Explorer
       }
     }
   }, [

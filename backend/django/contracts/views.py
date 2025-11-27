@@ -408,6 +408,123 @@ class ContractViewSet(viewsets.ModelViewSet):
             raise SearchError(detail=f'An error occurred during paginated aggregation: {str(e)}')
 
     @extend_schema(
+        operation_id='contracts_value_distribution',
+        summary='Get value distribution histogram',
+        description='Calculate histogram of contract values split into bins to identify clustering patterns',
+        request=ChipSearchRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                description='Value distribution data',
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'min_value': {'type': 'number'},
+                        'max_value': {'type': 'number'},
+                        'bin_width': {'type': 'number'},
+                        'num_bins': {'type': 'integer'},
+                        'total_contracts': {'type': 'integer'},
+                        'bins': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'bin_number': {'type': 'integer'},
+                                    'bin_start': {'type': 'number'},
+                                    'bin_end': {'type': 'number'},
+                                    'count': {'type': 'integer'},
+                                    'total_value': {'type': 'number'},
+                                    'avg_value': {'type': 'number'}
+                                }
+                            }
+                        }
+                    }
+                }
+            ),
+            400: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Validation error'
+            ),
+            500: OpenApiResponse(
+                response=ErrorResponseSerializer,
+                description='Internal server error'
+            )
+        },
+        tags=['analytics']
+    )
+    @action(detail=False, methods=['post'], url_path='value-distribution')
+    def value_distribution(self, request):
+        """
+        Get value distribution histogram.
+        
+        Splits the contract value range into bins and counts how many contracts
+        fall into each bin. Useful for identifying clustering patterns.
+        
+        Accepts optional 'num_bins' parameter (default: 1000).
+        Results cached for 10 minutes.
+        """
+        # Generate cache key from request body
+        request_body = json.dumps(request.data, sort_keys=True)
+        cache_key = f"value_dist:{hashlib.md5(request_body.encode()).hexdigest()}"
+        
+        # Try cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            response = Response(cached_result, status=status.HTTP_200_OK)
+            response['X-Cache-Status'] = 'HIT'
+            return response
+        
+        try:
+            # Validate request data
+            serializer = ChipSearchRequestSerializer(data=request.data)
+            if not serializer.is_valid():
+                raise ValidationError(detail=serializer.errors)
+            
+            validated_data = serializer.validated_data
+            num_bins = request.data.get('num_bins', 1000)  # Default to 1000 bins
+            
+            # Validate num_bins
+            if not isinstance(num_bins, int) or num_bins < 10 or num_bins > 10000:
+                raise ValidationError(detail={'num_bins': 'Must be an integer between 10 and 10000'})
+            
+            parquet_service = ParquetSearchService()
+            result = parquet_service.get_value_distribution(
+                contractors=validated_data.get('contractors', []),
+                areas=validated_data.get('areas', []),
+                organizations=validated_data.get('organizations', []),
+                business_categories=validated_data.get('business_categories', []),
+                keywords=validated_data.get('keywords', []),
+                time_ranges=validated_data.get('time_ranges', []),
+                value_range=validated_data.get('value_range'),
+                include_flood_control=validated_data.get('include_flood_control', False),
+                num_bins=num_bins
+            )
+            
+            if result.get('success'):
+                response_data = {
+                    'min_value': result['min_value'],
+                    'max_value': result['max_value'],
+                    'bin_width': result['bin_width'],
+                    'num_bins': result['num_bins'],
+                    'total_contracts': result['total_contracts'],
+                    'bins': result['bins']
+                }
+                
+                # Cache successful response for 10 minutes
+                cache.set(cache_key, response_data, 600)
+                response = Response(response_data, status=status.HTTP_200_OK)
+                response['X-Cache-Status'] = 'MISS'
+                return response
+            else:
+                raise SearchError(detail=result.get('error', 'Value distribution calculation failed'))
+                
+        except ValidationError:
+            raise
+        except SearchError:
+            raise
+        except Exception as e:
+            raise SearchError(detail=f'An error occurred during value distribution calculation: {str(e)}')
+
+    @extend_schema(
         operation_id='contracts_chip_export_estimate',
         summary='Estimate export size',
         description='Estimate the size of CSV export for current filters',

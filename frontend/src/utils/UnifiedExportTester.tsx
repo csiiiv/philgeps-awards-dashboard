@@ -93,7 +93,7 @@ export const UnifiedExportTester: React.FC = () => {
             timeRanges: [],
             dimension: 'by_contractor',
             includeFloodControl: false,
-            valueRange: null
+            value_range: null
           }
         }
         await unifiedExport.initiateExport(modifiedConfig)

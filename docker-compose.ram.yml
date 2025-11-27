@@ -10,13 +10,18 @@ services:
     networks:
       - philgeps-local
     environment:
-      SECRET_KEY: "django-insecure-dev-key"
-      DEBUG: "True"
-      ALLOWED_HOSTS: "localhost,127.0.0.1"
-      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
-      CSRF_TRUSTED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-dev-key}
+      DEBUG: ${DEBUG:-True}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       # Enable tmpfs for parquet data - will be copied to RAM at startup
-      USE_TMPFS_PARQUET: "true"
+      USE_TMPFS_PARQUET: ${USE_TMPFS_PARQUET:-true}
+      # Celery configuration
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
       GUNICORN_TIMEOUT: "300"
       GUNICORN_GRACEFUL_TIMEOUT: "330"
       GUNICORN_KEEPALIVE: "5"
@@ -24,6 +29,11 @@ services:
       GUNICORN_ACCESS_LOG: "-"
       GUNICORN_ERROR_LOG: "-"
     restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     # Mount tmpfs (RAM disk) for ultra-fast parquet file access
     # Size: 3GB (sufficient for current 1.8GB data with headroom for growth)
     tmpfs:
@@ -44,7 +54,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: http://localhost:3200
+        VITE_API_URL: https://philgeps-api.simple-systems.dev
     image: philgeps-frontend:latest
     container_name: philgeps-frontend
     ports:
@@ -67,7 +77,151 @@ services:
       backend:
         condition: service_healthy
 
+  # Redis - Result Backend for Celery & Caching
+  redis:
+    image: redis:7-alpine
+    container_name: philgeps-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - philgeps-local
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - redis_data:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # RabbitMQ - Message Broker for Celery
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: philgeps-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    networks:
+      - philgeps-local
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Celery Worker
+  celeryworker:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
+    image: philgeps-celeryworker:latest
+    container_name: philgeps-celeryworker
+    command: celery -A philgeps_data_explorer worker --loglevel=info
+    networks:
+      - philgeps-local
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-dev-key}
+      DEBUG: ${DEBUG:-True}
+      DJANGO_SETTINGS_MODULE: "philgeps_data_explorer.settings"
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      USE_TMPFS_PARQUET: ${USE_TMPFS_PARQUET:-true}
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    tmpfs:
+      - /data/parquet-tmpfs:size=3221225472,mode=1777
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # Flower - Celery Monitoring Tool
+  flower:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
+    image: philgeps-backend:latest
+    container_name: philgeps-flower
+    command: celery -A philgeps_data_explorer flower --port=5555
+    ports:
+      - "5555:5555"
+    networks:
+      - philgeps-local
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Celery Beat - Periodic Task Scheduler
+  celerybeat:
+    build:
+      context: ./backend/django
+      dockerfile: Dockerfile
+    image: philgeps-celeryworker:latest
+    container_name: philgeps-celerybeat
+    command: celery -A philgeps_data_explorer beat --loglevel=info
+    networks:
+      - philgeps-local
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-dev-key}
+      DEBUG: ${DEBUG:-True}
+      DJANGO_SETTINGS_MODULE: "philgeps_data_explorer.settings"
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 networks:
   philgeps-local:
     driver: bridge
     name: philgeps-local-network
+
+volumes:
+  redis_data:
+  rabbitmq_data:

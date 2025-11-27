@@ -9,15 +9,14 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-temp-key-for-testing'
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Environment-based ALLOWED_HOSTS
-# Always include localhost for development and testing
+# Start with Docker/localhost basics
 ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1',
     '0.0.0.0',  # For Docker
-    'philgeps-2.simple-systems.dev',
-    'philgeps-api-2.simple-systems.dev',
 ]
 
+# Add production hosts from environment variable
 allowed_hosts_env = config('ALLOWED_HOSTS', default='')
 if allowed_hosts_env:
     host_list = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
@@ -28,6 +27,7 @@ if DEBUG:
     ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'daphne',  # Must be first for Channels
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'drf_spectacular',
+    'channels',  # WebSocket support
     'contracts',
     'data_processing',
 ]
@@ -73,6 +74,19 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'philgeps_data_explorer.wsgi.application'
+ASGI_APPLICATION = 'philgeps_data_explorer.asgi.application'
+
+# Channels Layer Configuration
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [(os.environ.get('REDIS_HOST', 'redis'), 6379)],
+            'capacity': 1500,
+            'expiry': 10,
+        },
+    },
+}
 
 # Database configuration with connection pooling
 DATABASES = {
@@ -149,20 +163,22 @@ SPECTACULAR_SETTINGS = {
 }
 
 # CORS configuration
-# Always include localhost origins for development and testing
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-    "http://localhost:3002",
-    "http://127.0.0.1:3002",
-    "http://localhost:3200",
-    "http://127.0.0.1:3200",
-    "https://philgeps-2.simple-systems.dev",
-    "https://philgeps-api-2.simple-systems.dev",
-]
+CORS_ALLOWED_ORIGINS = []
 
+# Add localhost origins only in DEBUG mode
+if DEBUG:
+    CORS_ALLOWED_ORIGINS.extend([
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
+        "http://localhost:3200",
+        "http://127.0.0.1:3200",
+    ])
+
+# Add CORS origins from environment variable (REQUIRED for production)
 cors_env = config('CORS_ALLOWED_ORIGINS', default='')
 if cors_env:
     cors_list = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
@@ -174,19 +190,22 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF trusted origins (for forms and API requests with CSRF protection)
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-    "http://localhost:3002",
-    "http://127.0.0.1:3002",
-    "http://localhost:3200",
-    "http://127.0.0.1:3200",
-    "https://philgeps-2.simple-systems.dev",
-    "https://philgeps-api-2.simple-systems.dev",
-]
+CSRF_TRUSTED_ORIGINS = []
 
+# Add localhost origins only in DEBUG mode
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS.extend([
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
+        "http://localhost:3200",
+        "http://127.0.0.1:3200",
+    ])
+
+# Add CSRF origins from environment variable (REQUIRED for production)
 csrf_env = config('CSRF_TRUSTED_ORIGINS', default='')
 if csrf_env:
     csrf_list = [origin.strip() for origin in csrf_env.split(',') if origin.strip()]
@@ -207,3 +226,38 @@ if not DEBUG:
 
 # Static files settings for production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Celery configuration (modern syntax for Celery 5.x+)
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@rabbitmq:5672//')
+result_backend = os.environ.get('CELERY_RESULT_BACKEND', REDIS_URL)
+accept_content = ['json']
+task_serializer = 'json'
+result_serializer = 'json'
+timezone = 'Asia/Manila'
+broker_connection_retry_on_startup = True
+
+# Celery Beat Schedule - Periodic Tasks
+from celery.schedules import crontab
+
+beat_schedule = {
+    'cleanup-old-exports-daily': {
+        'task': 'data_processing.tasks.cleanup_old_exports',
+        'schedule': crontab(hour=2, minute=0),  # Run at 2 AM daily
+        'options': {'expires': 3600},
+    },
+    'validate-data-integrity-hourly': {
+        'task': 'data_processing.tasks.validate_data_integrity',
+        'schedule': crontab(minute=0),  # Run every hour at :00
+        'options': {'expires': 1800},
+    },
+    'generate-daily-statistics': {
+        'task': 'data_processing.tasks.generate_daily_statistics',
+        'schedule': crontab(hour=1, minute=0),  # Run at 1 AM daily
+        'options': {'expires': 3600},
+    },
+    'health-check-system': {
+        'task': 'data_processing.tasks.health_check_system',
+        'schedule': crontab(minute='*/15'),  # Run every 15 minutes
+        'options': {'expires': 300},
+    },
+}

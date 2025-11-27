@@ -16,6 +16,7 @@ export interface AdvancedSearchActionsProps {
   onSearch: () => void
   onExport: () => void
   onShowAnalytics: () => void
+  onShare?: () => void
   
   // Loading state
   disabled?: boolean
@@ -29,10 +30,20 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
   onSearch,
   onExport,
   onShowAnalytics,
+  onShare,
   disabled = false
 }) => {
   const { isDark } = useTheme()
   const vars = getThemeVars(isDark)
+  const [showCopied, setShowCopied] = React.useState(false)
+
+  const handleShare = () => {
+    if (onShare) {
+      onShare()
+      setShowCopied(true)
+      setTimeout(() => setShowCopied(false), 2000)
+    }
+  }
 
   // Button styles
   const baseButtonStyle = {
@@ -183,6 +194,36 @@ export const AdvancedSearchActions: React.FC<AdvancedSearchActionsProps> = ({
         <span>📈</span>
         {analyticsLoading ? 'Loading Analytics...' : 'Show Analytics'}
       </button>
+
+      {/* Share Button */}
+      {onShare && (
+        <button
+          onClick={handleShare}
+          style={{
+            ...baseButtonStyle,
+            backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            color: vars.text.primary,
+            border: `1px solid ${vars.border.medium}`,
+            position: 'relative'
+          }}
+          onMouseEnter={(e) => {
+            Object.assign(e.currentTarget.style, {
+              backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)',
+              transform: 'translateY(-1px)'
+            })
+          }}
+          onMouseLeave={(e) => {
+            Object.assign(e.currentTarget.style, {
+              backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+              transform: 'translateY(0)'
+            })
+          }}
+          title="Copy shareable link to clipboard"
+        >
+          <span>🔗</span>
+          {showCopied ? 'Copied!' : 'Share'}
+        </button>
+      )}
 
       {/* Loading Indicator for Analytics */}
       {analyticsLoading && (

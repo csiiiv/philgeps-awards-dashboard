@@ -5,6 +5,149 @@ All notable changes to the PHILGEPS Awards Data Explorer will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - Hash Routing Improvements Phase 1 & 2 - 2025-11-27
+
+### Added - Phase 1
+- **URL State Utilities**: Centralized URL hash management functions
+  - `parseHashParams()`: Parse URL hash into URLSearchParams (eliminates duplicate code)
+  - `validateFilterState()`: Validates all URL parameters before applying
+    - Year validation (1900-2100)
+    - Quarter validation (1-4)
+    - Numeric value validation (prevents NaN)
+    - Date string validation (ensures valid dates)
+  - `areFiltersEqual()`: Deep equality comparison for filter values
+    - Handles arrays with sorted comparison
+    - Handles null/undefined/empty string equivalence
+    - Handles default values (e.g., 'all_time')
+  - `compareFilterStates()`: Compares complete filter states
+    - Returns filtersMatch, viewMatch, tabMatch flags
+    - Used for optimized change detection
+
+### Changed
+- **URL Validation**: All URL parameters now validated before use
+  - Invalid parameters logged with warnings instead of crashing
+  - App continues to work with partial/invalid URLs
+  - Better error messages for debugging
+- **History Management**: Standardized browser history behavior
+  - `updateUrlHash()` now accepts `addToHistory` parameter (default: true)
+  - Filter changes add to history (user can go back)
+  - Tab changes replace history (don't clutter back button)
+  - More predictable browser navigation experience
+- **AdvancedSearch Component**: Simplified hash change handling
+  - Replaced 90-line inline comparison with utility functions
+  - Cleaner, more maintainable code (~45 lines eliminated)
+  - Uses `parseHashParams()` and `compareFilterStates()`
+- **AnalyticsExplorer Component**: Improved tab synchronization
+  - Tab now updates from URL even when modal is already open
+  - Uses centralized utilities for URL parsing
+  - Removed redundant popstate handler (~18 lines eliminated)
+  - Tab changes use `updateUrlHash()` with `addToHistory=false`
+- **Error Handling**: Enhanced robustness
+  - `decodeFiltersFromHash()` wrapped in try-catch
+  - Returns empty object on error (fail-safe behavior)
+  - All URL operations have proper error handling
+
+### Fixed
+- **Code Duplication**: Eliminated 4 instances of identical URL parsing code
+- **Browser Navigation**: Tab changes no longer create unwanted history entries
+- **Tab Synchronization**: Analytics tab now properly updates from URL changes
+- **Crash Prevention**: Invalid URL parameters no longer crash the application
+- **Comparison Logic**: Complex filter comparison now testable and maintainable
+
+### Performance
+- Reduced URL-related code by ~50 lines (-15.6%)
+- More efficient URL parsing (single pass instead of duplicate parsing)
+- Better component re-render behavior
+
+### Documentation - Phase 1
+- Added comprehensive hash routing documentation suite:
+  - `HASH_ROUTING_ANALYSIS.md`: Complete technical analysis
+  - `HASH_ROUTING_QUICK_FIXES.md`: Quick reference guide
+  - `HASH_ROUTING_FLOW_DIAGRAMS.md`: Visual architecture diagrams
+  - `HASH_ROUTING_IMPLEMENTATION_CHECKLIST.md`: Step-by-step guide
+  - `HASH_ROUTING_SUMMARY.md`: Executive summary
+  - `HASH_ROUTING_INDEX.md`: Documentation index
+  - `HASH_ROUTING_IMPLEMENTATION_COMPLETE.md`: Implementation summary
+- Added `test/test_hash_routing.md`: Comprehensive test plan
+
+### Added - Phase 2
+- **Conditional Debug Logging**: Environment-aware logging system
+  - `debugLog()` function only logs in development mode
+  - Production builds have zero console noise
+  - Easy to toggle debugging if needed
+- **TypeScript Type Exports**: FilterState interface now exported
+  - Can import `FilterState` type in other modules
+  - Better IDE autocomplete and type safety
+  - Clearer contracts for URL state management
+- **Enhanced Error Protection**: Multiple layers of safety
+  - `getFiltersFromUrl()` wrapped in extra try-catch
+  - `hasUrlFilters()` wrapped in try-catch
+  - Fail-safe behavior with safe defaults
+  - Impossible to crash from URL operations
+
+### Changed - Phase 2
+- **Timing Improvements**: Removed setTimeout race condition
+  - Replaced `setTimeout(..., 100)` with `Promise.resolve().then(...)`
+  - More predictable search triggering
+  - No arbitrary delays
+  - Better React rendering integration
+- **Error Logging**: More specific error messages
+  - `[getFiltersFromUrl]` prefix for getFiltersFromUrl errors
+  - `[hasUrlFilters]` prefix for hasUrlFilters errors
+  - `[URL Decode]` prefix for decode errors
+  - Easier to identify error sources
+
+### Performance - Phase 2
+- Debug logging disabled in production (no string formatting overhead)
+- Removed arbitrary 100ms delay (faster user experience)
+- Efficient error handling (early returns)
+
+### Documentation - Phase 2
+- Added `HASH_ROUTING_PHASE2_COMPLETE.md`: Phase 2 implementation summary
+
+### Fixed - Phase 2.1 (URL Merge Fix)
+- **URL Parameter Preservation**: Manual URL edits now preserved during updates
+  - `updateUrlHash()` now merges with existing URL parameters by default
+  - Prevents loss of manually-added URL parameters
+  - Backward compatible with old function signature
+- **Simplified Component Code**: Reduced boilerplate in URL updates
+  - `handleShowAnalytics`: Reduced from 30+ lines to 3 lines
+  - `handleAnalyticsClose`: Reduced from 20+ lines to 3 lines
+  - `handleTabChange`: Simplified by removing manual merge logic
+
+### Added - Phase 2.1
+- **Smart URL Merging**: `updateUrlHash()` options object
+  - `replace: false` (default) - Merge with existing URL params
+  - `replace: true` - Completely replace URL (for explicit searches)
+  - Backward compatible with boolean parameter
+- **Better Developer Experience**: Simpler API for URL updates
+  - Only specify parameters you want to change
+  - Everything else preserved automatically
+  - Less code, fewer bugs
+
+### Documentation - Phase 2.1
+- Added `HASH_ROUTING_MERGE_FIX.md`: Detailed explanation of URL merge fix
+
+### Fixed - Phase 2.2 (Race Condition Fix)
+- **Critical: Keywords Dropped Bug**: Fixed race condition in filter loading from URL
+  - Symptom: Manually editing URL would cause keywords and unchanged filters to disappear
+  - Root cause: `clearAllFilters()` + `addKeyword()` race condition due to async React state
+  - Solution: Use atomic `setFilters()` instead of clear + sequential adds
+  - Impact: All filters now preserved correctly when URL is manually edited
+
+### Changed - Phase 2.2
+- **useAdvancedSearchFilters Hook**: Exposed `setFilters` function
+  - Allows atomic bulk filter updates
+  - Prevents race conditions from sequential state updates
+  - Used internally by `loadFiltersFromUrl` for reliability
+- **loadFiltersFromUrl Function**: Refactored to use atomic state update
+  - Changed from: clear + forEach add (48 lines, race condition)
+  - Changed to: single setFilters call (14 lines, atomic)
+  - 70% code reduction, 100% more reliable
+
+### Documentation - Phase 2.2
+- Added `HASH_ROUTING_RACE_CONDITION_FIX.md`: Complete analysis and fix documentation
+
 ## [4.0.0] - Open PhilGEPS by BetterGov.ph - 2025-10-23
 
 ### Added

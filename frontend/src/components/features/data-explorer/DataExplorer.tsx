@@ -88,7 +88,7 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
       keywords: filtersHook.filters.keywords,
       time_ranges: yearFilter !== 'all' ? [{ type: 'yearly', year: yearFilter }] : [],
       includeFloodControl: filtersHook.includeFloodControl,
-      valueRange: { min: 0, max: 1000000000000 } // Default to min 0 and max 1T for Data Explorer
+      value_range: { min: 0, max: 1000000000000 } // Default to min 0 and max 1T for Data Explorer
     } : undefined
   })
 
@@ -207,7 +207,7 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({
         timeRanges: yearFilter !== 'all' ? [{ type: 'yearly', year: yearFilter }] : [],
         dimension: analyticsControls.dimension,
         includeFloodControl: filtersHook.includeFloodControl,
-        valueRange: { min: 0, max: 1000000000000 }
+        value_range: { min: 0, max: 1000000000000 }
       }
       console.log('📋 Export params:', exportParams)
 

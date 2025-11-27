@@ -355,6 +355,7 @@ export const useAdvancedSearchFilters = (): UseAdvancedSearchFiltersReturn => {
     clearAreas,
     clearOrganizations,
     clearBusinessCategories,
+    setFilters,  // Expose setFilters for batch updates (avoids race conditions)
     
     // Keyword actions
     addKeyword,
