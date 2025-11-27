@@ -56,7 +56,7 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [rawData, setRawData] = useState<ValueDistributionResponse | null>(null)
-  const [displayBins, setDisplayBins] = useState(100) // Client-side bin count
+  const [displayBins, setDisplayBins] = useState(500) // Client-side bin count (default 500)
   const [zoomStart, setZoomStart] = useState(0)
   const [zoomEnd, setZoomEnd] = useState(100)
   const [selectedBinRange, setSelectedBinRange] = useState<{ start: number; end: number } | null>(null)
@@ -96,7 +96,41 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
         }
         
         const result = await advancedSearchService.getValueDistribution(params as any)
-        setRawData(result)
+        
+        // Convert bins object to array, filling in missing bins with zeros
+        if (result && result.bins && typeof result.bins === 'object') {
+          const binsArray = []
+          const numBins = result.num_bins || 1000
+          
+          for (let i = 1; i <= numBins; i++) {
+            const binData = result.bins[i.toString()]
+            if (binData) {
+              // Bin has data
+              binsArray.push({
+                bin_number: i,
+                ...binData
+              })
+            } else {
+              // Empty bin - create zero-count bin
+              const binWidth = (result.max_value - result.min_value) / numBins
+              binsArray.push({
+                bin_number: i,
+                bin_start: result.min_value + (i - 1) * binWidth,
+                bin_end: result.min_value + i * binWidth,
+                count: 0,
+                total_value: 0,
+                avg_value: 0
+              })
+            }
+          }
+          
+          setRawData({
+            ...result,
+            bins: binsArray
+          })
+        } else {
+          setRawData(result)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load value distribution')
       } finally {
@@ -112,9 +146,16 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
     if (!rawData || !rawData.bins.length) return null
 
     const rawBins = rawData.bins
-    const targetBins = Math.min(displayBins, rawBins.length)
+    const targetBins = Math.max(1, Math.min(displayBins, rawBins.length))
     
-    // If we want all bins or more, just return raw bins
+    console.log('🔍 Bin Processing:', {
+      rawBinsCount: rawBins.length,
+      requestedBins: displayBins,
+      targetBins: targetBins,
+      willCombine: targetBins < rawBins.length
+    })
+    
+    // If we want exactly all bins or more, return raw bins without combining
     if (targetBins >= rawBins.length) {
       return {
         ...rawData,
@@ -123,32 +164,46 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
     }
 
     // Combine bins to achieve target count
-    // Calculate how many raw bins should go into each output bin
     const combined = []
-    const rawBinsPerOutput = rawBins.length / targetBins
     
     for (let i = 0; i < targetBins; i++) {
-      // Calculate which raw bins belong to this output bin
-      const startIdx = Math.floor(i * rawBinsPerOutput)
-      const endIdx = Math.floor((i + 1) * rawBinsPerOutput)
+      // Calculate start and end indices using floating point for smooth distribution
+      const startIdx = Math.floor((i * rawBins.length) / targetBins)
+      const endIdx = Math.floor(((i + 1) * rawBins.length) / targetBins)
       
       const group = rawBins.slice(startIdx, endIdx)
-      if (group.length === 0) continue
       
-      const firstBin = group[0]
-      const lastBin = group[group.length - 1]
-      
-      const totalCount = group.reduce((sum, b) => sum + b.count, 0)
-      const totalValue = group.reduce((sum, b) => sum + b.total_value, 0)
-      
-      combined.push({
-        bin_number: combined.length + 1,
-        bin_start: firstBin.bin_start,
-        bin_end: lastBin.bin_end,
-        count: totalCount,
-        total_value: totalValue,
-        avg_value: totalCount > 0 ? totalValue / totalCount : 0
-      })
+      // Don't skip empty groups - create zero-count bins for accurate visualization
+      if (group.length === 0) {
+        // Calculate bin boundaries based on overall range
+        const binWidth = (rawData.max_value - rawData.min_value) / targetBins
+        const bin_start = rawData.min_value + (i * binWidth)
+        const bin_end = rawData.min_value + ((i + 1) * binWidth)
+        
+        combined.push({
+          bin_number: i + 1,
+          bin_start: bin_start,
+          bin_end: bin_end,
+          count: 0,
+          total_value: 0,
+          avg_value: 0
+        })
+      } else {
+        const firstBin = group[0]
+        const lastBin = group[group.length - 1]
+        
+        const totalCount = group.reduce((sum, b) => sum + b.count, 0)
+        const totalValue = group.reduce((sum, b) => sum + b.total_value, 0)
+        
+        combined.push({
+          bin_number: i + 1,
+          bin_start: firstBin.bin_start,
+          bin_end: lastBin.bin_end,
+          count: totalCount,
+          total_value: totalValue,
+          avg_value: totalCount > 0 ? totalValue / totalCount : 0
+        })
+      }
     }
 
     return {
@@ -167,7 +222,17 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
     const startIdx = Math.floor((zoomStart / 100) * totalBins)
     const endIdx = Math.ceil((zoomEnd / 100) * totalBins)
     
-    return processedData.bins.slice(startIdx, endIdx)
+    const visible = processedData.bins.slice(startIdx, endIdx)
+    
+    console.log('📊 Visible Bins:', {
+      processedBins: totalBins,
+      zoom: `${zoomStart}% - ${zoomEnd}%`,
+      startIdx,
+      endIdx,
+      visibleCount: visible.length
+    })
+    
+    return visible
   }, [processedData, zoomStart, zoomEnd])
 
   // Find max count for scaling
@@ -526,14 +591,53 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
         <div style={{ 
           fontSize: typography.fontSize.sm,
           color: vars.text.secondary,
-          marginBottom: spacing[2]
+          marginBottom: spacing[2],
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}>
-          Adjust Bin Resolution: {displayBins} bins
+          <span>Adjust Bin Resolution:</span>
+          <input
+            type="number"
+            min="10"
+            max="100000"
+            value={displayBins}
+            onChange={(e) => {
+              const value = Math.max(10, Math.min(100000, Number(e.target.value) || 10))
+              setDisplayBins(value)
+            }}
+            style={{
+              width: '120px',
+              padding: `${spacing[1]} ${spacing[2]}`,
+              fontSize: typography.fontSize.sm,
+              fontWeight: typography.fontWeight.medium,
+              border: `1px solid ${vars.border.default}`,
+              borderRadius: spacing[1],
+              backgroundColor: vars.background.primary,
+              color: vars.text.primary,
+              textAlign: 'right'
+            }}
+          />
+          <span style={{ 
+            fontSize: typography.fontSize.sm,
+            color: vars.text.primary,
+            fontWeight: typography.fontWeight.medium
+          }}>
+            bins
+          </span>
+        </div>
+        <div style={{ 
+          fontSize: typography.fontSize.xs,
+          color: vars.primary[600],
+          marginBottom: spacing[2],
+          fontFamily: 'monospace'
+        }}>
+          📊 Backend: {rawData?.bins && typeof rawData.bins === 'object' ? Object.keys(rawData.bins).length : 0} bins → Processed: {processedData?.bins.length || 0} bins → Visible: {visibleBins.length} bars
         </div>
         <input
           type="range"
           min="10"
-          max="1000"
+          max="100000"
           step="10"
           value={displayBins}
           onChange={(e) => setDisplayBins(Number(e.target.value))}
@@ -547,7 +651,7 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
           marginTop: spacing[1]
         }}>
           <span>10 (coarse)</span>
-          <span>1000 (fine)</span>
+          <span>100,000 (ultra-fine)</span>
         </div>
       </div>
 
@@ -694,12 +798,57 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
         <div style={{ 
           fontSize: typography.fontSize.sm,
           color: vars.text.secondary,
-          marginBottom: spacing[2]
+          marginBottom: spacing[2],
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[2]
         }}>
-          Zoom Range: {zoomStart.toFixed(0)}% - {zoomEnd.toFixed(0)}%
+          <span>Zoom Range:</span>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={zoomStart}
+            onChange={(e) => {
+              const value = Math.max(0, Math.min(100, Number(e.target.value) || 0))
+              setZoomStart(Math.min(value, zoomEnd - 5))
+            }}
+            style={{
+              width: '70px',
+              padding: `${spacing[1]} ${spacing[2]}`,
+              fontSize: typography.fontSize.sm,
+              border: `1px solid ${vars.border.default}`,
+              borderRadius: spacing[1],
+              backgroundColor: vars.background.primary,
+              color: vars.text.primary,
+              textAlign: 'right'
+            }}
+          />
+          <span>% to</span>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={zoomEnd}
+            onChange={(e) => {
+              const value = Math.max(0, Math.min(100, Number(e.target.value) || 0))
+              setZoomEnd(Math.max(value, zoomStart + 5))
+            }}
+            style={{
+              width: '70px',
+              padding: `${spacing[1]} ${spacing[2]}`,
+              fontSize: typography.fontSize.sm,
+              border: `1px solid ${vars.border.default}`,
+              borderRadius: spacing[1],
+              backgroundColor: vars.background.primary,
+              color: vars.text.primary,
+              textAlign: 'right'
+            }}
+          />
+          <span>%</span>
         </div>
         <div style={{ display: 'flex', gap: spacing[2], alignItems: 'center' }}>
-          <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
+          <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary, minWidth: '40px' }}>
             Start:
           </span>
           <input
@@ -710,7 +859,7 @@ export const ThresholdClustering: React.FC<ThresholdClusteringProps> = ({
             onChange={(e) => setZoomStart(Math.min(Number(e.target.value), zoomEnd - 5))}
             style={{ flex: 1 }}
           />
-          <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary }}>
+          <span style={{ fontSize: typography.fontSize.sm, color: vars.text.secondary, minWidth: '40px' }}>
             End:
           </span>
           <input

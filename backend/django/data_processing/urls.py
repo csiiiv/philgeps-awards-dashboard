@@ -20,4 +20,8 @@ urlpatterns = [
     path('tasks/result/', views.get_cached_result, name='get_cached_result'),
     path('tasks/active/', views.list_active_tasks, name='list_active_tasks'),
     path('tasks/cancel/', views.cancel_task, name='cancel_task'),
+    
+    # Advanced analytics endpoints
+    path('benfords-law/', views.benfords_law_analysis, name='benfords_law_analysis'),
+    path('rounding-patterns/', views.rounding_patterns_analysis, name='rounding_patterns_analysis'),
 ]
