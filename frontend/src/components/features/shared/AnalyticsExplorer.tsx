@@ -22,6 +22,10 @@ import { AnalyticsSummary } from '../analytics/AnalyticsSummary'
 import { AnalyticsControls } from '../analytics/AnalyticsControls'
 import { AnalyticsTable } from '../analytics/AnalyticsTable'
 import { ThresholdClustering } from '../analytics/ThresholdClustering'
+import { BenfordsLaw } from '../analytics/BenfordsLaw'
+import { RoundingPatterns } from '../analytics/RoundingPatterns'
+import { DeviantSubsets } from '../analytics/DeviantSubsets'
+import { RelativeSizeFactor } from '../analytics/RelativeSizeFactor'
 import { UnifiedPagination } from './UnifiedPagination'
 import { useUnifiedAnalytics } from '../../../hooks/useUnifiedAnalytics'
 import { EntityDrillDownModal } from '../advanced-search/EntityDrillDownModal'
@@ -31,6 +35,7 @@ import { AccessibleButton } from './AccessibleButton'
 import { useUnifiedExport } from '../../../hooks/useUnifiedExport'
 import { createAnalyticsExplorerConfig } from '../../../hooks/useUnifiedExportConfigs'
 import { FilterChip } from '../advanced-search/FilterChip'
+import { parseHashParams, updateUrlHash } from '../../../utils/urlState'
 
 // Types (re-exported or imported from other files)
 export type DatasetType = 'contractors' | 'organizations' | 'areas' | 'categories'
@@ -190,7 +195,43 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
   const displayError = dataError || propError
 
   // State for tab selection
-  const [activeTab, setActiveTab] = React.useState<'tables' | 'charts'>('tables')
+  const [activeTab, setActiveTab] = React.useState<'tables' | 'charts' | 'clustering' | 'misc'>('tables')
+
+  // Read tab from URL hash on mount and when URL changes
+  React.useEffect(() => {
+    if (!open) return
+    
+    const loadTabFromUrl = () => {
+      const params = parseHashParams()
+    const tabParam = params.get('tab')
+    
+    if (tabParam && ['tables', 'charts', 'clustering', 'misc'].includes(tabParam)) {
+      setActiveTab(tabParam as 'tables' | 'charts' | 'clustering' | 'misc')
+        console.log('[AnalyticsExplorer] Tab changed from URL:', tabParam)
+    }
+    }
+    
+    // Load initially
+    loadTabFromUrl()
+    
+    // Listen for URL changes
+    window.addEventListener('hashchange', loadTabFromUrl)
+    return () => window.removeEventListener('hashchange', loadTabFromUrl)
+  }, [open])
+
+  // Update URL hash when tab changes
+  const handleTabChange = React.useCallback((tab: 'tables' | 'charts' | 'clustering' | 'misc') => {
+    setActiveTab(tab)
+    
+    console.log('[AnalyticsExplorer] Updating tab in URL:', tab)
+    
+    // Update URL without adding to history (don't clutter back button)
+    // Will automatically merge with existing URL parameters
+    updateUrlHash({ tab }, false)
+  }, [])
+
+  // Note: Browser back/forward navigation is now handled by hashchange listener above
+  // No need for separate popstate handler
 
   // Build applied filters as FilterChips
   const appliedFilters = React.useMemo(() => {
@@ -336,7 +377,7 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
             }}>
               <div style={{ display: 'flex', gap: spacing[1] }}>
                 <button
-                  onClick={() => setActiveTab('tables')}
+                  onClick={() => handleTabChange('tables')}
                   style={{
                     padding: `${spacing[3]} ${spacing[4]}`,
                     border: 'none',
@@ -366,7 +407,7 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
                   Tables
                 </button>
                 <button
-                  onClick={() => setActiveTab('charts')}
+                  onClick={() => handleTabChange('charts')}
                   style={{
                     padding: `${spacing[3]} ${spacing[4]}`,
                     border: 'none',
@@ -394,6 +435,66 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
                 >
                   <span>📈</span>
                   Charts
+                </button>
+                <button
+                  onClick={() => handleTabChange('clustering')}
+                  style={{
+                    padding: `${spacing[3]} ${spacing[4]}`,
+                    border: 'none',
+                    backgroundColor: activeTab === 'clustering' ? vars.primary[600] : 'transparent',
+                    color: activeTab === 'clustering' ? vars.text.inverse : vars.text.primary,
+                    cursor: 'pointer',
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.medium,
+                    borderRadius: `${spacing[1]} ${spacing[1]} 0 0`,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: spacing[2]
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'clustering') {
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'clustering') {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
+                >
+                  <span>📊</span>
+                  Clustering
+                </button>
+                <button
+                  onClick={() => handleTabChange('misc')}
+                  style={{
+                    padding: `${spacing[3]} ${spacing[4]}`,
+                    border: 'none',
+                    backgroundColor: activeTab === 'misc' ? vars.primary[600] : 'transparent',
+                    color: activeTab === 'misc' ? vars.text.inverse : vars.text.primary,
+                    cursor: 'pointer',
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.medium,
+                    borderRadius: `${spacing[1]} ${spacing[1]} 0 0`,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: spacing[2]
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== 'misc') {
+                      e.currentTarget.style.backgroundColor = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== 'misc') {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
+                >
+                  <span>🔬</span>
+                  Misc
                 </button>
               </div>
             </div>
@@ -524,14 +625,59 @@ export const AnalyticsExplorer: React.FC<AnalyticsExplorerProps> = ({
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
 
-                {/* Threshold Clustering */}
-                <div style={{ marginTop: spacing[6] }}>
-                  <ThresholdClustering
-                    currentFilters={currentFilters}
-                    isDark={darkMode}
-                  />
+            {/* Clustering Tab Content */}
+            {activeTab === 'clustering' && (
+              <div>
+                <ThresholdClustering
+                  currentFilters={currentFilters}
+                  isDark={darkMode}
+                />
+              </div>
+            )}
+
+            {/* Misc Tab Content */}
+            {activeTab === 'misc' && (
+              <div>
+                {/* Section Header */}
+                <div style={{ 
+                  marginBottom: spacing[4],
+                  padding: spacing[4],
+                  backgroundColor: isDark ? 'rgba(66, 153, 225, 0.1)' : 'rgba(66, 153, 225, 0.05)',
+                  borderRadius: spacing[2],
+                  borderLeft: `4px solid ${vars.primary[600]}`
+                }}>
+                  <h3 style={{ 
+                    margin: 0, 
+                    marginBottom: spacing[2],
+                    fontSize: typography.fontSize.lg,
+                    fontWeight: typography.fontWeight.bold,
+                    color: vars.text.primary
+                  }}>
+                    🔬 Advanced Analytics & Fraud Detection
+                  </h3>
+                  <p style={{ 
+                    margin: 0,
+                    fontSize: typography.fontSize.sm,
+                    color: vars.text.secondary
+                  }}>
+                    Statistical analysis tools for detecting anomalies and patterns in procurement data
+                  </p>
                 </div>
+
+                {/* 1. Benford's Law */}
+                <BenfordsLaw currentFilters={currentFilters} isDark={darkMode} />
+
+                {/* 2. Rounding Patterns */}
+                <RoundingPatterns currentFilters={currentFilters} isDark={darkMode} />
+
+                {/* 3. Deviant Subsets */}
+                <DeviantSubsets currentFilters={currentFilters} isDark={darkMode} />
+
+                {/* 4. Relative Size Factor */}
+                <RelativeSizeFactor currentFilters={currentFilters} isDark={darkMode} />
               </div>
             )}
 

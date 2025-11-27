@@ -5,7 +5,27 @@
  * Example: #q=road&areas=manila&min=1000000&max=5000000&view=analytics
  */
 
-interface FilterState {
+/**
+ * Debug flag for URL state logging
+ * Set to false in production to reduce console noise
+ */
+const DEBUG_URL_STATE = import.meta.env.DEV ?? true
+
+/**
+ * Conditional debug logging for URL state operations
+ * Only logs in development or when DEBUG_URL_STATE is true
+ */
+function debugLog(message: string, ...args: any[]): void {
+  if (DEBUG_URL_STATE) {
+    console.log(`🔗 ${message}`, ...args)
+  }
+}
+
+/**
+ * Filter state interface for URL encoding/decoding
+ * Exported for use in components and tests
+ */
+export interface FilterState {
   contractors?: string[]
   areas?: string[]
   organizations?: string[]
@@ -20,6 +40,131 @@ interface FilterState {
   maxValue?: number
   includeFloodControl?: boolean
   view?: 'search' | 'analytics'
+  tab?: 'tables' | 'charts' | 'clustering' | 'misc'
+}
+
+/**
+ * Parse URL hash into URLSearchParams
+ * Centralized to avoid duplication across components
+ */
+export function parseHashParams(hash?: string): URLSearchParams {
+  const currentHash = hash ?? window.location.hash
+  const cleanHash = currentHash.startsWith('#') 
+    ? currentHash.substring(1) 
+    : currentHash
+  return new URLSearchParams(cleanHash)
+}
+
+/**
+ * Validate and sanitize filter state parameters
+ * Prevents invalid values from crashing the app
+ */
+export function validateFilterState(filters: FilterState): FilterState {
+  const validated: FilterState = { ...filters }
+  
+  // Validate year (1900-2100)
+  if (validated.year !== undefined) {
+    const year = validated.year
+    if (year < 1900 || year > 2100 || isNaN(year)) {
+      console.warn(`[URL Validation] Invalid year: ${year}. Ignoring.`)
+      delete validated.year
+    }
+  }
+  
+  // Validate quarter (1-4)
+  if (validated.quarter !== undefined) {
+    const quarter = validated.quarter
+    if (quarter < 1 || quarter > 4 || isNaN(quarter)) {
+      console.warn(`[URL Validation] Invalid quarter: ${quarter}. Ignoring.`)
+      delete validated.quarter
+    }
+  }
+  
+  // Validate min value
+  if (validated.minValue !== undefined && isNaN(validated.minValue)) {
+    console.warn(`[URL Validation] Invalid minValue: ${validated.minValue}. Ignoring.`)
+    delete validated.minValue
+  }
+  
+  // Validate max value
+  if (validated.maxValue !== undefined && isNaN(validated.maxValue)) {
+    console.warn(`[URL Validation] Invalid maxValue: ${validated.maxValue}. Ignoring.`)
+    delete validated.maxValue
+  }
+  
+  // Validate start date
+  if (validated.startDate) {
+    const date = new Date(validated.startDate)
+    if (date.toString() === 'Invalid Date') {
+      console.warn(`[URL Validation] Invalid startDate: ${validated.startDate}. Ignoring.`)
+      delete validated.startDate
+    }
+  }
+  
+  // Validate end date
+  if (validated.endDate) {
+    const date = new Date(validated.endDate)
+    if (date.toString() === 'Invalid Date') {
+      console.warn(`[URL Validation] Invalid endDate: ${validated.endDate}. Ignoring.`)
+      delete validated.endDate
+    }
+  }
+  
+  return validated
+}
+
+/**
+ * Deep equality comparison for filter values
+ * Handles arrays, undefined/null/empty string equivalence, and defaults
+ */
+export function areFiltersEqual(val1: any, val2: any): boolean {
+  // Handle arrays (sort and compare)
+  if (Array.isArray(val1) || Array.isArray(val2)) {
+    const arr1 = (Array.isArray(val1) ? val1 : []).filter(Boolean).sort()
+    const arr2 = (Array.isArray(val2) ? val2 : []).filter(Boolean).sort()
+    return JSON.stringify(arr1) === JSON.stringify(arr2)
+  }
+  
+  // Handle dates/strings (empty string equals undefined/null)
+  if ((val1 === '' || val1 === null || val1 === undefined) && 
+      (val2 === '' || val2 === null || val2 === undefined)) {
+    return true
+  }
+  
+  // Handle Date Range Type default (state 'all_time' vs url undefined)
+  if (val1 === 'all_time' && !val2) return true
+  if (!val1 && val2 === 'all_time') return true
+  
+  return val1 === val2
+}
+
+/**
+ * Compare complete filter states
+ * Returns which parts changed: filters, view, or tab
+ */
+export function compareFilterStates(
+  state: FilterState, 
+  urlFilters: FilterState
+): { filtersMatch: boolean; viewMatch: boolean; tabMatch: boolean } {
+  const filtersMatch = 
+    areFiltersEqual(state.keywords, urlFilters.keywords) &&
+    areFiltersEqual(state.contractors, urlFilters.contractors) &&
+    areFiltersEqual(state.areas, urlFilters.areas) &&
+    areFiltersEqual(state.organizations, urlFilters.organizations) &&
+    areFiltersEqual(state.business_categories, urlFilters.business_categories) &&
+    areFiltersEqual(state.minValue, urlFilters.minValue) &&
+    areFiltersEqual(state.maxValue, urlFilters.maxValue) &&
+    areFiltersEqual(state.includeFloodControl ?? false, urlFilters.includeFloodControl ?? false) &&
+    areFiltersEqual(state.dateRangeType, urlFilters.dateRangeType) &&
+    areFiltersEqual(state.year, urlFilters.year) &&
+    areFiltersEqual(state.quarter, urlFilters.quarter) &&
+    areFiltersEqual(state.startDate, urlFilters.startDate) &&
+    areFiltersEqual(state.endDate, urlFilters.endDate)
+    
+  const viewMatch = areFiltersEqual(state.view, urlFilters.view)
+  const tabMatch = areFiltersEqual(state.tab, urlFilters.tab)
+  
+  return { filtersMatch, viewMatch, tabMatch }
 }
 
 /**
@@ -82,13 +227,20 @@ export function encodeFiltersToHash(filters: FilterState): string {
     params.set('view', filters.view)
   }
 
+  // Analytics tab
+  if (filters.tab) {
+    params.set('tab', filters.tab)
+  }
+
   return params.toString()
 }
 
 /**
  * Decode filter state from URL hash
+ * Now includes validation and error handling
  */
 export function decodeFiltersFromHash(hash: string): FilterState {
+  try {
   // Remove leading # if present
   const cleanHash = hash.startsWith('#') ? hash.substring(1) : hash
   const params = new URLSearchParams(cleanHash)
@@ -171,31 +323,90 @@ export function decodeFiltersFromHash(hash: string): FilterState {
     filters.view = view
   }
 
-  return filters
+  // Analytics tab
+  const tab = params.get('tab')
+  if (tab === 'tables' || tab === 'charts' || tab === 'clustering' || tab === 'misc') {
+    filters.tab = tab
+  }
+
+    // Validate and sanitize before returning
+    return validateFilterState(filters)
+    
+  } catch (error) {
+    console.error('[URL Decode] Error decoding URL hash:', error)
+    return {}
+  }
 }
 
 /**
  * Update URL hash with current filter state
+ * @param filters - Filter state to encode
+ * @param optionsOrAddToHistory - Either an options object or boolean for backward compatibility
+ * @param replace - (Optional, legacy) If true, completely replace URL instead of merging
  */
-export function updateUrlHash(filters: FilterState): void {
-  console.log('🔗 updateUrlHash called with filters:', filters)
-  const hash = encodeFiltersToHash(filters)
-  console.log('🔗 Encoded hash:', hash)
+export function updateUrlHash(
+  filters: FilterState, 
+  optionsOrAddToHistory?: boolean | { addToHistory?: boolean; replace?: boolean },
+  replace?: boolean
+): void {
+  // Handle backward compatibility with old signature: updateUrlHash(filters, addToHistory, replace)
+  let addToHistory = true
+  let shouldReplace = false
+  
+  if (typeof optionsOrAddToHistory === 'boolean') {
+    // Old signature: updateUrlHash(filters, addToHistory)
+    addToHistory = optionsOrAddToHistory
+    shouldReplace = replace ?? false
+  } else if (optionsOrAddToHistory) {
+    // New signature: updateUrlHash(filters, { addToHistory, replace })
+    addToHistory = optionsOrAddToHistory.addToHistory ?? true
+    shouldReplace = optionsOrAddToHistory.replace ?? false
+  }
+  
+  debugLog('updateUrlHash called', { filters, addToHistory, replace: shouldReplace })
+  
+  // Merge with current URL parameters unless replace is true
+  let finalFilters = filters
+  if (!shouldReplace) {
+    const currentFilters = getFiltersFromUrl()
+    // Merge current URL with new filters (new filters override)
+    finalFilters = { ...currentFilters, ...filters }
+    debugLog('Merged with current URL:', finalFilters)
+  }
+  
+  const hash = encodeFiltersToHash(finalFilters)
+  debugLog('Encoded hash:', hash)
+  
   if (hash) {
+    const newUrl = `#${hash}`
+    
+    if (addToHistory) {
+      // Add to history - allows browser back/forward
     window.location.hash = hash
-    console.log('🔗 URL updated to:', window.location.href)
+      debugLog('URL updated (added to history):', window.location.href)
+    } else {
+      // Replace current history entry - doesn't add to stack
+      window.history.replaceState(null, '', newUrl)
+      debugLog('URL updated (replaced history):', window.location.href)
+    }
   } else {
     // Clear hash if no filters
     history.pushState('', document.title, window.location.pathname + window.location.search)
-    console.log('🔗 URL hash cleared')
+    debugLog('URL hash cleared')
   }
 }
 
 /**
  * Get current filter state from URL hash
+ * Safely handles all errors and returns empty state if anything fails
  */
 export function getFiltersFromUrl(): FilterState {
+  try {
   return decodeFiltersFromHash(window.location.hash)
+  } catch (error) {
+    console.error('[getFiltersFromUrl] Unexpected error:', error)
+    return {}
+  }
 }
 
 /**
@@ -209,9 +420,15 @@ export function createShareableUrl(filters: FilterState, baseUrl?: string): stri
 
 /**
  * Check if URL contains filter parameters
+ * Safely handles all errors
  */
 export function hasUrlFilters(): boolean {
+  try {
   const hash = window.location.hash
   return hash.length > 1 // More than just '#'
+  } catch (error) {
+    console.error('[hasUrlFilters] Unexpected error:', error)
+    return false
+  }
 }
 
