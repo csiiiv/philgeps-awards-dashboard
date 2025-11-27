@@ -1,5 +1,2 @@
-# Track Parquet datasets via Git LFS
-# Frontend/Repo data parquet files
-data/parquet/*.parquet filter=lfs diff=lfs merge=lfs -text
-# Backend static datasets bundled with the Django API
-backend/django/static_data/*.parquet filter=lfs diff=lfs merge=lfs -text
+# Git LFS removed - all files are small enough for regular Git tracking
+# If large files (>100MB) are added in the future, configure LFS specifically for them
