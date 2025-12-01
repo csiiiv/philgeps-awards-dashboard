@@ -2,13 +2,17 @@
 
 ## 📁 Available Docker Compose Files
 
+> **Note (2025-12-01)**  
+> The primary active compose file for the current deployment is `docker-compose.cloudflared.ram.yml`.  
+> Other compose variants referenced below may now live under `archive/` for historical reference, and might not be present at the root of the repository in your clone.
+
 | File | Purpose | Use When |
 |------|---------|----------|
-| `docker-compose.yml` | **Full stack (basic)** | Local dev - both services |
-| `docker-compose.ram.yml` | **Full stack (optimized)** | Local dev - with RAM disk |
-| `docker-compose.backend.yml` | **Backend only** | ⭐ Backend cloud deployment |
-| `docker-compose.frontend.yml` | **Frontend only** | ⭐ Frontend cloud deployment |
-| `docker-compose.dev.yml` | **Development** | Local testing |
+| `docker-compose.yml` | **Full stack (basic)** | Local dev - both services (may be archived) |
+| `docker-compose.ram.yml` | **Full stack (optimized)** | Local dev - with RAM disk (may be archived) |
+| `docker-compose.backend.yml` | **Backend only** | ⭐ Backend cloud deployment (may be archived) |
+| `docker-compose.frontend.yml` | **Frontend only** | ⭐ Frontend cloud deployment (may be archived) |
+| `docker-compose.dev.yml` | **Development** | Local testing (may be archived) |
 | `docker-compose.cloudflared.ram.yml` | **Cloudflare tunnel** | Behind Cloudflare |
 
 ---

@@ -137,7 +137,7 @@ const response = await advancedSearchService.chipAggregates({
 ```
 
 ### 6. Export Tester Utility
-**File**: `frontend/src/utils/UnifiedExportTester.tsx`
+**File**: `frontend/archive/UnifiedExportTester.tsx` (archived utility)
 
 ```diff
 filters: {
