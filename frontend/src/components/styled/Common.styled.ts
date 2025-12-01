@@ -14,8 +14,7 @@ export const PageContainer = styled.div<StyledProps>`
 `
 
 export const ContentContainer = styled.div<StyledProps>`
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   padding: ${spacing[6]};
   background-color: var(--color-background-primary);
 `

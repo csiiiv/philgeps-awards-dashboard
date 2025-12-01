@@ -1,6 +1,8 @@
 import React from 'react'
 import { getThemeVars } from '../../../design-system/theme'
 import { typography, spacing } from '../../../design-system'
+import { useColumnVisibility, DEFAULT_COLUMNS } from '../../../hooks/useColumnVisibility'
+import { ColumnVisibilityDropdown } from './components/ColumnVisibilityDropdown'
 
 export interface SearchResult {
   // Backwards-compatible: frontend historically used 'contract_number'
@@ -42,6 +44,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   isDark = false
 }) => {
   const vars = getThemeVars(isDark)
+  const { isColumnVisible } = useColumnVisibility(DEFAULT_COLUMNS)
 
   const formatCurrency = (amount: any): string => {
     if (amount === null || amount === undefined || amount === '' || isNaN(Number(amount))) {
@@ -212,125 +215,139 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     )
   }
 
+  // Column configuration with render functions
+  const columnConfigs = [
+    {
+      key: 'contract_no',
+      label: 'Contract No',
+      sortKey: 'contract_no',
+      renderHeader: () => `Contract No ${getSortIcon('contract_no')}`,
+      renderCell: (result: SearchResult) => (
+        <div style={{ fontWeight: typography.fontWeight.medium }}>
+          {result.contract_number || result.contract_no || result.reference_id || 'N/A'}
+        </div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'award_title',
+      label: 'Award Title',
+      sortKey: 'award_title',
+      renderHeader: () => `Award Title ${getSortIcon('award_title')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{result.award_title || 'N/A'}</div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'notice_title',
+      label: 'Notice Title',
+      sortKey: 'notice_title',
+      renderHeader: () => `Notice Title ${getSortIcon('notice_title')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{result.notice_title || 'N/A'}</div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'awardee_name',
+      label: 'Contractor',
+      sortKey: 'awardee_name',
+      renderHeader: () => `Contractor ${getSortIcon('awardee_name')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{result.awardee_name || 'N/A'}</div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'organization_name',
+      label: 'Organization',
+      sortKey: 'organization_name',
+      renderHeader: () => `Organization ${getSortIcon('organization_name')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{result.organization_name || 'N/A'}</div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'area_of_delivery',
+      label: 'Area',
+      sortKey: 'area_of_delivery',
+      renderHeader: () => `Area ${getSortIcon('area_of_delivery')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{result.area_of_delivery || 'N/A'}</div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'business_category',
+      label: 'Category',
+      sortKey: 'business_category',
+      renderHeader: () => `Category ${getSortIcon('business_category')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{result.business_category || 'N/A'}</div>
+      ),
+      cellStyle: tdStyle
+    },
+    {
+      key: 'contract_amount',
+      label: 'Amount',
+      sortKey: 'contract_amount',
+      renderHeader: () => `Amount ${getSortIcon('contract_amount')}`,
+      renderCell: (result: SearchResult) => (
+        <div style={{ 
+          fontWeight: typography.fontWeight.medium,
+          color: vars.success[600]
+        }}>
+          {formatCurrency(result.contract_amount)}
+        </div>
+      ),
+      cellStyle: tdAmountStyle
+    },
+    {
+      key: 'award_date',
+      label: 'Date',
+      sortKey: 'award_date',
+      renderHeader: () => `Date ${getSortIcon('award_date')}`,
+      renderCell: (result: SearchResult) => (
+        <div>{formatDate(result.award_date)}</div>
+      ),
+      cellStyle: tdStyle
+    }
+  ]
+
+  // Filter columns based on visibility
+  const visibleColumns = columnConfigs.filter(col => isColumnVisible(col.key))
+
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
         <div style={titleStyle}>Search Results</div>
-        <div style={countStyle}>{totalCount} contracts found</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
+          <div style={countStyle}>{totalCount} contracts found</div>
+          <ColumnVisibilityDropdown columns={DEFAULT_COLUMNS} isDark={isDark} />
+        </div>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
         <table style={tableStyle}>
           <thead>
             <tr>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('contract_no')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Contract No {getSortIcon('contract_no')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('award_title')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Award Title {getSortIcon('award_title')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('notice_title')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Notice Title {getSortIcon('notice_title')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('awardee_name')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Contractor {getSortIcon('awardee_name')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('organization_name')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Organization {getSortIcon('organization_name')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('area_of_delivery')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Area {getSortIcon('area_of_delivery')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('business_category')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Category {getSortIcon('business_category')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('contract_amount')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Amount {getSortIcon('contract_amount')}
-              </th>
-              <th 
-                style={thStyle}
-                onClick={() => onSort('award_date')}
-                onMouseEnter={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[100] })
-                }}
-                onMouseLeave={(e) => {
-                  Object.assign(e.currentTarget.style, { backgroundColor: vars.gray[50] })
-                }}
-              >
-                Date {getSortIcon('award_date')}
-              </th>
+              {visibleColumns.map((col) => (
+                <th
+                  key={col.key}
+                  style={thStyle}
+                  onClick={() => onSort(col.sortKey)}
+                  onMouseEnter={(e) => {
+                    Object.assign(e.currentTarget.style, { backgroundColor: vars.background.tertiary })
+                  }}
+                  onMouseLeave={(e) => {
+                    Object.assign(e.currentTarget.style, { backgroundColor: vars.background.secondary })
+                  }}
+                >
+                  {col.renderHeader()}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -344,54 +361,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                   Object.assign(e.currentTarget.style, { backgroundColor: 'transparent' })
                 }}
               >
-                <td style={tdStyle}>
-                  <div style={{ fontWeight: typography.fontWeight.medium }}>
-                    {result.contract_number || result.contract_no || result.reference_id || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {result.award_title || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {result.notice_title || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {result.awardee_name || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {result.organization_name || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {result.area_of_delivery || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {result.business_category || 'N/A'}
-                  </div>
-                </td>
-                <td style={tdAmountStyle}>
-                  <div style={{ 
-                    fontWeight: typography.fontWeight.medium,
-                    color: vars.success[600]
-                  }}>
-                    {formatCurrency(result.contract_amount)}
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <div>
-                    {formatDate(result.award_date)}
-                  </div>
-                </td>
+                {visibleColumns.map((col) => (
+                  <td key={col.key} style={col.cellStyle}>
+                    {col.renderCell(result)}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>

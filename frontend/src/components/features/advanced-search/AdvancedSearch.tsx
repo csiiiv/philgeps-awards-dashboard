@@ -489,8 +489,7 @@ const AdvancedSearch: React.FC = () => {
 
   return (
     <div style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
+      width: '100%',
       padding: spacing[4],
       backgroundColor: vars.background.primary,
       color: vars.text.primary,

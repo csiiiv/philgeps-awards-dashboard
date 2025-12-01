@@ -19,8 +19,7 @@ export const Header = styled.header<StyledProps>`
 `
 
 export const HeaderContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -78,8 +77,7 @@ export const Navigation = styled.nav<StyledProps>`
 `
 
 export const NavigationContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   gap: 0.5rem;
 `
@@ -131,8 +129,7 @@ export const TabButton = styled.button<StyledProps & { $isActive: boolean }>`
 `
 
 export const MainContent = styled.main`
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   padding: 1.5rem;
 `
 
