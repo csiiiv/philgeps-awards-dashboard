@@ -96,7 +96,7 @@ DATABASES = {
         'OPTIONS': {
             'timeout': 20,
         },
-        'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=600, cast=int),  # Persistent connections for 10 minutes
+        'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=1800, cast=int),  # Persistent connections for 60 minutes
     }
 }
 
@@ -117,7 +117,7 @@ CACHES = {
             'SOCKET_TIMEOUT': 5,
         },
         'KEY_PREFIX': 'philgeps',
-        'TIMEOUT': config('CACHE_TIMEOUT', default=300, cast=int),  # 5 minutes default
+        'TIMEOUT': config('CACHE_TIMEOUT', default=72000, cast=int),  # 20 hour default
     }
 }
 
